@@ -1,0 +1,39 @@
+# FlutterGuard
+
+> Manual Flutter APK and AAB security audits by Flutter engineer Mohamed Anas Fikhi (GWHYYY). Human review from the attacker's side: what is exposed, exploitable, and worth fixing — with evidence for every finding. No scanner-only noise.
+
+- Canonical: https://flutterguard.dev/
+- Contact: work@gwhyyy.com
+- Booking: https://calendly.com/ffikhi-aanas/30min
+- Reviewer: Mohamed Anas Fikhi — Flutter & Software Engineer, Casablanca / remote worldwide
+- Profiles: https://github.com/anasfik — https://gwhyyy.com — https://linkedin.com/in/mohamed-anas-fikhi
+- Source: https://github.com/anasfik/FlutterGuard
+
+## Scope
+
+- APK/AAB anatomy, manifest attack surface, secrets and exposed configuration
+- Flutter artifacts and libapp.so, network and backend boundary
+- WebViews and platform bridges, signing and release posture, third-party SDK surface
+- Context matters: a Firebase API key or missing certificate pinning is not automatically a vulnerability
+
+## Method
+
+1. Scope and authorize (APK/AAB you are authorized to share, test accounts where useful)
+2. Reconstruct the attacker view (inspect, extract, fingerprint the release)
+3. Verify, don't just flag (exploitability, prerequisites, impact)
+4. Report and fix (prioritized findings, evidence, attack path, concrete fix, optional retest)
+
+## Boundaries
+
+- Active security testing only within explicitly authorized scope
+- Third-party apps: lawful, non-invasive analysis of public artifacts only, unless written authorization exists
+- Secrets and credentials minimized or redacted in reports
+
+## FAQ (summary)
+
+- Paid service is manual assessment, not an automated scan
+- Minimum input: an APK or AAB you are authorized to have reviewed
+- No invented certifications; findings can map to recognized mobile-security categories
+- Retesting available after fixes
+
+Full detail: https://flutterguard.dev/llms-full.txt

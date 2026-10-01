@@ -15,5 +15,35 @@
 /*.svg
   Cache-Control: public, max-age=86400
 
+/*.png
+  Cache-Control: public, max-age=86400
+
 /og-image.png
   Cache-Control: public, max-age=86400
+
+/robots.txt
+  Cache-Control: public, max-age=3600
+
+/sitemap.xml
+  Cache-Control: public, max-age=3600
+
+/llms.txt
+  Cache-Control: public, max-age=3600
+
+/llms-full.txt
+  Cache-Control: public, max-age=3600
+
+/humans.txt
+  Cache-Control: public, max-age=3600
+
+/site.webmanifest
+  Cache-Control: public, max-age=3600
+
+/security.txt
+  Cache-Control: no-cache
+
+/.well-known/security.txt
+  Cache-Control: no-cache
+
+/404.html
+  Cache-Control: no-cache

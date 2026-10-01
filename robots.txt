@@ -2,3 +2,34 @@ User-agent: *
 Allow: /
 
 Sitemap: https://flutterguard.dev/sitemap.xml
+
+# LLM summary for AI assistants and answer engines:
+# https://flutterguard.dev/llms.txt
+
+# Answer/search bots — allowed so the service can be cited
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
+User-agent: Claude-Web
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+User-agent: Applebot-Extended
+Allow: /
+
+# Bulk-training crawlers — disallowed
+User-agent: GPTBot
+Disallow: /
+User-agent: CCBot
+Disallow: /
+User-agent: anthropic-ai
+Disallow: /
+User-agent: ClaudeBot
+Disallow: /
+User-agent: Bytespider
+Disallow: /
+User-agent: Meta-WebIndexer
+Disallow: /

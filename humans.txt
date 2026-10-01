@@ -1,0 +1,16 @@
+/* TEAM */
+  Founder & reviewer: Mohamed Anas Fikhi (GWHYYY)
+  Role: Flutter & Software Engineer
+  Location: Casablanca, Morocco / remote worldwide
+  Contact: work@gwhyyy.com
+  Site: https://gwhyyy.com
+
+/* THANKS */
+  Open-source community — Dart OpenAI, Dart Nostr contributors
+  Flutter & Dart teams for the framework
+
+/* SITE */
+  Standards: hand-written HTML, CSS, JavaScript
+  Serving: nginx + Docker
+  Source: https://github.com/anasfik/FlutterGuard
+  Last update: 2026-10-01

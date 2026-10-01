@@ -11,6 +11,8 @@
     <meta name="robots" content="index, follow, max-image-preview:large">
     <link rel="canonical" href="https://flutterguard.dev/">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
     <link rel="stylesheet" href="/styles.css">
     <script src="/site.js" defer></script>
 
@@ -24,6 +26,7 @@
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="FlutterGuard manual Flutter security audits">
+    <meta property="og:locale" content="en_US">
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Manual Flutter Application Security Audits">
@@ -56,6 +59,76 @@
           "addressCountry": "MA"
         },
         "sameAs": ["https://github.com/anasfik/FlutterGuard"]
+      }
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is this an automated scan?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Automation may assist evidence collection, but the paid service is a manual security assessment performed by Mohamed. Findings are contextualized and verified rather than forwarded directly from a scanner."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What do you need from me?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "At minimum, an APK or AAB you are authorized to have reviewed. Test credentials, source access, API documentation, and a staging environment can support a deeper assessment."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can you review a competitor's Flutter app?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Publicly distributed artifacts and public information may be analyzed non-invasively. No intrusive testing against third-party infrastructure is performed without authorization."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is this an OWASP-certified penetration test?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No invented badges or certifications. Where useful, findings can be mapped to recognized mobile-security categories and standards while the assessment remains focused on the real Flutter release."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can you retest after fixes?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. A retest can verify that fixes address the reported attack path without introducing new exposure."
+            }
+          }
+        ]
+      }
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "FlutterGuard | Manual Flutter Application Security Audits",
+        "url": "https://flutterguard.dev/",
+        "description": "Manual Flutter APK and AAB security audits by Flutter engineer Mohamed Anas Fikhi. Verified findings, attacker context, evidence, and practical remediation.",
+        "isPartOf": {
+          "@type": "WebSite",
+          "name": "FlutterGuard",
+          "url": "https://flutterguard.dev/"
+        },
+        "about": {
+          "@type": "ProfessionalService",
+          "name": "FlutterGuard",
+          "url": "https://flutterguard.dev/"
+        },
+        "inLanguage": "en"
       }
     </script>
   </head>

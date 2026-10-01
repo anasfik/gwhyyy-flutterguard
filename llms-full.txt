@@ -1,0 +1,61 @@
+# FlutterGuard — full reference
+
+> Manual Flutter application security audits for APK and AAB releases.
+> Canonical: https://flutterguard.dev/
+> Contact: work@gwhyyy.com — Booking: https://calendly.com/ffikhi-aanas/30min
+
+## Who
+
+FlutterGuard is run by Mohamed Anas Fikhi (GWHYYY), Flutter & Software Engineer, Casablanca / remote worldwide.
+GitHub: https://github.com/anasfik — Portfolio: https://gwhyyy.com — LinkedIn: https://linkedin.com/in/mohamed-anas-fikhi
+Selected experience: Gathr (production Flutter app), Rollee Connect (sole Flutter SDK engineer), Dart OpenAI (600+ GitHub stars), Reqistry (5K+ Play Store downloads), Dart Nostr (open-source Dart protocol library).
+
+## Positioning
+
+Automated tools flag patterns; this service decides whether they matter. Automation may assist evidence collection, but the paid review adds context, attacker reasoning, false-positive removal, exploitability assessment, and architecture-aware remediation. Output is a decision, not signal.
+
+## Attack surface inspected
+
+1. APK / AAB anatomy: package metadata, versions, SDK levels, ABIs, native libraries, assets, Flutter evidence, release/build signals.
+2. Manifest attack surface: permissions, exported activities, services, receivers, providers, cleartext settings, debug flags, backup, deep links.
+3. Secrets and exposed configuration: hardcoded credentials, API keys, environment remnants, URLs, Firebase, Supabase, service configuration, staging infrastructure. A Firebase API key is not automatically a secret or a vulnerability.
+4. Flutter artifacts / libapp.so: readable strings, backend hosts, implementation clues, feature flags, channel names, environment indicators, release information surviving AOT compilation.
+5. Network and backend boundary: hosts, transport configuration, network security config, certificate trust, pinning context, API assumptions, client/server trust boundaries. Lack of certificate pinning is not automatically a vulnerability.
+6. WebViews and platform bridges: WebViews, JavaScript, URL handling, native Java/Kotlin wrappers, MethodChannel, EventChannel, JavaScript bridges, trust boundaries.
+7. Signing and release posture: APK signatures, certificate identity, debug certificate indicators, release configuration, distribution/build hygiene.
+8. Third-party SDK/service surface: Firebase, Google Maps, AWS, Sentry, Stripe, RevenueCat, OneSignal, Supabase, analytics SDKs. Presence is not vulnerability.
+
+## Method
+
+1. Scope and authorize: provide APK/AAB and context. Define authorized targets, permitted test types, exclusions, source/API access, test accounts where appropriate.
+2. Reconstruct the attacker view: inspect, extract, decompile, fingerprint the release. Map Flutter, Android wrapper, configuration, services, native boundaries, backend endpoints.
+3. Verify, don't just flag: manually inspect suspicious signals. Determine prerequisites, reachability, exploitability, impact, context, and whether a signal is only hardening advice.
+4. Report and fix: prioritized findings, evidence, attack path, reproduction information, impact, concrete fix, optional retesting.
+
+## Deliverable
+
+A report engineers can use: no compliance filler. Each issue explains where it came from, why it matters, and what to change. Findings carry severity, evidence, attack path, impact, and remediation. Example severities: high (e.g. staging infrastructure disclosed in release binary), medium (e.g. custom URL scheme accepts untrusted parameters), informational (release hardening opportunity).
+
+## Boundaries
+
+- Active security testing only within explicitly authorized scope (your app or a client app).
+- Third-party applications: lawful, non-invasive analysis of publicly available artifacts and public information only, unless written authorization for active testing exists.
+- Secrets and credentials are minimized or redacted in reports and handled only as required for the engagement.
+- Only send artifacts you are authorized to share.
+
+## FAQ
+
+Q: Is this an automated scan?
+A: No. Automation may assist evidence collection, but the paid service is a manual security assessment performed by Mohamed. Findings are contextualized and verified rather than forwarded directly from a scanner.
+
+Q: What do you need from me?
+A: At minimum, an APK or AAB you are authorized to have reviewed. Test credentials, source access, API documentation, and a staging environment can support a deeper assessment.
+
+Q: Can you review a competitor's Flutter app?
+A: Publicly distributed artifacts and public information may be analyzed non-invasively. No intrusive testing against third-party infrastructure is performed without authorization.
+
+Q: Is this an OWASP-certified penetration test?
+A: No invented badges or certifications. Where useful, findings can be mapped to recognized mobile-security categories and standards while the assessment remains focused on the real Flutter release.
+
+Q: Can you retest after fixes?
+A: Yes. A retest can verify that fixes address the reported attack path without introducing new exposure.

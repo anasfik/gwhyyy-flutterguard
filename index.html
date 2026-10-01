@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FlutterGuard | Manual Flutter Application Security Audits</title>
+    <meta name="description" content="Manual Flutter APK and AAB security audits by Flutter engineer Mohamed Anas Fikhi. Verified findings, attacker context, evidence, and practical remediation.">
+    <meta name="keywords" content="Flutter security audit, Flutter security expert, Flutter APK security, Flutter AAB security, Flutter reverse engineering, Flutter application security, Flutter AppSec, Dart security">
+    <meta name="author" content="Mohamed Anas Fikhi">
+    <meta name="theme-color" content="#0a0c0b">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <link rel="canonical" href="https://flutterguard.dev/">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/site.js" defer></script>
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="FlutterGuard">
+    <meta property="og:title" content="Manual Flutter Application Security Audits">
+    <meta property="og:description" content="Your Flutter release is already in the attacker's hands. Get a human review of what is exposed, exploitable, and worth fixing.">
+    <meta property="og:url" content="https://flutterguard.dev/">
+    <meta property="og:image" content="https://flutterguard.dev/og-image.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="FlutterGuard manual Flutter security audits">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Manual Flutter Application Security Audits">
+    <meta name="twitter:description" content="Human review of Flutter APK and AAB releases from the attacker's side.">
+    <meta name="twitter:image" content="https://flutterguard.dev/og-image.png">
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "ProfessionalService",
+        "name": "FlutterGuard",
+        "url": "https://flutterguard.dev/",
+        "description": "Manual Flutter application security audits for APK and AAB releases.",
+        "email": "work@gwhyyy.com",
+        "areaServed": "Worldwide",
+        "founder": {
+          "@type": "Person",
+          "name": "Mohamed Anas Fikhi",
+          "alternateName": "GWHYYY",
+          "url": "https://gwhyyy.com",
+          "jobTitle": "Flutter and Software Engineer",
+          "sameAs": [
+            "https://github.com/anasfik",
+            "https://linkedin.com/in/mohamed-anas-fikhi"
+          ]
+        },
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Casablanca",
+          "addressCountry": "MA"
+        },
+        "sameAs": ["https://github.com/anasfik/FlutterGuard"]
+      }
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+
+    <header class="site-header">
+      <nav class="nav container" aria-label="Primary navigation">
+        <div class="brand-lockup">
+          <a class="brand" href="#top" aria-label="FlutterGuard home">FlutterGuard<span aria-hidden="true">.</span></a>
+          <a class="byline" href="https://gwhyyy.com" target="_blank" rel="noopener noreferrer">by GWHYYY</a>
+        </div>
+
+        <div class="desktop-nav">
+          <a href="#method">Method</a>
+          <a href="#scope">Scope</a>
+          <a href="#why-me">Why me</a>
+          <a href="#faq">FAQ</a>
+        </div>
+
+        <a class="button button-small nav-cta" href="https://calendly.com/ffikhi-aanas/30min" target="_blank" rel="noopener noreferrer">Book a call</a>
+
+        <details class="mobile-nav">
+          <summary>Menu</summary>
+          <div class="mobile-nav-panel">
+            <a href="#method">Method</a>
+            <a href="#scope">Scope</a>
+            <a href="#why-me">Why me</a>
+            <a href="#faq">FAQ</a>
+            <a href="https://calendly.com/ffikhi-aanas/30min" target="_blank" rel="noopener noreferrer">Book a call</a>
+          </div>
+        </details>
+      </nav>
+    </header>
+
+    <main id="main-content">
+      <section class="hero" id="top">
+        <div class="hero-grid container">
+          <div class="hero-copy">
+            <div class="status-line">
+              <span class="status-dot" aria-hidden="true"></span>
+              <span>Manual Flutter security reviews</span>
+              <span class="status-location">Remote worldwide</span>
+            </div>
+
+            <h1>Your <span class="flutter-name"><img src="/flutter.svg" alt="" aria-hidden="true">Flutter</span> release is already in the attacker's hands.</h1>
+            <p class="hero-lede">I manually reverse-engineer and audit Flutter APK/AAB releases the way an attacker would &mdash; then tell you what is actually exposed, exploitable, and worth fixing.</p>
+
+            <div class="hero-actions">
+              <a class="button button-primary" href="#contact">Request a manual audit</a>
+              <a class="text-link" href="#deliverable">See what you receive <span aria-hidden="true">&darr;</span></a>
+            </div>
+
+            <ul class="trust-list" aria-label="Audit commitments">
+              <li>No scanner-only noise.</li>
+              <li>Evidence for every finding.</li>
+              <li>One human reviewer: me.</li>
+            </ul>
+          </div>
+
+          <figure class="analysis-console" aria-labelledby="console-caption">
+            <div class="console-topbar">
+              <div>
+                <span class="console-path">flutterguard / attacker-view</span>
+                <span class="console-subtitle">Release inspection</span>
+              </div>
+              <span class="human-badge"><span class="human-dot" aria-hidden="true"></span> Human review</span>
+            </div>
+
+            <div class="console-command"><span aria-hidden="true">$</span> inspect release.apk --manual<span class="cursor" aria-hidden="true"></span></div>
+
+            <ol class="console-steps">
+              <li><span class="step-index">01</span><span>fingerprint Flutter release</span><span class="step-state done">done</span></li>
+              <li><span class="step-index">02</span><span>map manifest + exported surface</span><span class="step-state done">done</span></li>
+              <li><span class="step-index">03</span><span>inspect assets + libapp.so</span><span class="step-state done">done</span></li>
+              <li><span class="step-index">04</span><span>trace endpoints + service config</span><span class="step-state review">review</span></li>
+              <li><span class="step-index">05</span><span>inspect WebViews + native bridges</span><span class="step-state done">done</span></li>
+              <li><span class="step-index">06</span><span>verify findings like an attacker</span><span class="step-state running">running</span></li>
+            </ol>
+
+            <div class="console-finding">
+              <div class="finding-meta">
+                <span class="severity severity-high">High</span>
+                <span>FG-SAMPLE-01</span>
+              </div>
+              <h2>Staging API host survives in release artifact</h2>
+              <dl>
+                <div><dt>Evidence</dt><dd>arm64-v8a/libapp.so</dd></div>
+                <div><dt>Assessment</dt><dd>Exploitability manually verified</dd></div>
+              </dl>
+            </div>
+
+            <figcaption id="console-caption">Illustrative interface. Not a claim about a customer application.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="credibility" aria-label="Selected engineering credibility">
+        <div class="credibility-grid container">
+          <div><strong>600+</strong><span>GitHub stars on Dart OpenAI</span></div>
+          <div><strong>5K+</strong><span>Reqistry Play Store downloads</span></div>
+          <div><strong class="flutter-label"><img src="/flutter.svg" alt="" aria-hidden="true">Flutter</strong><span>Production application + SDK experience</span></div>
+          <div><strong>Open source</strong><span>Creator of FlutterGuard</span></div>
+        </div>
+      </section>
+
+      <section class="section difference" id="difference">
+        <div class="container">
+          <header class="section-heading narrow-heading">
+            <span class="section-label">The difference</span>
+            <h2>Automated tools flag patterns. I decide whether they matter.</h2>
+            <p>FlutterGuard can automate evidence collection. Paid review adds context, attacker reasoning, false-positive removal, exploitability assessment, and architecture-aware remediation.</p>
+          </header>
+
+          <div class="comparison" role="group" aria-label="Automated scan compared with manual Flutter audit">
+            <article class="comparison-panel scanner-panel">
+              <div class="comparison-kicker"><span>01</span> Automated scan</div>
+              <h3>&ldquo;Something looks risky.&rdquo;</h3>
+              <ul>
+                <li>Pattern matching</li>
+                <li>Static indicators</li>
+                <li>Generic severity</li>
+                <li>Potential false positives</li>
+              </ul>
+              <p class="comparison-output">Output: signal</p>
+            </article>
+
+            <article class="comparison-panel manual-panel">
+              <div class="comparison-kicker"><span>02</span> Manual Flutter audit</div>
+              <h3>&ldquo;Here is what an attacker can actually do.&rdquo;</h3>
+              <ul>
+                <li>Finding reproduced and contextualized</li>
+                <li>Evidence tied to your release</li>
+                <li>Realistic impact and priority</li>
+                <li>Specific remediation</li>
+                <li>Optional retest</li>
+              </ul>
+              <p class="comparison-output">Output: decision</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section scope" id="scope">
+        <div class="container">
+          <header class="section-heading">
+            <span class="section-label">Attack surface</span>
+            <h2>What I inspect</h2>
+            <p>Focused on what survives compilation, what crosses the Flutter/native boundary, and what becomes useful once someone has your release file.</p>
+          </header>
+
+          <div class="surface-grid">
+            <article class="surface-item">
+              <span class="surface-number">01</span>
+              <h3>APK / AAB anatomy</h3>
+              <p>Package metadata, versions, SDK levels, ABIs, native libraries, assets, Flutter evidence, and release/build signals.</p>
+            </article>
+            <article class="surface-item">
+              <span class="surface-number">02</span>
+              <h3>Manifest attack surface</h3>
+              <p>Permissions, exported activities, services, receivers, providers, cleartext settings, debug flags, backup, and deep links.</p>
+            </article>
+            <article class="surface-item surface-item-wide">
+              <span class="surface-number">03</span>
+              <h3>Secrets &amp; exposed configuration</h3>
+              <p>Hardcoded credentials, API keys, environment remnants, URLs, Firebase, Supabase, service configuration, and staging infrastructure.</p>
+              <p class="surface-note">Context matters. A Firebase API key is not automatically a secret or a vulnerability.</p>
+            </article>
+            <article class="surface-item">
+              <span class="surface-number">04</span>
+              <h3 class="flutter-module"><img src="/flutter.svg" alt="" aria-hidden="true"><span>Flutter artifacts / libapp.so</span></h3>
+              <p>Readable strings, backend hosts, implementation clues, feature flags, channel names, environment indicators, and release information surviving AOT compilation.</p>
+            </article>
+            <article class="surface-item surface-item-wide">
+              <span class="surface-number">05</span>
+              <h3>Network &amp; backend boundary</h3>
+              <p>Hosts, transport configuration, network security config, certificate trust, pinning context, API assumptions, and client/server trust boundaries.</p>
+              <p class="surface-note">Lack of certificate pinning is not automatically a vulnerability. Architecture and threat model decide.</p>
+            </article>
+            <article class="surface-item">
+              <span class="surface-number">06</span>
+              <h3>WebViews &amp; platform bridges</h3>
+              <p>WebViews, JavaScript, URL handling, native Java/Kotlin wrappers, MethodChannel, EventChannel, JavaScript bridges, and trust boundaries.</p>
+            </article>
+            <article class="surface-item">
+              <span class="surface-number">07</span>
+              <h3>Signing &amp; release posture</h3>
+              <p>APK signatures, certificate identity, debug certificate indicators, release configuration, and distribution/build hygiene.</p>
+            </article>
+            <article class="surface-item surface-item-services">
+              <span class="surface-number">08</span>
+              <h3>Third-party SDK/service surface</h3>
+              <p>Firebase, Google Maps, AWS, Sentry, Stripe, RevenueCat, OneSignal, Supabase, and analytics SDKs.</p>
+              <p class="surface-note">Presence is not vulnerability. Human review determines exposure and impact.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section method" id="method">
+        <div class="container method-layout">
+          <header class="section-heading method-heading">
+            <span class="section-label">Method</span>
+            <h2>I review the app from the outside in.</h2>
+            <p>Same starting point an attacker has: your release artifact. Each phase narrows raw signals into findings worth engineering time.</p>
+          </header>
+
+          <ol class="method-list">
+            <li>
+              <span class="method-number">01</span>
+              <div>
+                <h3>Scope &amp; authorize</h3>
+                <p>Provide APK/AAB and context. Define authorized targets, permitted test types, exclusions, source/API access, and test accounts where appropriate.</p>
+              </div>
+            </li>
+            <li>
+              <span class="method-number">02</span>
+              <div>
+                <h3>Reconstruct the attacker view</h3>
+                <p>Inspect, extract, decompile, and fingerprint the release. Map Flutter, Android wrapper, configuration, services, native boundaries, and backend endpoints.</p>
+              </div>
+            </li>
+            <li>
+              <span class="method-number">03</span>
+              <div>
+                <h3>Verify, don't just flag</h3>
+                <p>Manually inspect suspicious signals. Determine prerequisites, reachability, exploitability, impact, context, and whether a signal is only hardening advice.</p>
+              </div>
+            </li>
+            <li>
+              <span class="method-number">04</span>
+              <div>
+                <h3>Report &amp; fix</h3>
+                <p>Receive prioritized findings, evidence, attack path, reproduction information, impact, a concrete fix, and optional retesting.</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="section deliverable" id="deliverable">
+        <div class="container">
+          <header class="section-heading narrow-heading">
+            <span class="section-label">Deliverable</span>
+            <h2>A report engineers can actually use.</h2>
+            <p>No 80-page compliance filler. Each issue explains where it came from, why it matters, and what to change.</p>
+          </header>
+
+          <figure class="report-preview" aria-labelledby="report-caption">
+            <aside class="report-sidebar" aria-label="Example report sections">
+              <div class="report-brand"><span class="report-mark">FG</span><span>Assessment</span></div>
+              <nav aria-label="Report preview navigation">
+                <span class="report-nav-active">Executive summary</span>
+                <span>Attack surface</span>
+                <span>Critical / High <b>01</b></span>
+                <span>Medium / Low <b>01</b></span>
+                <span>Hardening <b>01</b></span>
+                <span>Retest status</span>
+              </nav>
+              <div class="report-sidebar-foot">Illustrative sample</div>
+            </aside>
+
+            <div class="report-main">
+              <header class="report-header">
+                <div>
+                  <span>FG-2026-014</span>
+                  <h3>Release Security Assessment</h3>
+                </div>
+                <div class="risk-status"><span>Status</span><strong>Risky</strong></div>
+              </header>
+
+              <div class="report-summary">
+                <span>3 example observations</span>
+                <span>1 high</span>
+                <span>1 medium</span>
+                <span>1 informational</span>
+              </div>
+
+              <article class="report-finding report-finding-featured">
+                <div class="report-finding-head">
+                  <span class="severity severity-high">High</span>
+                  <span>Example #1</span>
+                </div>
+                <h4>Staging infrastructure disclosed in release binary</h4>
+                <p>Host discovered in <code>libapp.so</code>. Endpoint responds publicly and exposes a non-production API surface.</p>
+                <div class="report-tags"><span>Evidence</span><span>Attack path</span><span>Impact</span><span>Remediation</span></div>
+              </article>
+
+              <div class="report-finding-grid">
+                <article class="report-finding">
+                  <div class="report-finding-head">
+                    <span class="severity severity-medium">Medium</span>
+                    <span>Example #2</span>
+                  </div>
+                  <h4>Custom URL scheme accepts untrusted parameters</h4>
+                  <p>Deep-link routing crosses a trust boundary without sufficient validation.</p>
+                  <div class="report-tags"><span>Evidence</span><span>Prerequisites</span><span>Reproduction</span><span>Fix</span></div>
+                </article>
+
+                <article class="report-finding">
+                  <div class="report-finding-head">
+                    <span class="severity severity-info">Info</span>
+                    <span>Example #3</span>
+                  </div>
+                  <h4>Release hardening opportunity</h4>
+                  <p>Non-exploitable signal retained as hardening guidance rather than inflated into a vulnerability.</p>
+                </article>
+              </div>
+            </div>
+
+            <figcaption id="report-caption">Example report interface. Findings are illustrative and do not describe a customer.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="section reviewer" id="why-me">
+        <div class="container reviewer-grid">
+          <div class="reviewer-intro">
+            <span class="section-label">Your reviewer</span>
+            <h2>Mohamed Anas Fikhi</h2>
+            <div class="reviewer-meta">
+              <span>GWHYYY</span>
+              <span>Flutter &amp; Software Engineer</span>
+              <span>Casablanca / Remote worldwide</span>
+            </div>
+            <blockquote>I am not approaching your Flutter app as a generalist pentester seeing Dart for the first time. I build in this ecosystem.</blockquote>
+            <p>I have shipped a production Flutter application, owned a third-party Flutter SDK, maintain Dart/Flutter open-source libraries, and built FlutterGuard around security signals exposed by Flutter Android release artifacts.</p>
+            <nav class="proof-links" aria-label="Mohamed Anas Fikhi profiles">
+              <a href="https://github.com/anasfik" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">&nearr;</span></a>
+              <a href="https://gwhyyy.com" target="_blank" rel="noopener noreferrer">Portfolio <span aria-hidden="true">&nearr;</span></a>
+              <a href="https://linkedin.com/in/mohamed-anas-fikhi" target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">&nearr;</span></a>
+              <a href="https://github.com/anasfik/FlutterGuard" target="_blank" rel="noopener noreferrer">FlutterGuard <span aria-hidden="true">&nearr;</span></a>
+            </nav>
+          </div>
+
+          <ul class="experience-ledger" aria-label="Selected Flutter and Dart experience">
+            <li><span>Gathr</span><strong>Production Flutter application</strong></li>
+            <li><span>Rollee Connect</span><strong>Sole Flutter SDK engineer</strong></li>
+            <li><span>Dart OpenAI</span><strong>600+ GitHub stars</strong></li>
+            <li><span>Reqistry</span><strong>5K+ Play Store downloads</strong></li>
+            <li><span>Dart Nostr</span><strong>Open-source Dart protocol library</strong></li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="section boundaries" id="boundaries">
+        <div class="container boundaries-layout">
+          <header class="section-heading">
+            <span class="section-label">Boundaries</span>
+            <h2>Offensive mindset. Professional rules.</h2>
+          </header>
+
+          <div class="boundary-list">
+            <article>
+              <span>01 / Your app or client app</span>
+              <p>Active security testing is performed only within an explicitly authorized scope.</p>
+            </article>
+            <article>
+              <span>02 / Competitor research</span>
+              <p>Analysis of third-party applications is limited to lawful, non-invasive analysis of publicly available artifacts and public information unless written authorization for active testing exists.</p>
+            </article>
+            <article>
+              <span>03 / Sensitive evidence</span>
+              <p>Secrets and credentials are minimized or redacted in reports and handled only as required for the engagement.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section faq" id="faq">
+        <div class="container faq-layout">
+          <header class="section-heading faq-heading">
+            <span class="section-label">FAQ</span>
+            <h2>Before you send a release.</h2>
+            <p>Need a different scope? <a href="mailto:work@gwhyyy.com">Ask directly.</a></p>
+          </header>
+
+          <div class="faq-list">
+            <details open>
+              <summary>Is this an automated scan?</summary>
+              <p>No. Automation may assist evidence collection, but the paid service is a manual security assessment performed by Mohamed. Findings are contextualized and verified rather than forwarded directly from a scanner.</p>
+            </details>
+            <details>
+              <summary>What do you need from me?</summary>
+              <p>At minimum, an APK or AAB you are authorized to have reviewed. Test credentials, source access, API documentation, and a staging environment can support a deeper assessment.</p>
+            </details>
+            <details>
+              <summary>Can you review a competitor's Flutter app?</summary>
+              <p>Publicly distributed artifacts and public information may be analyzed non-invasively. No intrusive testing against third-party infrastructure is performed without authorization.</p>
+            </details>
+            <details>
+              <summary>Is this an OWASP-certified penetration test?</summary>
+              <p>No invented badges or certifications. Where useful, findings can be mapped to recognized mobile-security categories and standards while the assessment remains focused on the real Flutter release.</p>
+            </details>
+            <details>
+              <summary>Can you retest after fixes?</summary>
+              <p>Yes. A retest can verify that fixes address the reported attack path without introducing new exposure.</p>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <section class="section contact-section" id="contact">
+        <div class="container">
+          <div class="contact-panel">
+            <div class="contact-copy">
+              <span class="section-label">Request an audit</span>
+              <h2>Send me the app. I'll tell you what an attacker sees.</h2>
+              <p>Start with the release type, what you want reviewed, and whether you need artifact-only analysis or a broader app/API assessment.</p>
+            </div>
+            <div class="contact-actions">
+              <a class="button button-contact" href="mailto:work@gwhyyy.com?subject=FlutterGuard%20Manual%20Security%20Audit&amp;body=App%20name%3A%0ARelease%20type%20%28APK%2FAAB%29%3A%0AScope%3A%0AWhat%20are%20you%20most%20concerned%20about%3F%0ATimeline%3A">Email work@gwhyyy.com</a>
+              <a class="button button-contact-secondary" href="https://calendly.com/ffikhi-aanas/30min" target="_blank" rel="noopener noreferrer">Schedule 30 minutes</a>
+              <small>Only send artifacts you are authorized to share.</small>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-grid">
+        <div class="footer-brand">
+          <a class="brand" href="#top">FlutterGuard<span aria-hidden="true">.</span></a>
+          <p>Manual Flutter Security Audits</p>
+          <p>Built by <a href="https://gwhyyy.com" target="_blank" rel="noopener noreferrer">GWHYYY</a></p>
+        </div>
+        <div class="footer-location">
+          <span>Casablanca, Morocco</span>
+          <span>Remote worldwide</span>
+        </div>
+        <nav class="footer-links" aria-label="Footer navigation">
+          <a href="https://github.com/anasfik" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://gwhyyy.com" target="_blank" rel="noopener noreferrer">Portfolio</a>
+          <a href="https://linkedin.com/in/mohamed-anas-fikhi" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <a href="mailto:work@gwhyyy.com">Email</a>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>

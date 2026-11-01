@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="FlutterGuard">
-  <rect width="64" height="64" rx="10" fill="#0e1110"/>
-  <path d="M17 15h30v8H25v7h18v8H25v11h-8V15Z" fill="#f0f2ed"/>
-  <path d="M36 38h11v11H36z" fill="#9ee6ad"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="FlutterGuard">
+  <rect width="512" height="512" fill="#0e1110"/>
+  <path d="M136 120h240v64H200v56h144v64H200v88h-64V120Z" fill="#f0f2ed"/>
+  <rect x="288" y="304" width="88" height="88" fill="#9ee6ad"/>
 </svg>

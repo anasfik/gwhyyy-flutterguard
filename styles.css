@@ -16,7 +16,7 @@
   --high: #f1a68f;
   --medium: #e4cb83;
   --info: #92b7c6;
-  --sans: "Arial Nova", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --sans: system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   --container: 86rem;
   --radius: 0.3rem;
@@ -359,9 +359,9 @@ h1,
 }
 
 h1 {
-  max-width: 13ch;
-  font-size: clamp(3rem, 5.4vw, 5.65rem);
-  line-height: 0.98;
+  max-width: 12ch;
+  font-size: clamp(2.75rem, 5vw, 4.4rem);
+  line-height: 1.0;
 }
 
 .flutter-name,
@@ -1354,6 +1354,35 @@ h1 {
 
 .contact-copy h2 {
   max-width: 13ch;
+}
+
+.contact-promise {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1.25rem !important;
+  color: var(--accent) !important;
+  font-size: 0.85rem !important;
+}
+
+.contact-include {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  list-style: none;
+}
+
+.contact-include li {
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--text-soft);
+  font-size: 0.85rem;
+}
+
+.contact-include li::before {
+  margin-right: 0.6rem;
+  color: var(--accent);
+  content: "\2713";
 }
 
 .contact-actions {

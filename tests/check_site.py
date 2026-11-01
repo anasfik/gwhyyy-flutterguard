@@ -30,10 +30,46 @@ WORD_LIMIT = 300
 OVERFLOW_WIDTHS = (320, 390, 768, 1280, 1440)
 DOWNLOAD = "https://github.com/anasfik/FlutterGuard/releases/latest"
 SOURCE = "https://github.com/anasfik/FlutterGuard"
-PLAY = "https://play.google.com/store/apps/details?id=com.flutterguard.app"
 EMAIL = "mailto:work@gwhyyy.com"
 PRIVACY = "https://gwhyyy.com/privacy/flutterguard"
 LICENSE = "https://github.com/anasfik/FlutterGuard/blob/main/LICENSE"
+NEW_TAB_NOTE = "(opens in a new tab)"
+
+STEPS = [
+    ("Discover", "FlutterGuard lists the Flutter apps installed on this device, or you pick a single APK."),
+    ("Inspect", "Read the SDK versions, endpoints and exposed strings inside the release."),
+    ("Report", "Save the evidence on the phone and come back to it whenever you need it."),
+]
+WHY_COPY = (
+    "Generic scanners stop at permissions and package names. A Flutter app keeps its real "
+    "surface inside libapp.so and the asset bundle. FlutterGuard reads that layer: SDK "
+    "versions, embedded endpoints, exposed strings, AI providers, signing and network "
+    "policy. It runs on the phone with no INTERNET permission, and the source is MIT."
+)
+FAQ_ITEMS = [
+    ("Is FlutterGuard free?",
+     "Yes. It is open source under the MIT licence, with no account, no ads and no paid tier."),
+    ("Does it need an internet connection?",
+     "No. The app has no INTERNET permission, so scans run entirely on the device."),
+    ("Which apps can it check?",
+     "Flutter apps you own or are authorised to test, either installed on the device or supplied as a single APK."),
+    ("Does a finding prove the app is exploitable?",
+     "No. Findings are static evidence from the release, not a confirmed exploit."),
+    ("Where do updates come from?",
+     "GitHub releases. There is no Play listing to install from yet."),
+]
+FLUTTER_MARK_PATH = (
+    "M14.314 0 2.3 12 6 15.7 21.684.013h-7.357zm.014 11.072-6.471 6.458 "
+    "6.47 6.47H21.7l-6.46-6.468 6.46-6.46h-7.37z"
+)
+
+
+def norm(text: str) -> str:
+    return " ".join((text or "").split())
+
+
+def strip_note(text: str) -> str:
+    return (text or "").replace(NEW_TAB_NOTE, "").strip()
 
 results: list[tuple[str, bool, str]] = []
 
@@ -105,19 +141,34 @@ def main(argv: list[str]) -> int:
         # must still never appear anywhere.
         features_text = page.locator("#features").inner_text().lower()
         check("on-device privacy claim survives without an absolute guarantee",
-              "nothing is uploaded" in features_text
+              "save the evidence on the phone" in features_text
               and "cannot leave the device" not in hero_text + page.locator("body").inner_text().lower(), features_text[:200])
 
         page.evaluate("document.fonts.ready")
         check("Manrope self-hosted and loaded", page.evaluate("[...document.fonts].some(f => f.family.replace(/[\"\']/g, '') === 'Manrope' && f.status === 'loaded')"))
         check("font request served locally", any("/assets/fonts/manrope-latin.woff2" in u for u in requests))
 
-        # Navbar: real mark and wordmark left, short in-page links right.
+        # Navbar: brand lockup left, four in-page anchors centred, actions right.
         check("navbar brand links home", page.locator('header a[href="/"]').count() >= 1)
         check("navbar brand mark loads", page.eval_on_selector("header .brand-mark", "e => e.complete && e.naturalWidth > 0"))
-        check("navbar Features link", page.locator('header a[href="#features"]').count() == 1)
-        check("navbar Contact link", page.locator('header a[href="#contact"]').count() == 1)
+        nav_hrefs = page.eval_on_selector_all("header .site-nav > a", "els => els.map(e => e.getAttribute('href'))")
+        check("navbar carries the four section anchors in order",
+              nav_hrefs == ["#features", "#why", "#faq", "#contact"], str(nav_hrefs))
         check("no hamburger control", page.locator('header button, header [aria-expanded]').count() == 0)
+        sticky = page.evaluate("""() => {
+            const h = document.querySelector('header.site-header');
+            const s = getComputedStyle(h);
+            const sections = [...document.querySelectorAll('main[id], section[id]')].map(el => ({
+                id: el.id, margin: parseFloat(getComputedStyle(el).scrollMarginBlockStart) || 0}));
+            return {position: s.position, top: s.top, headerH: Math.round(h.getBoundingClientRect().height * 10) / 10,
+                    sections};
+        }""")
+        check("header is sticky at the top of the viewport",
+              sticky["position"] == "sticky" and sticky["top"] in ("0px", "0"), str(sticky))
+        check("sticky header stays within 72px", sticky["headerH"] <= 72, str(sticky["headerH"]))
+        check("every section id clears the sticky header when anchored",
+              len(sticky["sections"]) >= 5
+              and all(s["margin"] >= sticky["headerH"] - 1 for s in sticky["sections"]), str(sticky["sections"]))
 
         # Split hero with copy and one real, self-hosted demo clip inside a phone frame.
         check("split hero present", page.locator(".hero .hero-copy").count() == 1 and page.locator(".hero .hero-device").count() == 1)
@@ -212,8 +263,8 @@ def main(argv: list[str]) -> int:
               and ambient["pos"] == "absolute" and ambient["inside"] and ambient["beforeFrame"]
               and ambient["bg"] != "none" and ambient["clip"] in ("clip", "hidden"), str(ambient))
 
-        # Install cluster: working GitHub/APK actions, honest unavailable Play badge.
-        hrefs = page.eval_on_selector_all("a[href]", "els => els.map(e => ({href: e.getAttribute('href'), text: e.textContent.trim()}))")
+        # Install cluster: one working APK action, no Play badge or availability note.
+        hrefs = page.eval_on_selector_all("a[href]", "els => els.map(e => ({href: e.getAttribute('href'), text: e.textContent.trim(), cls: e.className, target: e.getAttribute('target'), rel: e.getAttribute('rel')}))")
         find = lambda h: [a for a in hrefs if a["href"] == h]
         check("GitHub source link in the navbar + labelled", page.evaluate("""() => [...document.querySelectorAll('header a[href="https://github.com/anasfik/FlutterGuard"]')]
             .some(a => (a.getAttribute('aria-label') || a.textContent || '').includes('GitHub') || [...a.querySelectorAll('img')].some(i => i.alt === 'GitHub'))"""))
@@ -228,23 +279,17 @@ def main(argv: list[str]) -> int:
               page.locator(".install-actions a").count() == 1
               and page.locator(".install-actions a").first.get_attribute("href") == DOWNLOAD)
         check("Download APK link exact + labelled", any("Download APK" in a["text"] for a in find(DOWNLOAD)))
-        check("Play badge is not a link to a dead listing", not any(a["href"] == PLAY for a in hrefs))
-        check("unavailable Play text is explicit", "Not yet available on Google Play" in page.locator(".store-note").inner_text() if page.locator(".store-note").count() else False)
-        badge = page.evaluate("""() => {
-            const img = document.querySelector('.play-badge img');
-            if (!img) return null;
-            const s = getComputedStyle(img);
-            const r = img.getBoundingClientRect();
-            return {src: img.getAttribute('src'), alt: img.alt, w: img.naturalWidth, h: img.naturalHeight,
-                    hCss: r.height, linked: !!img.closest('a'), tab: img.tabIndex,
-                    opacity: s.opacity, filter: s.filter, radius: s.borderRadius};
+        check("Play badge, slot and availability note are gone from the markup",
+              page.locator(".play-slot, .play-badge, .store-note, img[src*='google-play-badge']").count() == 0)
+        early_dom = page.evaluate("""() => {
+            const clone = document.body.cloneNode(true);
+            clone.querySelectorAll('script, style, template, noscript').forEach(n => n.remove());
+            return clone.textContent.replace(/\\s+/g, ' ').toLowerCase();
         }""")
-        check("official Play badge asset loads", bool(badge) and (badge["src"] or "").startswith("/assets/brand/") and badge["w"] > 0, str(badge))
-        check("official Play badge is unaltered and >=44px", bool(badge) and badge["opacity"] == "1"
-              and badge["filter"] == "none" and badge["radius"] in ("0px", "")
-              and badge["hCss"] >= 44 and abs(badge["w"] / badge["h"] - 238.96 / 70.87) < 0.02, str(badge))
-        check("official Play badge is non-interactive", bool(badge) and not badge["linked"] and badge["tab"] == -1, str(badge))
-        check("official Play badge alt tells the truth", bool(badge) and "Google Play" in badge["alt"] and "not yet available" in badge["alt"].lower(), str(badge))
+        check("no unavailable Play copy anywhere in the DOM, hidden nodes included",
+              "not yet available on google play" not in early_dom)
+        check("no link points at the dead Play listing",
+              not any("play.google.com" in (a["href"] or "") for a in hrefs))
         gh = page.evaluate("""() => {
             const a = document.querySelector('header .github-button');
             if (!a) return null;
@@ -258,47 +303,98 @@ def main(argv: list[str]) -> int:
               and gh["bg"] in ("rgb(24, 23, 23)", "rgb(0, 0, 0)") and gh["icon"] == "/assets/brand/github-lockup-white.svg"
               and gh["iconOk"], str(gh))
         check("touch targets >= 44px", page.evaluate("""() => {
-            const els = [...document.querySelectorAll('.install-actions a, .install-actions .play-badge, header a, footer a')];
+            const els = [...document.querySelectorAll('.install-actions a, header a, footer a')];
             return els.every(e => { const r = e.getBoundingClientRect(); return r.height >= 43.5 || r.width >= 43.5; });
         }"""))
 
-        # One aligned install row: primary button and the official badge are 48px
-        # high on the same optical line, note attached to the badge cluster.
+        # One clean primary row: no badge, no reserved slot, no stretched CTA.
         row = page.evaluate("""() => {
             const dEl = document.querySelector('.download-button');
-            const bEl = document.querySelector('.play-badge');
-            if (!dEl || !bEl) return null;
+            const aEl = document.querySelector('.install-actions');
+            const cEl = document.querySelector('.hero-copy');
+            if (!dEl || !aEl) return null;
             const d = dEl.getBoundingClientRect();
-            const b = bEl.getBoundingClientRect();
-            const el = document.querySelector('.store-note');
-            const s = el ? getComputedStyle(el) : null;
-            const range = document.createRange();
-            if (el) range.selectNodeContents(el);
-            const widths = el ? [...range.getClientRects()].filter(r => r.width > 0).map(r => r.width) : [];
-            const slot = document.querySelector('.install-actions .play-slot');
-            return {download: Math.round(d.height * 10) / 10, badge: Math.round(b.height * 10) / 10,
-                    topGap: Math.round(Math.abs(d.top - b.top) * 10) / 10,
-                    downloadW: Math.round(d.width), badgeW: Math.round(b.width),
-                    badgeInSlot: !!slot && !!slot.querySelector('.play-badge'),
-                    noteInSlot: !!slot && !!slot.querySelector('.store-note'),
-                    wrap: s ? (s.textWrap || s['text-wrap']) : null, lines: widths.length,
-                    last: widths.length ? Math.round(widths[widths.length - 1]) : 0,
-                    widest: widths.length ? Math.round(Math.max(...widths)) : 0};
+            const a = aEl.getBoundingClientRect();
+            return {downloadH: Math.round(d.height * 10) / 10, downloadW: Math.round(d.width * 10) / 10,
+                    actionsW: Math.round(a.width * 10) / 10, actionsH: Math.round(a.height * 10) / 10,
+                    containerW: cEl ? Math.round(cEl.getBoundingClientRect().width) : 0,
+                    childCount: aEl.querySelectorAll(':scope > *').length,
+                    gap: getComputedStyle(aEl).columnGap,
+                    leftGap: Math.round((d.left - a.left) * 10) / 10,
+                    align: getComputedStyle(aEl).alignItems};
         }""")
-        check("hero install row: primary and Play badge share one aligned 48px row",
-              bool(row) and abs(row["download"] - 48) <= 0.6 and abs(row["badge"] - 48) <= 0.6 and row["topGap"] <= 1, str(row))
-        check("Play note is attached to the badge cluster", bool(row) and row["badgeInSlot"] and row["noteInSlot"], str(row))
-        check("Play note wraps without a one-word orphan", bool(row) and row["wrap"] == "balance" and row["lines"] <= 2
-              and row["last"] >= 0.35 * row["widest"], str(row))
+        check("hero install row is one natural-width 48px action with no badge gap",
+              bool(row) and row["downloadH"] >= 43.5 and abs(row["downloadH"] - 48) <= 0.6
+              and row["childCount"] == 1 and row["gap"] in ("normal", "0px")
+              and row["downloadW"] < row["containerW"] * 0.9, str(row))
+        check("hero action row does not stretch the primary button",
+              bool(row) and row["align"] == "flex-start" and row["leftGap"] <= 1
+              and row["actionsH"] - row["downloadH"] <= 1, str(row))
+
+        # Every external destination opens a new tab; in-page and mail links do not.
+        external_links = [a for a in hrefs if (a["href"] or "").startswith(("http:", "https:"))]
+        internal_links = [a for a in hrefs if (a["href"] or "").startswith(("#", "mailto:"))]
+        check("every external link opens a new tab with noopener noreferrer",
+              len(external_links) >= 7 and all(
+                  a["target"] == "_blank"
+                  and "noopener" in (a["rel"] or "").split()
+                  and "noreferrer" in (a["rel"] or "").split()
+                  for a in external_links),
+              str([a for a in external_links if a["target"] != "_blank"
+                   or "noopener" not in (a["rel"] or "").split()
+                   or "noreferrer" not in (a["rel"] or "").split()]))
+        check("anchor and mail links keep the current tab",
+              bool(internal_links) and all(a["target"] is None for a in internal_links), str(internal_links))
+        button_like = ("download-button", "navbar-cta", "github-button")
+        text_links = [a for a in external_links if not any(c in (a["cls"] or "") for c in button_like)]
+        check("external text links announce the new tab",
+              len(text_links) >= 4 and all(NEW_TAB_NOTE in a["text"] for a in text_links),
+              str([a["text"] for a in text_links]))
+        check("button and icon links do not duplicate the new-tab suffix",
+              all(NEW_TAB_NOTE not in a["text"] for a in external_links
+                  if any(c in (a["cls"] or "") for c in button_like)))
+
+        # "Why" section: one wide paragraph with the inline Flutter mark.
+        check("why section sits between the hero and the features",
+              page.evaluate("""() => {
+                  const order = [...document.querySelectorAll('main > section')].map(s => s.id || 'hero');
+                  return order.indexOf('why') === 1 && order.indexOf('features') === 2;
+              }"""))
+        why = page.evaluate("""() => {
+            const s = document.querySelector('#why');
+            if (!s) return null;
+            const h2 = [...s.querySelectorAll('h2')];
+            const p = s.querySelector('p');
+            const marks = [...s.querySelectorAll('svg.flutter-mark')];
+            const mark = marks[0];
+            return {h2s: h2.map(h => h.textContent.trim()),
+                    paras: s.querySelectorAll('p').length,
+                    text: p ? p.textContent : '',
+                    marks: marks.length,
+                    viewBox: mark ? mark.getAttribute('viewBox') : null,
+                    width: mark ? mark.getAttribute('width') : null,
+                    height: mark ? mark.getAttribute('height') : null,
+                    hidden: mark ? mark.getAttribute('aria-hidden') : null,
+                    focusable: mark ? mark.getAttribute('focusable') : null,
+                    path: mark && mark.querySelector('path') ? mark.querySelector('path').getAttribute('d') : null,
+                    fill: mark && mark.querySelector('path') ? mark.querySelector('path').getAttribute('fill') : null,
+                    inParagraph: !!mark && !!mark.closest('p'),
+                    imgs: s.querySelectorAll('img').length};
+        }""")
+        check("why section has exactly one verbatim heading",
+              bool(why) and why["h2s"] == ["Why this is not another APK scanner"], str(why))
+        check("why section carries the copy verbatim with the Flutter mark inline",
+              bool(why) and norm(why["text"]) == WHY_COPY, norm(why["text"]) if why else "missing")
+        check("why mark is the exact inline Flutter glyph, not an image",
+              bool(why) and why["marks"] == 1 and why["imgs"] == 0 and why["inParagraph"]
+              and why["viewBox"] == "0 0 24 24" and why["width"] == "20" and why["height"] == "20"
+              and why["hidden"] == "true" and why["focusable"] == "false"
+              and why["path"] == FLUTTER_MARK_PATH and why["fill"] == "#54C5F8", str(why))
 
         # Content regions and copy.
         check("features section", page.locator("#features").count() == 1)
         check("features heading unchanged", page.locator("#features h2").inner_text().strip() == "What it does")
-        nodes = [
-            ("Discover", "Find Flutter apps already installed, or pick a single APK."),
-            ("Inspect", "Read libraries, endpoints and exposed strings from the release."),
-            ("Report", "Save the evidence on the phone; nothing is uploaded."),
-        ]
+        nodes = STEPS
         chain = page.evaluate("""() => {
             const tracks = [...document.querySelectorAll('#features .chain__track')];
             const real = tracks.find(t => t.getAttribute('aria-hidden') !== 'true') || tracks[0];
@@ -306,6 +402,23 @@ def main(argv: list[str]) -> int:
             const read = (ul) => [...ul.querySelectorAll(':scope > li')].map(li => [
                 (li.querySelector('h3')?.textContent || '').trim(),
                 (li.querySelector('p')?.textContent || '').trim()]);
+            const icons = real ? [...real.querySelectorAll(':scope > li')].map(li => {
+                const svgs = [...li.querySelectorAll('svg')];
+                const svg = svgs[0];
+                const s = svg ? getComputedStyle(svg) : null;
+                return {count: svgs.length,
+                        hidden: svg ? svg.getAttribute('aria-hidden') : null,
+                        focusable: svg ? svg.getAttribute('focusable') : null,
+                        w: svg ? svg.getAttribute('width') : null,
+                        h: svg ? svg.getAttribute('height') : null,
+                        stroke: svg ? svg.getAttribute('stroke') : null,
+                        fill: svg ? svg.getAttribute('fill') : null,
+                        sw: svg ? svg.getAttribute('stroke-width') : null,
+                        aboveHeading: !!svg && !!li.querySelector('h3')
+                            && (svg.compareDocumentPosition(li.querySelector('h3')) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0,
+                        color: s ? s.color : null,
+                        px: s ? Math.round(parseFloat(s.width) * 10) / 10 : null};
+            }) : [];
             // The connector is ::after only: ::before is the dot, so an OR over
             // both is always true. The bridging geometry is asserted in the
             // moving context, where the gap actually exists.
@@ -316,11 +429,20 @@ def main(argv: list[str]) -> int:
                     real: real ? read(real) : [], dup: dup ? read(dup) : [],
                     dupFocusable: dup ? dup.querySelectorAll('a, button, input, select, textarea, [tabindex]').length : -1,
                     connector: !!conn && conn.content !== 'none',
-                    dupUserSelect: dupStyle ? dupStyle.userSelect : ''};
+                    dupUserSelect: dupStyle ? dupStyle.userSelect : '',
+                    icons};
         }""")
-        check("three named steps in one connected track", chain["real"] == [[t, b] for t, b in nodes], str(chain["real"]))
+        check("three named steps in one connected track with the new copy",
+              chain["real"] == [[t, b] for t, b in nodes], str(chain["real"]))
         check("duplicate loop track is hidden from AT and inert",
               chain["tracks"] == 2 and chain["dup"] == chain["real"] and chain["dupFocusable"] == 0, str(chain))
+        check("each step carries one decorative 20px stroked icon above its heading",
+              len(chain["icons"]) == 3 and all(
+                  i["count"] == 1 and i["hidden"] == "true" and i["focusable"] == "false"
+                  and i["w"] == "20" and i["h"] == "20" and i["stroke"] == "currentColor"
+                  and i["fill"] == "none" and i["sw"] == "1.5" and i["aboveHeading"]
+                  and i["px"] == 20 and i["color"] == "rgb(82, 97, 89)"
+                  for i in chain["icons"]), str(chain["icons"]))
         check("chain nodes are visually connected", chain["connector"], str(chain))
         check("duplicate loop track is not copy-selectable", chain["dupUserSelect"] == "none", str(chain))
         check("no removed 'Why it stays local' section",
@@ -343,11 +465,11 @@ def main(argv: list[str]) -> int:
         check("contact actions are the email and issue channels",
               sorted(l["href"] for l in contact["links"]) == sorted([EMAIL, SOURCE + "/issues"]), str(contact["links"]))
         check("contact labels are explicit and >=44px tall",
-              sorted(l["text"] for l in contact["links"]) == sorted(["Email work@gwhyyy.com", "Open a GitHub issue"])
+              sorted(strip_note(l["text"]) for l in contact["links"]) == sorted(["Email work@gwhyyy.com", "Open a GitHub issue"])
               and all(l["h"] >= 43.5 for l in contact["links"]), str(contact["links"]))
         check("contact copy stays short", contact["words"] <= 40, f"{contact['words']} words")
-        check("visible email link", any(a["text"] == "work@gwhyyy.com" for a in find(EMAIL))
-              or any(a["text"] == "Email work@gwhyyy.com" for a in find(EMAIL)), str(find(EMAIL)))
+        check("visible email link", any(strip_note(a["text"]) == "work@gwhyyy.com" for a in find(EMAIL))
+              or any(strip_note(a["text"]) == "Email work@gwhyyy.com" for a in find(EMAIL)), str(find(EMAIL)))
         check("privacy link exact", bool(find(PRIVACY)))
         check("MIT license link exact", bool(find(LICENSE)))
         check("issues link exact", bool(find(SOURCE + "/issues")))
@@ -366,7 +488,11 @@ def main(argv: list[str]) -> int:
             return clone.textContent.replace(/\\s+/g, ' ').toLowerCase();
         }""")
         check("no sample CTA copy", "see sample" not in body_text and "demo" not in body_text)
-        check("no collapsed disclosure element", page.locator("details").count() == 0)
+        check("the only disclosures are the five FAQ items",
+              page.evaluate("""() => {
+                  const all = [...document.querySelectorAll('details')];
+                  return all.length === 5 && all.every(d => d.closest('#faq'));
+              }"""))
         removed = (
             "before you install",
             "android 8",
@@ -379,6 +505,7 @@ def main(argv: list[str]) -> int:
             "why it stays local",
             "app preview. a screen recording is coming later",
             "screen recording is coming later",
+            "not yet available on google play",
         )
         check("removed copy absent from body DOM text", all(s not in dom_text for s in removed),
               str([s for s in removed if s in dom_text]))
@@ -386,6 +513,59 @@ def main(argv: list[str]) -> int:
               str([s for s in removed if s in body_text]))
         check("no visible Android 8+ copy", "android 8" not in body_text, body_text[:200])
         check("no absolute no-export privacy claim", "cannot leave the device" not in body_text)
+
+        # FAQ: native details/summary, five exact answers, no script.
+        check("faq section sits between the features and contact",
+              page.evaluate("""() => {
+                  const order = [...document.querySelectorAll('main > section')].map(s => s.id || 'hero');
+                  return order.indexOf('features') < order.indexOf('faq')
+                      && order.indexOf('faq') < order.indexOf('contact');
+              }"""))
+        faq = page.evaluate("""() => {
+            const s = document.querySelector('#faq');
+            if (!s) return null;
+            const details = [...s.querySelectorAll('details')];
+            return {h2: (s.querySelector('h2')?.textContent || '').trim(),
+                    count: details.length,
+                    items: details.map(d => [
+                        (d.querySelector('summary')?.textContent || '').trim(),
+                        (d.querySelector('p')?.textContent || '').trim()]),
+                    nonEmpty: details.every(d => (d.querySelector('p')?.textContent || '').trim().length > 10),
+                    roleButtons: s.querySelectorAll('[role="button"]').length,
+                    scripts: s.querySelectorAll('script').length};
+        }""")
+        check("faq heading and exactly five native disclosures",
+              bool(faq) and faq["h2"] == "Frequent questions" and faq["count"] == 5
+              and faq["nonEmpty"] and faq["scripts"] == 0, str(faq))
+        check("faq questions and answers are verbatim",
+              bool(faq) and faq["items"] == [[q, a] for q, a in FAQ_ITEMS], str(faq["items"] if faq else None))
+        check("faq uses no div[role=button]",
+              bool(faq) and faq["roleButtons"] == 0, str(faq))
+        first = page.locator("#faq details").first
+        second = page.locator("#faq details").nth(1)
+        if page.locator("#faq details").count() == 5:
+            first.locator("summary").click()
+            page.wait_for_timeout(80)
+            second.locator("summary").click()
+            page.wait_for_timeout(80)
+        opened = page.evaluate("""() => {
+            const d = [...document.querySelectorAll('#faq details')];
+            return {open: d.map(x => x.open),
+                    visible: d.slice(0, 2).map(x => {
+                        const p = x.querySelector('p');
+                        if (!p) return false;
+                        const r = p.getBoundingClientRect();
+                        return r.height > 0 && getComputedStyle(p).visibility !== 'hidden';
+                    }),
+                    marker: d.length ? getComputedStyle(d[0].querySelector('summary'), '::after').content : null};
+        }""")
+        check("opening a FAQ item reveals its answer and leaves the other open",
+              bool(opened) and opened["open"][:2] == [True, True] and all(opened["visible"]), str(opened))
+        check("faq summary carries a css +/− marker", opened["marker"] in ('"+"', '"-"', '"−"'), str(opened["marker"]))
+        if page.locator("#faq details").count() == 5:
+            first.locator("summary").click()
+            second.locator("summary").click()
+            page.wait_for_timeout(60)
         home_html = page.request.get(base + "/").text()
         check("recording slot comment removed now that the clip ships",
               "Recording slot" not in home_html and "audit-recording.mp4" not in home_html)
@@ -420,8 +600,14 @@ def main(argv: list[str]) -> int:
 
         # Dead rules must not ship once their markup is gone.
         css = page.request.get(base + "/styles.css").text()
-        for dead in (".eyebrow", ".device-caption", ".pros-list", ".feature-list"):
+        for dead in (".eyebrow", ".device-caption", ".pros-list", ".feature-list",
+                     ".play-slot", ".store-note", ".play-badge"):
             check(f"styles.css carries no dead {dead} rule", dead not in css)
+        check("css no longer pauses the chain on hover",
+              ":hover .chain__track" not in css
+              and ".chain:hover" not in css, "hover pause rule still present")
+        check("css keeps the keyboard focus pause",
+              ".chain:focus-within .chain__track" in css, "focus-within pause rule missing")
 
         # Caching is a server concern; nginx must send it, Python preview may not.
         # Presence is asserted before policy: a vanished header must fail the run
@@ -464,30 +650,43 @@ def main(argv: list[str]) -> int:
             page.set_viewport_size({"width": width, "height": 900})
             page.wait_for_timeout(80)
             nav = page.evaluate("""() => {
-                const items = [...document.querySelectorAll('header .brand, header .site-nav > a')]
+                const sel = 'header .brand, header .site-nav > a, header .header-actions > a';
+                const items = [...document.querySelectorAll(sel)]
                     .filter(e => e.getBoundingClientRect().width > 0)
-                    .map(e => e.getBoundingClientRect());
-                const cys = items.map(r => r.top + r.height / 2);
+                    .map(e => ({cls: e.className, r: e.getBoundingClientRect()}));
+                const cys = items.map(i => i.r.top + i.r.height / 2);
+                const brand = document.querySelector('header .brand').getBoundingClientRect();
+                const anchors = [...document.querySelectorAll('header .site-nav > a')]
+                    .map(a => a.getBoundingClientRect());
+                const anchorMid = anchors.length
+                    ? (Math.min(...anchors.map(r => r.left)) + Math.max(...anchors.map(r => r.right))) / 2 : 0;
                 return {count: items.length, spread: Math.round((Math.max(...cys) - Math.min(...cys)) * 10) / 10,
-                        headerH: Math.round(document.querySelector('.header-inner').getBoundingClientRect().height),
+                        headerH: Math.round(document.querySelector('header.site-header').getBoundingClientRect().height),
+                        brandLeft: Math.round(brand.left),
+                        anchorMid: Math.round(anchorMid), vw: innerWidth, anchors: anchors.length,
                         overflow: Math.round(document.documentElement.scrollWidth - innerWidth)};
             }""")
-            check(f"navbar holds one row at {width}px", nav["count"] >= 5 and nav["spread"] <= 1.5
-                  and nav["headerH"] <= 96 and nav["overflow"] <= 1, str(nav))
+            check(f"navbar holds one row at {width}px", nav["count"] == 7 and nav["spread"] <= 2
+                  and nav["headerH"] <= 72 and nav["overflow"] <= 1, str(nav))
+            check(f"navbar anchors sit centred at {width}px",
+                  abs(nav["anchorMid"] - nav["vw"] / 2) <= 24, str(nav))
 
         for width in (320, 390):
             page.set_viewport_size({"width": width, "height": 844})
             page.wait_for_timeout(80)
             navsmall = page.evaluate("""() => {
-                const els = [...document.querySelectorAll('header .brand, header .site-nav > a')]
+                const els = [...document.querySelectorAll('header .brand, header .site-nav > a, header .header-actions > a')]
                     .filter(e => e.getBoundingClientRect().width > 0)
                     .map(e => { const r = e.getBoundingClientRect();
                         return {cls: e.className, left: Math.round(r.left), right: Math.round(r.right),
                                 h: Math.round(r.height * 10) / 10}; });
-                return {els, vw: innerWidth, overflow: Math.round(document.documentElement.scrollWidth - innerWidth)};
+                return {els, vw: innerWidth, overflow: Math.round(document.documentElement.scrollWidth - innerWidth),
+                        anchors: [...document.querySelectorAll('header .site-nav > a')]
+                            .filter(a => a.getBoundingClientRect().width > 0).length};
             }""")
-            check(f"navbar brand, GitHub and Get app stay reachable at {width}px",
-                  navsmall["overflow"] <= 1 and len(navsmall["els"]) >= 3
+            check(f"navbar drops the four anchors and keeps brand, GitHub and Get app at {width}px",
+                  navsmall["overflow"] <= 1 and len(navsmall["els"]) == 3 and navsmall["anchors"] == 0
+                  and any("brand" in e["cls"] for e in navsmall["els"])
                   and any("github-button" in e["cls"] for e in navsmall["els"])
                   and any("navbar-cta" in e["cls"] for e in navsmall["els"])
                   and all(0 <= e["left"] and e["right"] <= navsmall["vw"] and e["h"] >= 43.5 for e in navsmall["els"]),
@@ -495,6 +694,7 @@ def main(argv: list[str]) -> int:
 
         page.set_viewport_size({"width": 390, "height": 844})
         page.wait_for_timeout(100)
+        page.evaluate("window.scrollTo(0, 0)")
         order = page.evaluate("""() => {
             const a = document.querySelector('.install-actions')?.getBoundingClientRect();
             const d = document.querySelector('.device-frame')?.getBoundingClientRect();
@@ -506,13 +706,14 @@ def main(argv: list[str]) -> int:
         page.wait_for_timeout(120)
         header_fit = page.evaluate("""() => {
             const b = document.querySelector('header .brand')?.getBoundingClientRect();
-            const n = document.querySelector('header .site-nav')?.getBoundingClientRect();
-            return b && n ? {brandRight: Math.round(b.right), navLeft: Math.round(n.left)} : null;
+            const n = document.querySelector('header .header-actions')?.getBoundingClientRect();
+            return b && n ? {brandRight: Math.round(b.right), actionsLeft: Math.round(n.left)} : null;
         }""")
-        check("header brand and nav do not collide at 320px", bool(header_fit) and header_fit["brandRight"] <= header_fit["navLeft"], str(header_fit))
+        check("header brand and actions do not collide at 320px", bool(header_fit) and header_fit["brandRight"] <= header_fit["actionsLeft"], str(header_fit))
 
         page.set_viewport_size({"width": 1280, "height": 720})
         page.wait_for_timeout(100)
+        page.evaluate("window.scrollTo(0, 0)")
         visible = page.evaluate("""() => {
             const el = document.querySelector('.install-actions');
             if (!el) return false;
@@ -525,6 +726,7 @@ def main(argv: list[str]) -> int:
         for width, height in ((1280, 720), (1440, 900)):
             page.set_viewport_size({"width": width, "height": height})
             page.wait_for_timeout(120)
+            page.evaluate("window.scrollTo(0, 0)")
             fold = page.evaluate("""() => {
                 const h1 = document.querySelector('h1');
                 const range = document.createRange();
@@ -586,19 +788,43 @@ def main(argv: list[str]) -> int:
         check("reduced-motion single column keeps each connector short",
               bool(mobile_chain) and mobile_chain["cols"] == 1
               and all(r["short"] for r in mobile_chain["rules"]), str(mobile_chain))
-        # The stacked install column is centred, not hard-left under a full-width CTA.
+        # The mobile CTA is one natural-width action, not a stretched full-bleed button.
         mobile_stack = page.evaluate("""() => {
-            const slot = document.querySelector('.install-actions .play-slot');
-            const badge = document.querySelector('.play-badge');
-            const note = document.querySelector('.store-note');
-            if (!slot || !badge || !note) return null;
-            const mid = (el) => { const r = el.getBoundingClientRect(); return Math.round((r.left + r.width / 2) * 10) / 10; };
-            return {slot: mid(slot), badge: mid(badge), note: mid(note)};
+            const d = document.querySelector('.download-button');
+            const a = document.querySelector('.install-actions');
+            const c = document.querySelector('.hero-copy');
+            if (!d || !a || !c) return null;
+            const dr = d.getBoundingClientRect();
+            const ar = a.getBoundingClientRect();
+            const cr = c.getBoundingClientRect();
+            return {w: Math.round(dr.width), h: Math.round(dr.height * 10) / 10,
+                    containerW: Math.round(cr.width), actionsW: Math.round(ar.width),
+                    leftGap: Math.round((dr.left - cr.left) * 10) / 10};
         }""")
-        check("narrow install stack is centred under the primary action",
-              bool(mobile_stack) and abs(mobile_stack["badge"] - mobile_stack["slot"]) <= 2
-              and abs(mobile_stack["note"] - mobile_stack["slot"]) <= 2, str(mobile_stack))
+        check("narrow hero CTA keeps its natural width and left alignment",
+              bool(mobile_stack) and mobile_stack["w"] < mobile_stack["containerW"] * 0.85
+              and mobile_stack["leftGap"] <= 1 and mobile_stack["h"] >= 43.5, str(mobile_stack))
         page.set_viewport_size({"width": 1440, "height": 900})
+        page.wait_for_timeout(120)
+        reduce_chain = page.evaluate("""() => {
+            const track = document.querySelector('#features .chain__track:not([aria-hidden="true"])');
+            if (!track) return null;
+            const nodes = [...track.querySelectorAll(':scope > li')];
+            return nodes.map((li, i) => {
+                const a = getComputedStyle(li, '::after');
+                const r = li.getBoundingClientRect();
+                const next = i < nodes.length - 1 ? nodes[i + 1].getBoundingClientRect() : null;
+                return {insetEnd: parseFloat(a.insetInlineEnd), width: parseFloat(a.width),
+                        content: a.content, nodeRight: Math.round(r.right * 100) / 100,
+                        nextLeft: next ? Math.round(next.left * 100) / 100 : null,
+                        reaches: next ? r.right + Math.abs(parseFloat(a.insetInlineEnd)) >= next.left - 1 : null};
+            });
+        }""")
+        check("reduced-motion connectors span the grid gutter and meet the next dot",
+              bool(reduce_chain) and len(reduce_chain) == 3
+              and all(n["insetEnd"] <= -23.5 for n in reduce_chain[:2])
+              and all(n["reaches"] for n in reduce_chain[:2])
+              and reduce_chain[2]["content"] == "none", str(reduce_chain))
         check("desktop height within showcase range", desktop_h <= 2600, f"{desktop_h}px")
         check("mobile height within showcase range", mobile_h <= 3600, f"{mobile_h}px")
         info(f"heights: desktop {desktop_h}px, mobile {mobile_h}px; words {words}")
@@ -617,16 +843,22 @@ def main(argv: list[str]) -> int:
         check("reduced motion collapses transitions", all(d in ("0.00001s", "0s", "0.01ms", "1e-05s") for d in durations), str(durations))
 
         static_motion = page.evaluate("""() => {
-            const track = document.querySelector('.chain__track');
+            const tracks = [...document.querySelectorAll('.chain__track')];
             const amb = document.querySelector('.device-ambient');
-            if (!track || !amb) return null;
-            const t = getComputedStyle(track);
+            if (tracks.length !== 2 || !amb) return null;
+            const t = getComputedStyle(tracks[0]);
+            const dup = getComputedStyle(tracks[1]);
             const a = getComputedStyle(amb);
             return {trackName: t.animationName, trackPlay: t.animationPlayState,
+                    dupName: dup.animationName, dupDisplay: dup.display,
+                    transform: t.transform, dupTransform: dup.transform,
                     ambName: a.animationName, ambPlay: a.animationPlayState, ambBg: a.backgroundImage};
         }""")
-        check("reduced motion leaves a static, still-decorated chain and hero backdrop",
-              bool(static_motion) and static_motion["trackName"] == "none" and static_motion["trackPlay"] == "paused"
+        check("reduced motion leaves both tracks and the hero backdrop fully static",
+              bool(static_motion) and static_motion["trackName"] == "none"
+              and static_motion["dupName"] == "none"
+              and static_motion["trackPlay"] == "paused" and static_motion["dupDisplay"] == "none"
+              and static_motion["transform"] == "none"
               and static_motion["ambName"] == "none" and static_motion["ambPlay"] == "paused"
               and static_motion["ambBg"] not in ("", "none"), str(static_motion))
 
@@ -653,8 +885,8 @@ def main(argv: list[str]) -> int:
                     connector: conn ? {content: conn.content, insetEnd: parseFloat(conn.insetInlineEnd),
                                        width: parseFloat(conn.width)} : null};
         }""")
-        check("chain loops slowly and endlessly",
-              bool(anim) and anim["trackName"] != "none" and all(d >= 25 for d in anim["trackDur"])
+        check("chain loops on the 22s cycle, endlessly",
+              bool(anim) and anim["trackName"] == "chain-scroll" and anim["trackDur"] == [22]
               and anim["trackIter"] == "infinite", str(anim))
         check("hero ambient drift runs behind the phone",
               bool(anim) and anim["ambName"] != "none" and all(d >= 25 for d in anim["ambDur"]), str(anim))
@@ -664,7 +896,31 @@ def main(argv: list[str]) -> int:
         check("no horizontal overflow while the chain animates at 390px",
               bool(anim) and anim["overflowX"] <= 1, str(anim))
         mp.set_viewport_size({"width": 1440, "height": 900})
+        mp.wait_for_timeout(250)
+        # Read the row with the pointer parked on it: hovering must not freeze it.
+        mp.locator("#features .chain").scroll_into_view_if_needed()
+        mp.wait_for_timeout(100)
+        box = mp.locator("#features .chain").bounding_box()
+        if box:
+            mp.mouse.move(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)
         mp.wait_for_timeout(150)
+        hover_one = mp.evaluate("""() => {
+            const t = document.querySelector('.chain__track');
+            return {matrix: getComputedStyle(t).transform, at: Math.round(performance.now())};
+        }""")
+        mp.wait_for_timeout(1700)
+        hover_two = mp.evaluate("""() => {
+            const t = document.querySelector('.chain__track');
+            return {matrix: getComputedStyle(t).transform, at: Math.round(performance.now()),
+                    dur: getComputedStyle(t).animationDuration, name: getComputedStyle(t).animationName};
+        }""")
+        info(f"motion sample A {hover_one['at']}ms {hover_one['matrix']}")
+        info(f"motion sample B {hover_two['at']}ms {hover_two['matrix']}")
+        check("chain visibly advances while hovered (no hover freeze)",
+              bool(hover_one) and bool(hover_two) and hover_one["matrix"] != hover_two["matrix"]
+              and hover_two["name"] == "chain-scroll" and hover_two["dur"] == "22s",
+              f"{hover_one} -> {hover_two}")
+        mp.mouse.move(0, 0)
         props = mp.evaluate("""() => {
             const out = [];
             for (const sheet of document.styleSheets) {
@@ -750,13 +1006,15 @@ def main(argv: list[str]) -> int:
         check("no failed asset responses", not bad_responses, "; ".join(bad_responses))
         check("all requests stay on this origin", all(urlparse(u).netloc == host for u in requests), str(sorted({urlparse(u).netloc for u in requests})))
 
-        # Content without JavaScript: poster, badge and working install remain.
+        # Content without JavaScript: poster, single install action, FAQ and why remain.
         nojs = browser.new_context(java_script_enabled=False, viewport={"width": 1440, "height": 900})
         njs = nojs.new_page()
         njs.goto(base + "/", wait_until="load")
         check("no-JS h1 visible", njs.locator("h1").is_visible())
         check("no-JS video poster visible", njs.locator(".device-video").is_visible())
-        check("no-JS Play badge visible", njs.locator(".play-badge img").is_visible())
+        check("no-JS why paragraph with inline mark visible",
+              njs.locator("#why p .flutter-mark").is_visible() and njs.locator("#why p").is_visible())
+        check("no-JS FAQ summary visible", njs.locator("#faq summary").first.is_visible())
         check("no-JS working actions visible", njs.locator(f'a[href="{DOWNLOAD}"]').first.is_visible() and njs.locator(f'a[href="{SOURCE}"]').first.is_visible())
         nojs.close()
 

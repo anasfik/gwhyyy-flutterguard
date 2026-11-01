@@ -70,12 +70,16 @@
         </a>
         <nav class="site-nav" aria-label="Primary">
           <a class="nav-text" href="#features">Features</a>
+          <a class="nav-text" href="#why">Why</a>
+          <a class="nav-text" href="#faq">FAQ</a>
           <a class="nav-text" href="#contact">Contact</a>
-          <a class="github-button" href="https://github.com/anasfik/FlutterGuard" aria-label="GitHub">
+        </nav>
+        <div class="header-actions">
+          <a class="github-button" href="https://github.com/anasfik/FlutterGuard" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
             <img src="/assets/brand/github-lockup-white.svg" alt="" width="96" height="22" decoding="async">
           </a>
-          <a class="navbar-cta" href="https://github.com/anasfik/FlutterGuard/releases/latest">Get app</a>
-        </nav>
+          <a class="navbar-cta" href="https://github.com/anasfik/FlutterGuard/releases/latest" target="_blank" rel="noopener noreferrer">Get app</a>
+        </div>
       </div>
     </header>
 
@@ -86,13 +90,7 @@
           <p class="lead">Inspect an installed Flutter app or a single APK. Read its libraries, endpoints and exposed strings, then save the report on your device.</p>
 
           <div class="install-actions">
-            <a class="download-button" href="https://github.com/anasfik/FlutterGuard/releases/latest">Download APK</a>
-            <div class="play-slot">
-              <span class="play-badge">
-                <img src="/assets/brand/google-play-badge-en.svg" alt="Google Play badge — FlutterGuard is not yet available on Google Play" width="162" height="48">
-              </span>
-              <span class="store-note">Not yet available on Google Play</span>
-            </div>
+            <a class="download-button" href="https://github.com/anasfik/FlutterGuard/releases/latest" target="_blank" rel="noopener noreferrer">Download APK</a>
           </div>
         </div>
 
@@ -109,6 +107,11 @@
         </figure>
       </section>
 
+      <section id="why" class="section container why" aria-labelledby="why-title">
+        <h2 id="why-title">Why this is not another APK scanner</h2>
+        <p class="why-copy">Generic scanners stop at permissions and package names. A <svg class="flutter-mark" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path fill="#54C5F8" d="M14.314 0 2.3 12 6 15.7 21.684.013h-7.357zm.014 11.072-6.471 6.458 6.47 6.47H21.7l-6.46-6.468 6.46-6.46h-7.37z"/></svg>Flutter app keeps its real surface inside <code>libapp.so</code> and the asset bundle. FlutterGuard reads that layer: SDK versions, embedded endpoints, exposed strings, AI providers, signing and network policy. It runs on the phone with no INTERNET permission, and the source is MIT.</p>
+      </section>
+
       <section id="features" class="section container" aria-labelledby="features-title">
         <div class="section-head">
           <h2 id="features-title">What it does</h2>
@@ -120,32 +123,64 @@
         <div class="chain">
           <ul class="chain__track">
             <li class="chain__node">
+              <span class="chain__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h6A2.5 2.5 0 0 1 15 5.5v6a2.5 2.5 0 0 1-2.5 2.5h-6A2.5 2.5 0 0 1 4 11.5z"/><circle cx="15.5" cy="15.5" r="3"/><path d="m18 18 3 3"/></svg></span>
               <h3>Discover</h3>
-              <p>Find Flutter apps already installed, or pick a single APK.</p>
+              <p>FlutterGuard lists the Flutter apps installed on this device, or you pick a single APK.</p>
             </li>
             <li class="chain__node">
+              <span class="chain__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 6h.01M9 6h11"/><path d="M4 12h.01M9 12h11"/><path d="M4 18h.01M9 18h11"/></svg></span>
               <h3>Inspect</h3>
-              <p>Read libraries, endpoints and exposed strings from the release.</p>
+              <p>Read the SDK versions, endpoints and exposed strings inside the release.</p>
             </li>
             <li class="chain__node">
+              <span class="chain__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h7l4 4v14H6z"/><path d="M13 3v4h4"/><path d="m9 14 2 2 4-4"/></svg></span>
               <h3>Report</h3>
-              <p>Save the evidence on the phone; nothing is uploaded.</p>
+              <p>Save the evidence on the phone and come back to it whenever you need it.</p>
             </li>
           </ul>
           <ul class="chain__track" aria-hidden="true">
             <li class="chain__node">
+              <span class="chain__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h6A2.5 2.5 0 0 1 15 5.5v6a2.5 2.5 0 0 1-2.5 2.5h-6A2.5 2.5 0 0 1 4 11.5z"/><circle cx="15.5" cy="15.5" r="3"/><path d="m18 18 3 3"/></svg></span>
               <h3>Discover</h3>
-              <p>Find Flutter apps already installed, or pick a single APK.</p>
+              <p>FlutterGuard lists the Flutter apps installed on this device, or you pick a single APK.</p>
             </li>
             <li class="chain__node">
+              <span class="chain__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 6h.01M9 6h11"/><path d="M4 12h.01M9 12h11"/><path d="M4 18h.01M9 18h11"/></svg></span>
               <h3>Inspect</h3>
-              <p>Read libraries, endpoints and exposed strings from the release.</p>
+              <p>Read the SDK versions, endpoints and exposed strings inside the release.</p>
             </li>
             <li class="chain__node">
+              <span class="chain__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h7l4 4v14H6z"/><path d="M13 3v4h4"/><path d="m9 14 2 2 4-4"/></svg></span>
               <h3>Report</h3>
-              <p>Save the evidence on the phone; nothing is uploaded.</p>
+              <p>Save the evidence on the phone and come back to it whenever you need it.</p>
             </li>
           </ul>
+        </div>
+      </section>
+
+      <section id="faq" class="section container faq" aria-labelledby="faq-title">
+        <h2 id="faq-title">Frequent questions</h2>
+        <div class="faq-list">
+          <details>
+            <summary>Is FlutterGuard free?</summary>
+            <p>Yes. It is open source under the MIT licence, with no account, no ads and no paid tier.</p>
+          </details>
+          <details>
+            <summary>Does it need an internet connection?</summary>
+            <p>No. The app has no INTERNET permission, so scans run entirely on the device.</p>
+          </details>
+          <details>
+            <summary>Which apps can it check?</summary>
+            <p>Flutter apps you own or are authorised to test, either installed on the device or supplied as a single APK.</p>
+          </details>
+          <details>
+            <summary>Does a finding prove the app is exploitable?</summary>
+            <p>No. Findings are static evidence from the release, not a confirmed exploit.</p>
+          </details>
+          <details>
+            <summary>Where do updates come from?</summary>
+            <p>GitHub releases. There is no Play listing to install from yet.</p>
+          </details>
         </div>
       </section>
 
@@ -154,17 +189,17 @@
         <p>Questions, bug reports or feature ideas. Email works without an account.</p>
         <ul class="contact-actions">
           <li><a href="mailto:work@gwhyyy.com">Email work@gwhyyy.com</a></li>
-          <li><a href="https://github.com/anasfik/FlutterGuard/issues">Open a GitHub issue</a></li>
+          <li><a href="https://github.com/anasfik/FlutterGuard/issues" target="_blank" rel="noopener noreferrer">Open a GitHub issue<span class="visually-hidden"> (opens in a new tab)</span></a></li>
         </ul>
       </section>
     </main>
 
     <footer class="site-footer">
       <div class="container footer-inner">
-        <p class="footer-name">FlutterGuard by <a href="https://gwhyyy.com">Anas Fikhi</a>.</p>
+        <p class="footer-name">FlutterGuard by <a href="https://gwhyyy.com" target="_blank" rel="noopener noreferrer">Anas Fikhi<span class="visually-hidden"> (opens in a new tab)</span></a>.</p>
         <nav class="footer-links" aria-label="Project links">
-          <a href="https://gwhyyy.com/privacy/flutterguard">Privacy</a>
-          <a href="https://github.com/anasfik/FlutterGuard/blob/main/LICENSE">MIT</a>
+          <a href="https://gwhyyy.com/privacy/flutterguard" target="_blank" rel="noopener noreferrer">Privacy<span class="visually-hidden"> (opens in a new tab)</span></a>
+          <a href="https://github.com/anasfik/FlutterGuard/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT<span class="visually-hidden"> (opens in a new tab)</span></a>
         </nav>
       </div>
     </footer>

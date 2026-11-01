@@ -216,7 +216,7 @@ h1 {
 .install-actions {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: stretch;
   gap: var(--s3);
   margin-block-start: var(--s6);
 }
@@ -288,12 +288,7 @@ h1 {
   color: var(--muted);
   font-size: var(--text-small);
   line-height: 1.4;
-}
-
-.facts {
-  margin-block-start: var(--s6);
-  color: var(--muted);
-  font-size: var(--text-small);
+  text-wrap: balance;
 }
 
 .hero-device {
@@ -325,6 +320,7 @@ h1 {
   font-size: .8125rem;
   line-height: 1.5;
   text-align: center;
+  text-wrap: balance;
 }
 
 /* Sections */
@@ -507,7 +503,7 @@ h1 {
   }
 
   .hero-device {
-    justify-self: start;
+    justify-self: center;
   }
 
   .device-frame {
@@ -515,7 +511,7 @@ h1 {
   }
 
   .device-caption {
-    text-align: start;
+    text-align: center;
   }
 
   .feature-list li {
@@ -574,6 +570,25 @@ h1 {
 
   .store-note {
     max-width: none;
+  }
+}
+
+/* Windows high-contrast: forced colors repaint the branded GitHub button white
+   behind the official white lockup, hiding the action. Keep the black brand
+   plate and its unaltered white artwork; give focus a system-color ring. */
+@media (forced-colors: active) {
+  .github-button {
+    forced-color-adjust: none;
+    background: var(--github);
+  }
+
+  .github-button:hover {
+    background: #000;
+  }
+
+  .github-button:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 3px;
   }
 }
 

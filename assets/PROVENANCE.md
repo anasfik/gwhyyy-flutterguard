@@ -31,9 +31,10 @@ replacement point (see the HTML comment beside it); no recording exists yet.
 ## OG image
 
 `og-image.png` (1200x630, SHA-256
-`d3d18a56b8da25683f04c514250b1b90a97680ecf196f75c801e38066287d9f6`) was
+`a0897a65822bf0ffd914e2cbed6fcf3a20b7faac12a9b1e0dffd94b49f28984a`) was
 rendered for the split showcase with headless Chromium from the real app
-poster, the self-hosted Manrope face and the page's own color tokens. No stock
+poster, the self-hosted Manrope face and the page's own color tokens. It carries
+the current headline, "Security audit any released Flutter app." No stock
 or generated imagery. The source composition is a local scratch file, not a
 site dependency.
 

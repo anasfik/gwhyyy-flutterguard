@@ -405,6 +405,12 @@ h1 {
   list-style: none;
 }
 
+/* The loop copy is decoration: dragging across the row must yield three steps,
+   not six, so the duplicate track stays out of selection. */
+.chain__track[aria-hidden="true"] {
+  user-select: none;
+}
+
 .chain__node {
   position: relative;
   flex: 1 0 clamp(13rem, 26vw, 20rem);
@@ -692,7 +698,8 @@ body:has(#pause-motion:checked) .device-ambient {
   }
 
   .play-slot {
-    justify-content: center;
+    /* Column stack: the badge and the note centre under the full-width CTA. */
+    align-items: center;
     gap: var(--s3);
   }
 
@@ -785,5 +792,14 @@ body:has(#pause-motion:checked) .device-ambient {
   .device-ambient {
     animation: none;
     animation-play-state: paused;
+  }
+}
+
+/* One column + reduce is the only configuration where the static row *is* the
+   design. At that width a node-wide rule runs to the container edge and reads
+   as an empty divider, so the connector is dropped and the dots keep the order. */
+@media (prefers-reduced-motion: reduce) and (max-width: 30rem) {
+  .chain__node::after {
+    content: none;
   }
 }

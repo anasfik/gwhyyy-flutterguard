@@ -10,6 +10,11 @@ The custom 404 document body is asserted by default because the shipped server
 is nginx. `--allow-default-404` is the only accepted opt-out and exists solely
 for `python3 -m http.server`, which serves its own generic 404 page; the flag
 still requires a real 404 status.
+
+Header presence is asserted whenever the server identifies as nginx, before the
+policy each header carries is checked, so a dropped CSP or Cache-Control fails
+the run instead of shrinking the denominator. The Python preview sends neither
+header and keeps its INFO downgrade.
 """
 
 from __future__ import annotations
@@ -204,8 +209,11 @@ def main(argv: list[str]) -> int:
         # One aligned install row: primary button and the official badge are 48px
         # high on the same optical line, note attached to the badge cluster.
         row = page.evaluate("""() => {
-            const d = document.querySelector('.download-button').getBoundingClientRect();
-            const b = document.querySelector('.play-badge').getBoundingClientRect();
+            const dEl = document.querySelector('.download-button');
+            const bEl = document.querySelector('.play-badge');
+            if (!dEl || !bEl) return null;
+            const d = dEl.getBoundingClientRect();
+            const b = bEl.getBoundingClientRect();
             const el = document.querySelector('.store-note');
             const s = el ? getComputedStyle(el) : null;
             const range = document.createRange();
@@ -222,9 +230,9 @@ def main(argv: list[str]) -> int:
                     widest: widths.length ? Math.round(Math.max(...widths)) : 0};
         }""")
         check("hero install row: primary and Play badge share one aligned 48px row",
-              abs(row["download"] - 48) <= 0.6 and abs(row["badge"] - 48) <= 0.6 and row["topGap"] <= 1, str(row))
-        check("Play note is attached to the badge cluster", row["badgeInSlot"] and row["noteInSlot"], str(row))
-        check("Play note wraps without a one-word orphan", row["wrap"] == "balance" and row["lines"] <= 2
+              bool(row) and abs(row["download"] - 48) <= 0.6 and abs(row["badge"] - 48) <= 0.6 and row["topGap"] <= 1, str(row))
+        check("Play note is attached to the badge cluster", bool(row) and row["badgeInSlot"] and row["noteInSlot"], str(row))
+        check("Play note wraps without a one-word orphan", bool(row) and row["wrap"] == "balance" and row["lines"] <= 2
               and row["last"] >= 0.35 * row["widest"], str(row))
 
         # Content regions and copy.
@@ -242,16 +250,23 @@ def main(argv: list[str]) -> int:
             const read = (ul) => [...ul.querySelectorAll(':scope > li')].map(li => [
                 (li.querySelector('h3')?.textContent || '').trim(),
                 (li.querySelector('p')?.textContent || '').trim()]);
+            // The connector is ::after only: ::before is the dot, so an OR over
+            // both is always true. The bridging geometry is asserted in the
+            // moving context, where the gap actually exists.
+            const first = real && real.querySelector('li');
+            const conn = first ? getComputedStyle(first, '::after') : null;
+            const dupStyle = dup ? getComputedStyle(dup) : null;
             return {tracks: tracks.length,
                     real: real ? read(real) : [], dup: dup ? read(dup) : [],
                     dupFocusable: dup ? dup.querySelectorAll('a, button, input, select, textarea, [tabindex]').length : -1,
-                    connector: real && real.querySelector('li') ? (getComputedStyle(real.querySelector('li'), '::after').content !== 'none'
-                                       || getComputedStyle(real.querySelector('li'), '::before').content !== 'none') : false};
+                    connector: !!conn && conn.content !== 'none',
+                    dupUserSelect: dupStyle ? dupStyle.userSelect : ''};
         }""")
         check("three named steps in one connected track", chain["real"] == [[t, b] for t, b in nodes], str(chain["real"]))
         check("duplicate loop track is hidden from AT and inert",
               chain["tracks"] == 2 and chain["dup"] == chain["real"] and chain["dupFocusable"] == 0, str(chain))
         check("chain nodes are visually connected", chain["connector"], str(chain))
+        check("duplicate loop track is not copy-selectable", chain["dupUserSelect"] == "none", str(chain))
         check("no removed 'Why it stays local' section",
               page.locator("#pros, #pros-title, .pros-list").count() == 0
               and "why it stays local" not in page.locator("body").inner_text().lower())
@@ -306,6 +321,7 @@ def main(argv: list[str]) -> int:
             "not affiliated with google",
             "why it stays local",
             "app preview. a screen recording is coming later",
+            "screen recording is coming later",
         )
         check("removed copy absent from body DOM text", all(s not in dom_text for s in removed),
               str([s for s in removed if s in dom_text]))
@@ -341,9 +357,17 @@ def main(argv: list[str]) -> int:
             check(f"styles.css carries no dead {dead} rule", dead not in css)
 
         # Caching is a server concern; nginx must send it, Python preview may not.
+        # Presence is asserted before policy: a vanished header must fail the run
+        # instead of silently shrinking the denominator. `Server: nginx` is the
+        # only regime signal available (the preview sends neither CSP nor
+        # Cache-Control), so presence checks run only against the shipped server.
+        server = (home_headers.get("server") or "").lower()
+        strict_headers = "nginx" in server
         for path, needle in (("/assets/fonts/manrope-latin.woff2", "max-age=31536000"), ("/styles.css", "max-age=3600")):
             r = page.request.get(base + path)
             cc = r.headers.get("cache-control")
+            if strict_headers:
+                check(f"{path} sends Cache-Control", bool(cc), f"Server: {server}")
             if cc:
                 check(f"{path} cache policy", needle in cc, cc)
             else:
@@ -351,6 +375,8 @@ def main(argv: list[str]) -> int:
 
         # Security headers when the server sends them (nginx); CSP never weakens.
         csp = home_headers.get("content-security-policy")
+        if strict_headers:
+            check("CSP header present", bool(csp), f"Server: {server}")
         if csp:
             for needle in ("default-src 'self'", "style-src 'self'", "font-src 'self'", "connect-src 'none'", "object-src 'none'", "frame-ancestors 'none'"):
                 check(f"CSP {needle}", needle in csp, csp)
@@ -475,6 +501,35 @@ def main(argv: list[str]) -> int:
         page.set_viewport_size({"width": 390, "height": 844})
         page.wait_for_timeout(100)
         mobile_h = page.evaluate("document.documentElement.scrollHeight")
+        # Static (reduce) fallback at one column: a connector may not reach the
+        # container edge as a decorative divider. Short or absent, never full width.
+        mobile_chain = page.evaluate("""() => {
+            const track = document.querySelector('#features .chain__track:not([aria-hidden="true"])');
+            if (!track) return null;
+            const nodes = [...track.querySelectorAll(':scope > li')];
+            const cols = getComputedStyle(track).gridTemplateColumns.split(' ').filter(v => parseFloat(v) > 0).length;
+            return {cols, rules: nodes.map(li => {
+                const a = getComputedStyle(li, '::after');
+                const w = parseFloat(a.width);
+                return {content: a.content, width: a.width, insetEnd: a.insetInlineEnd,
+                        short: a.content === 'none' || (w > 0 && w <= 24)};
+            })};
+        }""")
+        check("reduced-motion single column keeps each connector short",
+              bool(mobile_chain) and mobile_chain["cols"] == 1
+              and all(r["short"] for r in mobile_chain["rules"]), str(mobile_chain))
+        # The stacked install column is centred, not hard-left under a full-width CTA.
+        mobile_stack = page.evaluate("""() => {
+            const slot = document.querySelector('.install-actions .play-slot');
+            const badge = document.querySelector('.play-badge');
+            const note = document.querySelector('.store-note');
+            if (!slot || !badge || !note) return null;
+            const mid = (el) => { const r = el.getBoundingClientRect(); return Math.round((r.left + r.width / 2) * 10) / 10; };
+            return {slot: mid(slot), badge: mid(badge), note: mid(note)};
+        }""")
+        check("narrow install stack is centred under the primary action",
+              bool(mobile_stack) and abs(mobile_stack["badge"] - mobile_stack["slot"]) <= 2
+              and abs(mobile_stack["note"] - mobile_stack["slot"]) <= 2, str(mobile_stack))
         page.set_viewport_size({"width": 1440, "height": 900})
         check("desktop height within showcase range", desktop_h <= 2600, f"{desktop_h}px")
         check("mobile height within showcase range", mobile_h <= 3600, f"{mobile_h}px")
@@ -508,10 +563,12 @@ def main(argv: list[str]) -> int:
               and static_motion["ambBg"] not in ("", "none"), str(static_motion))
 
         # Motion context: the loop and the drift run, and the native pause control works.
-        motion = browser.new_context(viewport={"width": 1440, "height": 900}, reduced_motion="no-preference")
+        # Measured at 390px first: that is where a missing clip on .chain turns the
+        # moving tracks into a horizontal scrollbar (the reduce branch cannot see it).
+        motion = browser.new_context(viewport={"width": 390, "height": 844}, reduced_motion="no-preference")
         mp = motion.new_page()
         mp.goto(base + "/", wait_until="load")
-        mp.wait_for_timeout(200)
+        mp.wait_for_timeout(250)
         anim = mp.evaluate("""() => {
             const track = document.querySelector('.chain__track');
             const amb = document.querySelector('.device-ambient');
@@ -519,15 +576,27 @@ def main(argv: list[str]) -> int:
             const t = getComputedStyle(track);
             const a = getComputedStyle(amb);
             const secs = (s) => (s || '0s').split(',').map(v => parseFloat(v) || 0);
+            const li = document.querySelector('#features .chain__track:not([aria-hidden="true"]) > li');
+            const conn = li ? getComputedStyle(li, '::after') : null;
             return {trackName: t.animationName, trackDur: secs(t.animationDuration), trackPlay: t.animationPlayState,
                     trackIter: t.animationIterationCount, ambName: a.animationName,
-                    ambDur: secs(a.animationDuration), ambPlay: a.animationPlayState};
+                    ambDur: secs(a.animationDuration), ambPlay: a.animationPlayState,
+                    overflowX: document.documentElement.scrollWidth - innerWidth,
+                    connector: conn ? {content: conn.content, insetEnd: parseFloat(conn.insetInlineEnd),
+                                       width: parseFloat(conn.width)} : null};
         }""")
         check("chain loops slowly and endlessly",
               bool(anim) and anim["trackName"] != "none" and all(d >= 25 for d in anim["trackDur"])
               and anim["trackIter"] == "infinite", str(anim))
         check("hero ambient drift runs behind the phone",
               bool(anim) and anim["ambName"] != "none" and all(d >= 25 for d in anim["ambDur"]), str(anim))
+        check("chain connector bridges the gap to the next node",
+              bool(anim) and bool(anim["connector"]) and anim["connector"]["content"] != "none"
+              and anim["connector"]["insetEnd"] < -0.5 and anim["connector"]["width"] > 20, str(anim["connector"]))
+        check("no horizontal overflow while the chain animates at 390px",
+              bool(anim) and anim["overflowX"] <= 1, str(anim))
+        mp.set_viewport_size({"width": 1440, "height": 900})
+        mp.wait_for_timeout(150)
         props = mp.evaluate("""() => {
             const out = [];
             for (const sheet of document.styleSheets) {

@@ -64,13 +64,17 @@
 
     <header class="site-header">
       <div class="container header-inner">
-        <a class="brand" href="/">
+        <a class="brand" href="/" aria-label="FlutterGuard">
           <img class="brand-mark" src="/assets/app/icon-512.png" alt="" width="28" height="28" decoding="async">
-          FlutterGuard
+          <span class="brand-name">FlutterGuard</span>
         </a>
         <nav class="site-nav" aria-label="Primary">
-          <a href="#features">Features</a>
-          <a href="#contact">Contact</a>
+          <a class="nav-text" href="#features">Features</a>
+          <a class="nav-text" href="#contact">Contact</a>
+          <a class="github-button" href="https://github.com/anasfik/FlutterGuard" aria-label="GitHub">
+            <img src="/assets/brand/github-lockup-white.svg" alt="" width="96" height="22" decoding="async">
+          </a>
+          <a class="navbar-cta" href="https://github.com/anasfik/FlutterGuard/releases/latest">Get app</a>
         </nav>
       </div>
     </header>
@@ -83,16 +87,12 @@
 
           <div class="install-actions">
             <a class="download-button" href="https://github.com/anasfik/FlutterGuard/releases/latest">Download APK</a>
-            <a class="github-button" href="https://github.com/anasfik/FlutterGuard">
-              <img src="/assets/brand/github-lockup-white.svg" alt="GitHub" width="96" height="22">
-            </a>
-          </div>
-
-          <div class="play-slot">
-            <span class="play-badge">
-              <img src="/assets/brand/google-play-badge-en.svg" alt="Google Play badge — FlutterGuard is not yet available on Google Play" width="162" height="48">
-            </span>
-            <span class="store-note">Not yet available on Google Play</span>
+            <div class="play-slot">
+              <span class="play-badge">
+                <img src="/assets/brand/google-play-badge-en.svg" alt="Google Play badge — FlutterGuard is not yet available on Google Play" width="162" height="48">
+              </span>
+              <span class="store-note">Not yet available on Google Play</span>
+            </div>
           </div>
         </div>
 
@@ -104,52 +104,60 @@
                  <source src="/assets/app/audit-recording.mp4" type="video/mp4">
                </video>
                Keep native controls, no autoplay and no analytics; keep the poster for no-JS. -->
+          <span class="device-ambient" aria-hidden="true"></span>
           <div class="device-frame">
             <img class="device-poster" src="/assets/app/inventory.webp" alt="FlutterGuard installed-app inventory listing Flutter apps with package, version, SDK range and APK size." width="720" height="1600" fetchpriority="high" decoding="async">
           </div>
-          <figcaption class="device-caption">App preview. A screen recording is coming later.</figcaption>
         </figure>
       </section>
 
       <section id="features" class="section container" aria-labelledby="features-title">
-        <h2 id="features-title">What it does</h2>
-        <ul class="feature-list">
-          <li>
-            <h3>Discover</h3>
-            <p>Find Flutter apps already installed, or pick a single APK.</p>
-          </li>
-          <li>
-            <h3>Inspect</h3>
-            <p>Read libraries, endpoints and exposed strings from the release.</p>
-          </li>
-          <li>
-            <h3>Report</h3>
-            <p>Save the evidence on the phone; nothing is uploaded.</p>
-          </li>
-        </ul>
-      </section>
-
-      <section id="pros" class="section container" aria-labelledby="pros-title">
-        <h2 id="pros-title">Why it stays local</h2>
-        <ul class="pros-list">
-          <li>
-            <h3>Offline by design</h3>
-            <p>Scans run on your device, without uploads.</p>
-          </li>
-          <li>
-            <h3>Open source</h3>
-            <p>MIT code you can read, build and question.</p>
-          </li>
-          <li>
-            <h3>No account</h3>
-            <p>No sign-up, no sync, no analytics. Open it and scan.</p>
-          </li>
-        </ul>
+        <div class="section-head">
+          <h2 id="features-title">What it does</h2>
+          <label class="motion-control" for="pause-motion">
+            <input type="checkbox" id="pause-motion">
+            <span>Pause motion</span>
+          </label>
+        </div>
+        <div class="chain">
+          <ul class="chain__track">
+            <li class="chain__node">
+              <h3>Discover</h3>
+              <p>Find Flutter apps already installed, or pick a single APK.</p>
+            </li>
+            <li class="chain__node">
+              <h3>Inspect</h3>
+              <p>Read libraries, endpoints and exposed strings from the release.</p>
+            </li>
+            <li class="chain__node">
+              <h3>Report</h3>
+              <p>Save the evidence on the phone; nothing is uploaded.</p>
+            </li>
+          </ul>
+          <ul class="chain__track" aria-hidden="true">
+            <li class="chain__node">
+              <h3>Discover</h3>
+              <p>Find Flutter apps already installed, or pick a single APK.</p>
+            </li>
+            <li class="chain__node">
+              <h3>Inspect</h3>
+              <p>Read libraries, endpoints and exposed strings from the release.</p>
+            </li>
+            <li class="chain__node">
+              <h3>Report</h3>
+              <p>Save the evidence on the phone; nothing is uploaded.</p>
+            </li>
+          </ul>
+        </div>
       </section>
 
       <section id="contact" class="section container contact" aria-labelledby="contact-title">
         <h2 id="contact-title">Contact</h2>
-        <p>Questions or feedback? Email <a href="mailto:work@gwhyyy.com">work@gwhyyy.com</a>, or open a <a href="https://github.com/anasfik/FlutterGuard/issues">GitHub issue</a>.</p>
+        <p>Questions, bug reports or feature ideas. Email works without an account.</p>
+        <ul class="contact-actions">
+          <li><a href="mailto:work@gwhyyy.com">Email work@gwhyyy.com</a></li>
+          <li><a href="https://github.com/anasfik/FlutterGuard/issues">Open a GitHub issue</a></li>
+        </ul>
       </section>
     </main>
 

@@ -95,9 +95,13 @@ def main(argv: list[str]) -> int:
               and "Security audit any released Flutter app" in titles["alt"], str(titles))
         hero_text = page.locator(".hero-copy").inner_text().lower()
         check("no visible Android 8+ copy in the hero", "android 8" not in hero_text, hero_text)
-        check("privacy sentence matches the shipped policy",
-              "scans run on your device, without uploads." in page.locator("#pros .pros-list > li:first-child p").inner_text().lower()
-              and "cannot leave the device" not in hero_text + page.locator("body").inner_text().lower())
+        # The old #pros sentence is gone with that section; the on-device claim
+        # now lives in the "Report" step, and the absolute no-export promise
+        # must still never appear anywhere.
+        features_text = page.locator("#features").inner_text().lower()
+        check("on-device privacy claim survives without an absolute guarantee",
+              "nothing is uploaded" in features_text
+              and "cannot leave the device" not in hero_text + page.locator("body").inner_text().lower(), features_text[:200])
 
         page.evaluate("document.fonts.ready")
         check("Manrope self-hosted and loaded", page.evaluate("[...document.fonts].some(f => f.family.replace(/[\"\']/g, '') === 'Manrope' && f.status === 'loaded')"))
@@ -125,14 +129,43 @@ def main(argv: list[str]) -> int:
         check("phone poster has useful alt text", bool(poster) and len(poster["alt"]) > 30)
         check("poster sits in a phone frame", page.locator(".device-frame .device-poster").count() == 1)
         check("no fake video/player", page.locator("video, .player, [class*='play-button'], [class*='play-icon'], button[aria-label*='play' i]").count() == 0)
-        caption = page.locator(".device-caption").inner_text().lower() if page.locator(".device-caption").count() else ""
-        check("caption says preview and recording later", "preview" in caption and "recording" in caption, caption)
+        check("no device caption element", page.locator(".device-caption, .hero-device figcaption").count() == 0
+              and "screen recording is coming later" not in page.locator("body").inner_text().lower())
+
+        # Ambient backdrop behind the phone: decorative, clipped, physics-free.
+        ambient = page.evaluate("""() => {
+            const el = document.querySelector('.hero-device .device-ambient');
+            const frame = document.querySelector('.hero-device .device-frame');
+            if (!el || !frame) return null;
+            const s = getComputedStyle(el);
+            const host = getComputedStyle(el.parentElement);
+            return {hidden: el.getAttribute('aria-hidden'), pe: s.pointerEvents, pos: s.position,
+                    bg: s.backgroundImage, z: s.zIndex,
+                    inside: el.parentElement.classList.contains('hero-device'),
+                    beforeFrame: !!(el.compareDocumentPosition(frame) & Node.DOCUMENT_POSITION_FOLLOWING),
+                    clip: host.overflow || host.overflowX,
+                    anim: s.animationName, play: s.animationPlayState};
+        }""")
+        check("hero ambient layer is decorative, clipped and behind the frame",
+              bool(ambient) and ambient["hidden"] == "true" and ambient["pe"] == "none"
+              and ambient["pos"] == "absolute" and ambient["inside"] and ambient["beforeFrame"]
+              and ambient["bg"] != "none" and ambient["clip"] in ("clip", "hidden"), str(ambient))
 
         # Install cluster: working GitHub/APK actions, honest unavailable Play badge.
         hrefs = page.eval_on_selector_all("a[href]", "els => els.map(e => ({href: e.getAttribute('href'), text: e.textContent.trim()}))")
         find = lambda h: [a for a in hrefs if a["href"] == h]
-        check("GitHub source link exact + labelled", page.evaluate("""() => [...document.querySelectorAll('a[href="https://github.com/anasfik/FlutterGuard"]')]
-            .some(a => (a.textContent || '').includes('GitHub') || [...a.querySelectorAll('img')].some(i => i.alt === 'GitHub'))"""))
+        check("GitHub source link in the navbar + labelled", page.evaluate("""() => [...document.querySelectorAll('header a[href="https://github.com/anasfik/FlutterGuard"]')]
+            .some(a => (a.getAttribute('aria-label') || a.textContent || '').includes('GitHub') || [...a.querySelectorAll('img')].some(i => i.alt === 'GitHub'))"""))
+        check("Get app primary in the navbar links the working release",
+              page.locator(f'header a[href="{DOWNLOAD}"]').count() == 1
+              and page.locator(f'header a[href="{DOWNLOAD}"]').inner_text().strip() == "Get app",
+              str(find(DOWNLOAD)))
+        check("hero action row no longer holds a GitHub button",
+              page.locator(".install-actions .github-button").count() == 0
+              and page.locator(f'.hero a[href="{SOURCE}"]').count() == 0)
+        check("hero holds exactly one interactive install action",
+              page.locator(".install-actions a").count() == 1
+              and page.locator(".install-actions a").first.get_attribute("href") == DOWNLOAD)
         check("Download APK link exact + labelled", any("Download APK" in a["text"] for a in find(DOWNLOAD)))
         check("Play badge is not a link to a dead listing", not any(a["href"] == PLAY for a in hrefs))
         check("unavailable Play text is explicit", "Not yet available on Google Play" in page.locator(".store-note").inner_text() if page.locator(".store-note").count() else False)
@@ -152,7 +185,7 @@ def main(argv: list[str]) -> int:
         check("official Play badge is non-interactive", bool(badge) and not badge["linked"] and badge["tab"] == -1, str(badge))
         check("official Play badge alt tells the truth", bool(badge) and "Google Play" in badge["alt"] and "not yet available" in badge["alt"].lower(), str(badge))
         gh = page.evaluate("""() => {
-            const a = document.querySelector('.github-button');
+            const a = document.querySelector('header .github-button');
             if (!a) return null;
             const s = getComputedStyle(a);
             const img = a.querySelector('img');
@@ -168,32 +201,82 @@ def main(argv: list[str]) -> int:
             return els.every(e => { const r = e.getBoundingClientRect(); return r.height >= 43.5 || r.width >= 43.5; });
         }"""))
 
-        # Same-row install actions share a height; the Play note has no orphan word.
+        # One aligned install row: primary button and the official badge are 48px
+        # high on the same optical line, note attached to the badge cluster.
         row = page.evaluate("""() => {
             const d = document.querySelector('.download-button').getBoundingClientRect();
-            const g = document.querySelector('.github-button').getBoundingClientRect();
+            const b = document.querySelector('.play-badge').getBoundingClientRect();
             const el = document.querySelector('.store-note');
             const s = el ? getComputedStyle(el) : null;
             const range = document.createRange();
             if (el) range.selectNodeContents(el);
             const widths = el ? [...range.getClientRects()].filter(r => r.width > 0).map(r => r.width) : [];
-            return {download: Math.round(d.height * 10) / 10, github: Math.round(g.height * 10) / 10,
-                    downloadW: Math.round(d.width), githubW: Math.round(g.width),
+            const slot = document.querySelector('.install-actions .play-slot');
+            return {download: Math.round(d.height * 10) / 10, badge: Math.round(b.height * 10) / 10,
+                    topGap: Math.round(Math.abs(d.top - b.top) * 10) / 10,
+                    downloadW: Math.round(d.width), badgeW: Math.round(b.width),
+                    badgeInSlot: !!slot && !!slot.querySelector('.play-badge'),
+                    noteInSlot: !!slot && !!slot.querySelector('.store-note'),
                     wrap: s ? (s.textWrap || s['text-wrap']) : null, lines: widths.length,
                     last: widths.length ? Math.round(widths[widths.length - 1]) : 0,
                     widest: widths.length ? Math.round(Math.max(...widths)) : 0};
         }""")
-        check("same-row install actions share a height", row["download"] >= 44 and abs(row["download"] - row["github"]) <= 0.5, str(row))
+        check("hero install row: primary and Play badge share one aligned 48px row",
+              abs(row["download"] - 48) <= 0.6 and abs(row["badge"] - 48) <= 0.6 and row["topGap"] <= 1, str(row))
+        check("Play note is attached to the badge cluster", row["badgeInSlot"] and row["noteInSlot"], str(row))
         check("Play note wraps without a one-word orphan", row["wrap"] == "balance" and row["lines"] <= 2
               and row["last"] >= 0.35 * row["widest"], str(row))
 
         # Content regions and copy.
         check("features section", page.locator("#features").count() == 1)
-        check("three feature rows", page.locator("#features .feature-list > li").count() == 3)
-        check("pros section", page.locator("#pros").count() == 1)
-        check("three pros", page.locator("#pros .pros-list > li").count() == 3)
+        check("features heading unchanged", page.locator("#features h2").inner_text().strip() == "What it does")
+        nodes = [
+            ("Discover", "Find Flutter apps already installed, or pick a single APK."),
+            ("Inspect", "Read libraries, endpoints and exposed strings from the release."),
+            ("Report", "Save the evidence on the phone; nothing is uploaded."),
+        ]
+        chain = page.evaluate("""() => {
+            const tracks = [...document.querySelectorAll('#features .chain__track')];
+            const real = tracks.find(t => t.getAttribute('aria-hidden') !== 'true') || tracks[0];
+            const dup = tracks.find(t => t.getAttribute('aria-hidden') === 'true');
+            const read = (ul) => [...ul.querySelectorAll(':scope > li')].map(li => [
+                (li.querySelector('h3')?.textContent || '').trim(),
+                (li.querySelector('p')?.textContent || '').trim()]);
+            return {tracks: tracks.length,
+                    real: real ? read(real) : [], dup: dup ? read(dup) : [],
+                    dupFocusable: dup ? dup.querySelectorAll('a, button, input, select, textarea, [tabindex]').length : -1,
+                    connector: real && real.querySelector('li') ? (getComputedStyle(real.querySelector('li'), '::after').content !== 'none'
+                                       || getComputedStyle(real.querySelector('li'), '::before').content !== 'none') : false};
+        }""")
+        check("three named steps in one connected track", chain["real"] == [[t, b] for t, b in nodes], str(chain["real"]))
+        check("duplicate loop track is hidden from AT and inert",
+              chain["tracks"] == 2 and chain["dup"] == chain["real"] and chain["dupFocusable"] == 0, str(chain))
+        check("chain nodes are visually connected", chain["connector"], str(chain))
+        check("no removed 'Why it stays local' section",
+              page.locator("#pros, #pros-title, .pros-list").count() == 0
+              and "why it stays local" not in page.locator("body").inner_text().lower())
+        check("no dead #pros anchor", page.locator('a[href="#pros"]').count() == 0)
         check("contact section", page.locator("#contact").count() == 1)
-        check("visible email link", any(a["text"] == "work@gwhyyy.com" for a in find(EMAIL)))
+        contact = page.evaluate("""() => {
+            const s = document.querySelector('#contact');
+            const links = [...s.querySelectorAll('a')].map(a => {
+                const r = a.getBoundingClientRect();
+                return {href: a.getAttribute('href'), text: (a.textContent || '').trim(),
+                        h: Math.round(r.height * 10) / 10, w: Math.round(r.width * 10) / 10};
+            });
+            return {links, h2: (s.querySelector('h2')?.textContent || '').trim(),
+                    forms: document.querySelectorAll('form').length, words: s.innerText.trim().split(/\\s+/).length};
+        }""")
+        check("contact offers exactly two actions and no form",
+              contact["h2"] == "Contact" and len(contact["links"]) == 2 and contact["forms"] == 0, str(contact))
+        check("contact actions are the email and issue channels",
+              sorted(l["href"] for l in contact["links"]) == sorted([EMAIL, SOURCE + "/issues"]), str(contact["links"]))
+        check("contact labels are explicit and >=44px tall",
+              sorted(l["text"] for l in contact["links"]) == sorted(["Email work@gwhyyy.com", "Open a GitHub issue"])
+              and all(l["h"] >= 43.5 for l in contact["links"]), str(contact["links"]))
+        check("contact copy stays short", contact["words"] <= 40, f"{contact['words']} words")
+        check("visible email link", any(a["text"] == "work@gwhyyy.com" for a in find(EMAIL))
+              or any(a["text"] == "Email work@gwhyyy.com" for a in find(EMAIL)), str(find(EMAIL)))
         check("privacy link exact", bool(find(PRIVACY)))
         check("MIT license link exact", bool(find(LICENSE)))
         check("issues link exact", bool(find(SOURCE + "/issues")))
@@ -214,20 +297,25 @@ def main(argv: list[str]) -> int:
         check("no collapsed disclosure element", page.locator("details").count() == 0)
         removed = (
             "before you install",
-            "android 8 or newer",
+            "android 8",
             "static analysis records what the apk contains",
             "scan only apps you own or are authorised to test",
             "requires an uninstall",
             "exports are not a history restore",
             "flutter is a trademark of google llc",
             "not affiliated with google",
+            "why it stays local",
+            "app preview. a screen recording is coming later",
         )
-        check("removed disclosure copy absent from body DOM text", all(s not in dom_text for s in removed),
+        check("removed copy absent from body DOM text", all(s not in dom_text for s in removed),
               str([s for s in removed if s in dom_text]))
         check("removed copy absent from visible text", all(s not in body_text for s in removed),
               str([s for s in removed if s in body_text]))
         check("no visible Android 8+ copy", "android 8" not in body_text, body_text[:200])
         check("no absolute no-export privacy claim", "cannot leave the device" not in body_text)
+        home_html = page.request.get(base + "/").text()
+        check("recording handoff comment preserved for the real clip",
+              "Recording slot" in home_html and "<video" in home_html and "audit-recording.mp4" in home_html)
         for path in ("/sitemap.xml", "/llms.txt", "/llms-full.txt"):
             r = page.request.get(base + path)
             check(f"{path} avoids demo", r.status == 200 and "/demo" not in r.text(), str(r.status))
@@ -246,6 +334,11 @@ def main(argv: list[str]) -> int:
             r = page.request.get(base + path)
             got = (r.headers.get("content-type") or "").split(";")[0]
             check(f"{path} 200 + {ctype}", r.status == 200 and got == ctype, f"{r.status} {got}")
+
+        # Dead rules must not ship once their markup is gone.
+        css = page.request.get(base + "/styles.css").text()
+        for dead in (".eyebrow", ".device-caption", ".pros-list", ".feature-list"):
+            check(f"styles.css carries no dead {dead} rule", dead not in css)
 
         # Caching is a server concern; nginx must send it, Python preview may not.
         for path, needle in (("/assets/fonts/manrope-latin.woff2", "max-age=31536000"), ("/styles.css", "max-age=3600")):
@@ -271,6 +364,40 @@ def main(argv: list[str]) -> int:
             page.wait_for_timeout(80)
             overflow = page.evaluate("document.documentElement.scrollWidth - window.innerWidth")
             check(f"no horizontal overflow at {width}px", overflow <= 1, f"{overflow}px")
+
+        # Navbar is one row of reachable controls at desktop widths.
+        for width in (1024, 1280, 1440):
+            page.set_viewport_size({"width": width, "height": 900})
+            page.wait_for_timeout(80)
+            nav = page.evaluate("""() => {
+                const items = [...document.querySelectorAll('header .brand, header .site-nav > a')]
+                    .filter(e => e.getBoundingClientRect().width > 0)
+                    .map(e => e.getBoundingClientRect());
+                const cys = items.map(r => r.top + r.height / 2);
+                return {count: items.length, spread: Math.round((Math.max(...cys) - Math.min(...cys)) * 10) / 10,
+                        headerH: Math.round(document.querySelector('.header-inner').getBoundingClientRect().height),
+                        overflow: Math.round(document.documentElement.scrollWidth - innerWidth)};
+            }""")
+            check(f"navbar holds one row at {width}px", nav["count"] >= 5 and nav["spread"] <= 1.5
+                  and nav["headerH"] <= 96 and nav["overflow"] <= 1, str(nav))
+
+        for width in (320, 390):
+            page.set_viewport_size({"width": width, "height": 844})
+            page.wait_for_timeout(80)
+            navsmall = page.evaluate("""() => {
+                const els = [...document.querySelectorAll('header .brand, header .site-nav > a')]
+                    .filter(e => e.getBoundingClientRect().width > 0)
+                    .map(e => { const r = e.getBoundingClientRect();
+                        return {cls: e.className, left: Math.round(r.left), right: Math.round(r.right),
+                                h: Math.round(r.height * 10) / 10}; });
+                return {els, vw: innerWidth, overflow: Math.round(document.documentElement.scrollWidth - innerWidth)};
+            }""")
+            check(f"navbar brand, GitHub and Get app stay reachable at {width}px",
+                  navsmall["overflow"] <= 1 and len(navsmall["els"]) >= 3
+                  and any("github-button" in e["cls"] for e in navsmall["els"])
+                  and any("navbar-cta" in e["cls"] for e in navsmall["els"])
+                  and all(0 <= e["left"] and e["right"] <= navsmall["vw"] and e["h"] >= 43.5 for e in navsmall["els"]),
+                  str(navsmall))
 
         page.set_viewport_size({"width": 390, "height": 844})
         page.wait_for_timeout(100)
@@ -334,13 +461,10 @@ def main(argv: list[str]) -> int:
         tablet = page.evaluate("""() => {
             const fig = document.querySelector('.hero-device').getBoundingClientRect();
             const hero = document.querySelector('.hero').getBoundingClientRect();
-            const cap = document.querySelector('.device-caption');
-            return {left: Math.round(fig.left - hero.left), right: Math.round(hero.right - fig.right),
-                    captionAlign: getComputedStyle(cap).textAlign, captionWrap: getComputedStyle(cap).textWrap};
+            return {left: Math.round(fig.left - hero.left), right: Math.round(hero.right - fig.right)};
         }""")
-        check("tablet phone figure and caption centered in the single column",
-              abs(tablet["left"] - tablet["right"]) <= 8 and tablet["captionAlign"] == "center"
-              and tablet["captionWrap"] == "balance", str(tablet))
+        check("tablet phone figure centered in the single column",
+              abs(tablet["left"] - tablet["right"]) <= 8, str(tablet))
 
         # Word budget covers the visible page.
         page.set_viewport_size({"width": 1440, "height": 900})
@@ -368,6 +492,93 @@ def main(argv: list[str]) -> int:
         durations = page.evaluate("""() => [...document.querySelectorAll('.button, .github-button, .download-button, a')]
             .slice(0, 8).map(e => getComputedStyle(e).transitionDuration)""")
         check("reduced motion collapses transitions", all(d in ("0.00001s", "0s", "0.01ms", "1e-05s") for d in durations), str(durations))
+
+        static_motion = page.evaluate("""() => {
+            const track = document.querySelector('.chain__track');
+            const amb = document.querySelector('.device-ambient');
+            if (!track || !amb) return null;
+            const t = getComputedStyle(track);
+            const a = getComputedStyle(amb);
+            return {trackName: t.animationName, trackPlay: t.animationPlayState,
+                    ambName: a.animationName, ambPlay: a.animationPlayState, ambBg: a.backgroundImage};
+        }""")
+        check("reduced motion leaves a static, still-decorated chain and hero backdrop",
+              bool(static_motion) and static_motion["trackName"] == "none" and static_motion["trackPlay"] == "paused"
+              and static_motion["ambName"] == "none" and static_motion["ambPlay"] == "paused"
+              and static_motion["ambBg"] not in ("", "none"), str(static_motion))
+
+        # Motion context: the loop and the drift run, and the native pause control works.
+        motion = browser.new_context(viewport={"width": 1440, "height": 900}, reduced_motion="no-preference")
+        mp = motion.new_page()
+        mp.goto(base + "/", wait_until="load")
+        mp.wait_for_timeout(200)
+        anim = mp.evaluate("""() => {
+            const track = document.querySelector('.chain__track');
+            const amb = document.querySelector('.device-ambient');
+            if (!track || !amb) return null;
+            const t = getComputedStyle(track);
+            const a = getComputedStyle(amb);
+            const secs = (s) => (s || '0s').split(',').map(v => parseFloat(v) || 0);
+            return {trackName: t.animationName, trackDur: secs(t.animationDuration), trackPlay: t.animationPlayState,
+                    trackIter: t.animationIterationCount, ambName: a.animationName,
+                    ambDur: secs(a.animationDuration), ambPlay: a.animationPlayState};
+        }""")
+        check("chain loops slowly and endlessly",
+              bool(anim) and anim["trackName"] != "none" and all(d >= 25 for d in anim["trackDur"])
+              and anim["trackIter"] == "infinite", str(anim))
+        check("hero ambient drift runs behind the phone",
+              bool(anim) and anim["ambName"] != "none" and all(d >= 25 for d in anim["ambDur"]), str(anim))
+        props = mp.evaluate("""() => {
+            const out = [];
+            for (const sheet of document.styleSheets) {
+                let rules; try { rules = sheet.cssRules; } catch (e) { continue; }
+                for (const rule of rules) {
+                    if (rule.type !== CSSRule.KEYFRAMES_RULE) continue;
+                    for (const kf of rule.cssRules) for (const p of kf.style) out.push(p);
+                }
+            }
+            return [...new Set(out)].sort();
+        }""")
+        check("keyframes animate transform/opacity only", bool(props) and set(props) <= {"transform", "opacity"}, str(props))
+        ctl = mp.evaluate("""() => {
+            const box = document.querySelector('#pause-motion');
+            const label = box ? ((box.labels && box.labels[0]) || document.querySelector('label[for="pause-motion"]')) : null;
+            if (!box || !label) return null;
+            const r = label.getBoundingClientRect();
+            return {type: box.type, inFeatures: !!box.closest('#features'), checked: box.checked,
+                    label: (label.textContent || '').trim(), h: Math.round(r.height * 10) / 10,
+                    w: Math.round(r.width * 10) / 10, focusable: box.tabIndex >= 0,
+                    inlineScript: document.querySelectorAll('script:not([type="application/ld+json"])').length,
+                    handlers: document.querySelectorAll('[onclick], [onmouseover], [onload]').length};
+        }""")
+        check("pause control is a labelled checkbox in the features section",
+              bool(ctl) and ctl["type"] == "checkbox" and ctl["inFeatures"] and ctl["label"] == "Pause motion"
+              and ctl["focusable"] and ctl["checked"] is False, str(ctl))
+        check("pause control target >= 44px", bool(ctl) and ctl["h"] >= 43.5, str(ctl))
+        check("no script or inline handler needed for pause", bool(ctl) and ctl["inlineScript"] == 0 and ctl["handlers"] == 0, str(ctl))
+        if ctl:
+            mp.locator('label[for="pause-motion"]').click()
+            mp.wait_for_timeout(60)
+        paused = mp.evaluate("""() => {
+            const box = document.querySelector('#pause-motion');
+            const track = document.querySelector('.chain__track');
+            const amb = document.querySelector('.device-ambient');
+            if (!box || !track || !amb) return null;
+            return {checked: box.checked, trackPlay: getComputedStyle(track).animationPlayState,
+                    ambPlay: getComputedStyle(amb).animationPlayState};
+        }""")
+        check("pause control freezes the chain and the ambient drift",
+              bool(paused) and paused["checked"] and paused["trackPlay"] == "paused"
+              and paused["ambPlay"] == "paused", str(paused))
+        if shots and ctl:
+            mp.set_viewport_size({"width": 1440, "height": 900})
+            mp.locator("#features").scroll_into_view_if_needed()
+            mp.wait_for_timeout(150)
+            mp.locator("#features").screenshot(path=str(shots / "preliminary-chain-1440-paused.png"))
+            mp.locator('label[for="pause-motion"]').click()
+            mp.wait_for_timeout(150)
+            mp.locator("#features").screenshot(path=str(shots / "preliminary-chain-1440.png"))
+        motion.close()
 
         if shots:
             page.set_viewport_size({"width": 1440, "height": 900})
@@ -428,13 +639,13 @@ def main(argv: list[str]) -> int:
         check("404 document stays noindex", 'name="robots" content="noindex' in direct_html)
         check("404 document has no canonical", 'rel="canonical"' not in direct_html)
 
-        # Forced colors must keep the branded GitHub action visible and focusable.
+        # Forced colors must keep every primary action readable and button-like.
         fc = browser.new_context(viewport={"width": 1440, "height": 900}, forced_colors="active")
         fcp = fc.new_page()
         fcp.goto(base + "/", wait_until="load")
         fcp.wait_for_timeout(150)
         fc_state = fcp.evaluate("""() => {
-            const a = document.querySelector('.github-button');
+            const a = document.querySelector('header .github-button');
             if (!a) return null;
             const s = getComputedStyle(a);
             const img = a.querySelector('img');
@@ -447,18 +658,70 @@ def main(argv: list[str]) -> int:
               bool(fc_state) and fc_state["bg"] in ("rgb(24, 23, 23)", "rgb(0, 0, 0)")
               and fc_state["adjust"] == "none" and fc_state["icon"] == "/assets/brand/github-lockup-white.svg"
               and fc_state["iconOk"] and fc_state["iconFilter"] == "none", str(fc_state))
-        fcp.locator(".download-button").focus()
-        fcp.keyboard.press("Tab")
-        fc_focus = fcp.evaluate("""() => {
-            const el = document.activeElement;
-            const s = getComputedStyle(el);
-            return {cls: el.className, focusVisible: el.matches(':focus-visible'),
-                    style: s.outlineStyle, width: parseFloat(s.outlineWidth), color: s.outlineColor};
+        fc_primary = fcp.evaluate("""() => {
+            const lum = (c) => {
+                const parts = (c.match(/[\\d.]+/g) || ['0', '0', '0']).slice(0, 3).map(Number).map(v => {
+                    const s = v / 255;
+                    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+                });
+                return 0.2126 * parts[0] + 0.7152 * parts[1] + 0.0722 * parts[2];
+            };
+            const ratio = (a, b) => { const p = [lum(a), lum(b)].sort((x, y) => y - x); return (p[0] + 0.05) / (p[1] + 0.05); };
+            const read = (el) => {
+                if (!el) return null;
+                const s = getComputedStyle(el);
+                const r = el.getBoundingClientRect();
+                return {bg: s.backgroundColor, color: s.color,
+                        borderW: parseFloat(s.borderTopWidth), borderStyle: s.borderTopStyle,
+                        borderColor: s.borderTopColor,
+                        contrast: Math.round(ratio(s.color, s.backgroundColor) * 100) / 100,
+                        h: Math.round(r.height * 10) / 10};
+            };
+            return {download: read(document.querySelector('.download-button')),
+                    cta: read(document.querySelector('.navbar-cta')),
+                    page: getComputedStyle(document.body).backgroundColor};
         }""")
+        visible_border = ("rgba(0, 0, 0, 0)", "transparent")
+        check("forced colors keeps the hero primary action a readable button",
+              bool(fc_primary) and fc_primary["download"] is not None
+              and fc_primary["download"]["borderW"] >= 1 and fc_primary["download"]["borderStyle"] == "solid"
+              and fc_primary["download"]["borderColor"] not in visible_border
+              and fc_primary["download"]["contrast"] >= 4.5 and fc_primary["download"]["h"] >= 43.5,
+              str(fc_primary))
+        check("forced colors keeps the navbar Get app a readable button",
+              bool(fc_primary) and fc_primary["cta"] is not None
+              and fc_primary["cta"]["borderW"] >= 1 and fc_primary["cta"]["borderStyle"] == "solid"
+              and fc_primary["cta"]["borderColor"] not in visible_border
+              and fc_primary["cta"]["contrast"] >= 4.5 and fc_primary["cta"]["h"] >= 43.5,
+              str(fc_primary))
+
+        def focus_state(pg):
+            return pg.evaluate("""() => {
+                const el = document.activeElement;
+                const s = getComputedStyle(el);
+                return {cls: el.className, focusVisible: el.matches(':focus-visible'),
+                        style: s.outlineStyle, width: parseFloat(s.outlineWidth),
+                        color: s.outlineColor, bg: s.backgroundColor};
+            }""")
+
+        def ring_ok(state):
+            return (state["focusVisible"] and state["style"] == "solid" and state["width"] >= 2
+                    and state["color"] not in visible_border and state["color"] != state["bg"])
+
+        fcp.locator(".download-button").focus()
+        fcp.keyboard.press("Shift+Tab")  # backwards lands on the navbar primary
+        fc_nav_focus = focus_state(fcp)
+        check("forced colors keeps a visible focus outline on the navbar Get app",
+              fc_nav_focus["cls"] == "navbar-cta" and ring_ok(fc_nav_focus), str(fc_nav_focus))
+        fcp.keyboard.press("Shift+Tab")
+        fc_focus = focus_state(fcp)
         check("forced colors keeps a visible focus outline on the GitHub button",
-              fc_focus["cls"] == "github-button" and fc_focus["focusVisible"]
-              and fc_focus["style"] == "solid" and fc_focus["width"] >= 2
-              and fc_focus["color"] not in ("rgba(0, 0, 0, 0)", "transparent"), str(fc_focus))
+              fc_focus["cls"] == "github-button" and ring_ok(fc_focus), str(fc_focus))
+        fcp.keyboard.press("Tab")
+        fcp.keyboard.press("Tab")
+        fc_hero_focus = focus_state(fcp)
+        check("forced colors keeps a visible focus outline on the hero primary action",
+              fc_hero_focus["cls"] == "download-button" and ring_ok(fc_hero_focus), str(fc_hero_focus))
         if shots:
             fcp.screenshot(path=str(shots / "preliminary-forced-colors-1440.png"))
             info(f"forced-colors capture: {shots / 'preliminary-forced-colors-1440.png'}")

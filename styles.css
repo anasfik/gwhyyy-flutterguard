@@ -155,22 +155,60 @@ img {
 
 .site-nav {
   display: flex;
-  gap: var(--s6);
+  align-items: center;
+  gap: var(--s4);
 }
 
 .site-nav a {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   min-height: var(--touch);
+  border-radius: .375rem;
+  text-decoration: none;
+}
+
+.site-nav .nav-text {
   color: var(--muted);
   font-weight: 500;
-  text-decoration: none;
   transition: color var(--fast) var(--ease);
 }
 
-.site-nav a:hover,
-.site-nav a:active {
+.site-nav .nav-text:hover,
+.site-nav .nav-text:active {
   color: var(--ink);
+}
+
+.github-button {
+  padding: .55rem .9rem;
+  background: var(--github);
+  transition: background-color var(--fast) var(--ease), transform var(--fast) var(--ease);
+}
+
+.github-button:hover {
+  background: #000;
+}
+
+.github-button img {
+  width: auto;
+  height: 1.375rem;
+}
+
+.navbar-cta {
+  padding: .4rem 1rem;
+  background: var(--accent);
+  color: var(--surface);
+  font-weight: 600;
+  transition: background-color var(--fast) var(--ease), transform var(--fast) var(--ease);
+}
+
+.navbar-cta:hover {
+  background: var(--accent-strong);
+}
+
+.github-button:active,
+.navbar-cta:active {
+  transform: translateY(1px);
 }
 
 /* Hero: copy plus one honest poster in an understated phone shell */
@@ -184,15 +222,6 @@ img {
 
 .hero-copy {
   max-width: 36rem;
-}
-
-.eyebrow {
-  margin-block-end: var(--s3);
-  color: var(--accent);
-  font-size: var(--text-small);
-  font-weight: 600;
-  letter-spacing: .12em;
-  text-transform: uppercase;
 }
 
 h1 {
@@ -216,58 +245,38 @@ h1 {
 .install-actions {
   display: flex;
   flex-wrap: wrap;
-  align-items: stretch;
-  gap: var(--s3);
+  align-items: flex-start;
+  gap: var(--s4);
   margin-block-start: var(--s6);
 }
 
-.download-button,
-.github-button {
+.download-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: var(--touch);
+  min-height: 3rem;
+  padding: .55rem 1.15rem;
   border-radius: .375rem;
-  text-decoration: none;
-  transition: background-color var(--fast) var(--ease), transform var(--fast) var(--ease);
-}
-
-.download-button {
-  padding: .7rem 1.15rem;
   background: var(--accent);
   color: var(--surface);
   font-weight: 600;
+  text-decoration: none;
+  transition: background-color var(--fast) var(--ease), transform var(--fast) var(--ease);
 }
 
 .download-button:hover {
   background: var(--accent-strong);
 }
 
-.github-button {
-  padding: .55rem .9rem;
-  background: var(--github);
-}
-
-.github-button:hover {
-  background: #000;
-}
-
-.download-button:active,
-.github-button:active {
+.download-button:active {
   transform: translateY(1px);
-}
-
-.github-button img {
-  width: auto;
-  height: 1.375rem;
 }
 
 .play-slot {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--s4);
-  margin-block-start: var(--s4);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s2);
 }
 
 /* Official artwork: unmodified, full color, never clipped, filtered or dimmed.
@@ -284,7 +293,7 @@ h1 {
 }
 
 .store-note {
-  max-width: 12rem;
+  max-width: 11rem;
   color: var(--muted);
   font-size: var(--text-small);
   line-height: 1.4;
@@ -292,10 +301,31 @@ h1 {
 }
 
 .hero-device {
+  position: relative;
+  isolation: isolate;
   display: grid;
   justify-items: center;
-  gap: var(--s3);
   margin: 0;
+  /* Clip, not hidden: no scroll container. The padding gives the backdrop box
+     room around the bezel and keeps the drop shadow inside the clip. */
+  overflow: clip;
+  padding: var(--s2) clamp(var(--s2), 4vw, var(--s12));
+}
+
+/* Decorative backdrop behind the poster: layered radial gradients moved on
+   transform only, so it composites without repainting. Static by default;
+   `device-drift` is declared under prefers-reduced-motion: no-preference.
+   Layer technique after MDN radial-gradient and web.dev's animation guide. */
+.device-ambient {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  /* Two offset rings that reach zero inside the clip box, so no edge is ever
+     cut; the drift keeps its scale small enough for that to stay true. */
+  background:
+    radial-gradient(45% 40% at 50% 50%, transparent 52%, rgb(40 95 66 / .22) 68%, transparent 94%),
+    radial-gradient(38% 34% at 46% 56%, transparent 46%, rgb(40 95 66 / .12) 64%, transparent 90%);
 }
 
 .device-frame {
@@ -314,15 +344,6 @@ h1 {
   background: #0d1210;
 }
 
-.device-caption {
-  max-width: 17rem;
-  color: var(--muted);
-  font-size: .8125rem;
-  line-height: 1.5;
-  text-align: center;
-  text-wrap: balance;
-}
-
 /* Sections */
 .section {
   margin-block-start: clamp(var(--s12), 6vw, var(--s16));
@@ -336,50 +357,92 @@ h1 {
   letter-spacing: -.02em;
 }
 
-.feature-list {
-  display: grid;
+.section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s2) var(--s4);
+}
+
+/* WCAG 2.2.2 needs a real mechanism; a native checkbox drives it in CSS. */
+.motion-control {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  min-height: var(--touch);
+  padding-inline: var(--s1);
+  color: var(--muted);
+  font-size: var(--text-small);
+  cursor: pointer;
+}
+
+.motion-control input {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+/* Connected chain: duplicate track + one-track translate (Ryan Mulligan's
+   marquee write-up), connectors drawn by each node's ::after. */
+.chain {
+  --gap: var(--s8);
+  display: flex;
+  gap: var(--gap);
+  overflow: hidden;
   margin-block-start: var(--s6);
 }
 
-.feature-list li {
-  display: grid;
-  grid-template-columns: 11rem 1fr;
-  gap: var(--s6);
-  padding-block: var(--s6);
-  border-block-start: 1px solid var(--line);
+.chain__track {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  gap: var(--gap);
+  min-width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.feature-list li:last-child {
-  border-block-end: 1px solid var(--line);
+.chain__node {
+  position: relative;
+  flex: 1 0 clamp(13rem, 26vw, 20rem);
+  padding-block-start: 1.6rem;
+  padding-inline-end: var(--s4);
 }
 
-.feature-list h3,
-.pros-list h3 {
+.chain__node::before {
+  content: "";
+  position: absolute;
+  inset-block-start: .55rem;
+  inset-inline-start: 0;
+  width: .5rem;
+  height: .5rem;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.chain__node::after {
+  content: "";
+  position: absolute;
+  inset-block-start: .8rem;
+  inset-inline-start: .85rem;
+  inset-inline-end: calc(-1 * var(--gap));
+  height: 1px;
+  background: var(--line);
+}
+
+.chain__node h3 {
   font-size: 1.0625rem;
   font-weight: 600;
   letter-spacing: -.01em;
 }
 
-.feature-list p,
-.pros-list p {
-  max-width: 58ch;
-  color: var(--muted);
-}
-
-.pros-list {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--s8);
-  margin-block-start: var(--s6);
-}
-
-.pros-list li {
-  padding-block-start: var(--s6);
-  border-block-start: 1px solid var(--line);
-}
-
-.pros-list p {
+.chain__node p {
+  max-width: 32ch;
   margin-block-start: var(--s2);
+  color: var(--muted);
   font-size: var(--text-small);
   line-height: 1.6;
 }
@@ -387,8 +450,20 @@ h1 {
 .contact p {
   max-width: 50ch;
   margin-block-start: var(--s4);
-  font-size: 1.25rem;
-  line-height: 1.5;
+  color: var(--muted);
+}
+
+.contact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2) var(--s8);
+  margin-block-start: var(--s6);
+}
+
+.contact-actions a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch);
 }
 
 .contact a,
@@ -487,6 +562,54 @@ h1 {
   text-underline-offset: .2em;
 }
 
+/* Motion is declared only where the visitor has not asked for less: the base
+   rules above are already the complete static design. Both animations move
+   transform alone. Technique: web.dev's animation guide + MDN
+   prefers-reduced-motion; loop after Ryan Mulligan's marquee write-up. */
+@keyframes chain-scroll {
+  to {
+    transform: translateX(calc(-100% - var(--gap)));
+  }
+}
+
+@keyframes device-drift {
+  from {
+    transform: translate3d(-1%, .6%, 0) scale(1);
+  }
+
+  to {
+    transform: translate3d(1%, -.8%, 0) scale(1.03);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .chain {
+    /* Only the looping view needs soft edges; the static grid stays crisp. */
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 var(--s8), #000 calc(100% - var(--s8)), transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 var(--s8), #000 calc(100% - var(--s8)), transparent);
+  }
+
+  .chain__track {
+    animation: chain-scroll 32s linear infinite;
+  }
+
+  .device-ambient {
+    animation: device-drift 40s ease-in-out infinite alternate;
+  }
+
+  .chain:hover .chain__track,
+  .chain:focus-within .chain__track {
+    animation-play-state: paused;
+  }
+}
+
+/* WCAG 2.2.2 Pause, Stop, Hide: one native checkbox pauses every ambient
+   animation on the page, with no script and no CSP change. */
+body:has(#pause-motion:checked) .chain__track,
+body:has(#pause-motion:checked) .device-ambient {
+  animation-play-state: paused;
+}
+
 @media (max-width: 48rem) {
   :root {
     --gutter: 1.25rem;
@@ -510,23 +633,8 @@ h1 {
     width: min(17.5rem, 72vw);
   }
 
-  .device-caption {
-    text-align: center;
-  }
-
-  .feature-list li {
-    grid-template-columns: 1fr;
-    gap: var(--s2);
-    padding-block: var(--s4);
-  }
-
-  .pros-list {
-    grid-template-columns: 1fr;
-    gap: var(--s6);
-  }
-
-  .contact p {
-    font-size: var(--text-lead);
+  .site-nav .nav-text {
+    display: none;
   }
 
   .footer-inner {
@@ -535,6 +643,14 @@ h1 {
 
   .footer-links {
     margin-block-start: calc(-1 * var(--s2));
+  }
+}
+
+/* Below ~23rem the wordmark no longer fits beside three actions; the brand
+   link keeps its accessible name and the icon. */
+@media (max-width: 23rem) {
+  .brand-name {
+    display: none;
   }
 }
 
@@ -553,18 +669,30 @@ h1 {
   }
 
   .site-nav {
-    gap: .75rem;
+    gap: var(--s2);
   }
 
-  .site-nav a {
-    font-size: .875rem;
+  .github-button {
+    padding: .5rem .5rem;
+  }
+
+  .navbar-cta {
+    padding-inline: .7rem;
+    font-size: .9375rem;
+  }
+
+  .install-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--s4);
   }
 
   .download-button {
-    flex: 1 1 auto;
+    width: 100%;
   }
 
   .play-slot {
+    justify-content: center;
     gap: var(--s3);
   }
 
@@ -587,7 +715,30 @@ h1 {
   }
 
   .github-button:focus-visible {
-    outline: 2px solid CanvasText;
+    outline: 2px solid Highlight;
+    outline-offset: 3px;
+  }
+
+  /* Forced colors repaint an accent-filled button to a bare text run, so the
+     primary actions get an explicit system plate, border and text colour. */
+  .download-button,
+  .navbar-cta {
+    forced-color-adjust: none;
+    background: ButtonFace;
+    color: ButtonText;
+    border: 1px solid ButtonText;
+  }
+
+  .download-button:hover,
+  .navbar-cta:hover {
+    background: Highlight;
+    color: HighlightText;
+    border-color: HighlightText;
+  }
+
+  .download-button:focus-visible,
+  .navbar-cta:focus-visible {
+    outline: 2px solid Highlight;
     outline-offset: 3px;
   }
 }
@@ -598,5 +749,41 @@ h1 {
   *::after {
     transition-duration: .01ms !important;
     animation-duration: .01ms !important;
+  }
+
+  /* Mirror the paused state: no loop, no drift, no duplicate track to clip. */
+  .chain {
+    display: block;
+    overflow: visible;
+  }
+
+  .chain__track {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: var(--s6);
+    min-width: 0;
+    animation: none;
+    animation-play-state: paused;
+  }
+
+  .chain__track[aria-hidden="true"] {
+    display: none;
+  }
+
+  .chain__node {
+    padding-inline-end: 0;
+  }
+
+  .chain__node::after {
+    inset-inline-end: 0;
+  }
+
+  .chain__node:last-child::after {
+    content: none;
+  }
+
+  .device-ambient {
+    animation: none;
+    animation-play-state: paused;
   }
 }

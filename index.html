@@ -97,16 +97,14 @@
         </div>
 
         <figure class="hero-device">
-          <!-- Recording slot: the poster is the only media until a real clip exists.
-               To add one, replace the img below with:
-               <video class="device-poster" controls playsinline preload="none"
-                      poster="/assets/app/inventory.webp" width="720" height="1600">
-                 <source src="/assets/app/audit-recording.mp4" type="video/mp4">
-               </video>
-               Keep native controls, no autoplay and no analytics; keep the poster for no-JS. -->
           <span class="device-ambient" aria-hidden="true"></span>
           <div class="device-frame">
-            <img class="device-poster" src="/assets/app/inventory.webp" alt="FlutterGuard installed-app inventory listing Flutter apps with package, version, SDK range and APK size." width="720" height="1600" fetchpriority="high" decoding="async">
+            <video class="device-video" autoplay muted loop playsinline controls preload="metadata"
+                   poster="/assets/app/demo-poster.webp" width="540" height="1200"
+                   aria-label="FlutterGuard demo: scanning installed Flutter apps, reviewing findings and exploring dependencies">
+              <source src="/assets/app/demo.mp4" type="video/mp4">
+              Your browser cannot play embedded video. <a href="/assets/app/demo.mp4">Open the recording (MP4)</a>.
+            </video>
           </div>
         </figure>
       </section>

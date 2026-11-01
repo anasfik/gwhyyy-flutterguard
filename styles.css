@@ -337,7 +337,8 @@ h1 {
   box-shadow: 0 24px 48px -32px rgba(25, 34, 30, .55);
 }
 
-.device-poster {
+.device-video {
+  display: block;
   width: 100%;
   height: auto;
   border-radius: 1.35rem;

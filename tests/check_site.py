@@ -119,23 +119,79 @@ def main(argv: list[str]) -> int:
         check("navbar Contact link", page.locator('header a[href="#contact"]').count() == 1)
         check("no hamburger control", page.locator('header button, header [aria-expanded]').count() == 0)
 
-        # Split hero with copy and one real poster inside a phone frame.
+        # Split hero with copy and one real, self-hosted demo clip inside a phone frame.
         check("split hero present", page.locator(".hero .hero-copy").count() == 1 and page.locator(".hero .hero-device").count() == 1)
-        poster = page.evaluate("""() => {
-            const img = document.querySelector('.device-poster');
-            if (!img) return null;
-            const r = img.getBoundingClientRect();
-            return {src: img.getAttribute('src'), alt: img.alt, w: img.naturalWidth, h: img.naturalHeight,
-                    ok: img.complete && img.naturalWidth > 0, renderedW: Math.round(r.width), renderedH: Math.round(r.height)};
+        try:
+            page.wait_for_function(
+                "() => { const v = document.querySelector('.hero .hero-device video'); return !!v && v.readyState >= 1; }",
+                timeout=15000,
+            )
+        except Exception:
+            info("hero video metadata never loaded (absent or undecodable); the video contract checks report it")
+        video = page.evaluate("""() => {
+            const all = [...document.querySelectorAll('video')];
+            const v = document.querySelector('.hero .hero-device video');
+            if (!v) return {count: all.length, hero: false, srcs: all.map(e => e.getAttribute('src') || '')};
+            const r = v.getBoundingClientRect();
+            return {count: all.length, hero: true, autoplay: v.autoplay, muted: v.muted, loop: v.loop,
+                    playsinline: v.hasAttribute('playsinline'), controls: v.controls,
+                    poster: v.getAttribute('poster'), src: v.getAttribute('src'),
+                    srcs: [...v.querySelectorAll('source')].map(s => s.getAttribute('src')),
+                    label: v.getAttribute('aria-label') || '',
+                    w: v.videoWidth, h: v.videoHeight, dur: Math.round(v.duration || 0),
+                    renderedW: Math.round(r.width), renderedH: Math.round(r.height),
+                    inFrame: !!v.closest('.device-frame'),
+                    fallback: (v.textContent || '').replace(/\\s+/g, ' ').trim(),
+                    links: [...v.querySelectorAll('a[href]')].map(a => a.getAttribute('href'))};
         }""")
-        check("phone poster is the real inventory capture", bool(poster) and (poster["src"] or "").endswith("/assets/app/inventory.webp"), str(poster))
-        check("phone poster 720x1600 and loaded", bool(poster) and poster["w"] == 720 and poster["h"] == 1600 and poster["ok"], str(poster))
-        check("phone poster keeps aspect ratio", bool(poster) and abs((poster["renderedW"] / poster["renderedH"]) - (720 / 1600)) < 0.02, str(poster))
-        check("phone poster has useful alt text", bool(poster) and len(poster["alt"]) > 30)
-        check("poster sits in a phone frame", page.locator(".device-frame .device-poster").count() == 1)
-        check("no fake video/player", page.locator("video, .player, [class*='play-button'], [class*='play-icon'], button[aria-label*='play' i]").count() == 0)
+        check("hero holds exactly one video", bool(video) and video["hero"] and video["count"] == 1, str(video))
+        check("hero video autoplays muted on loop, inline, with native controls",
+              bool(video) and video.get("autoplay") is True and video.get("muted") is True
+              and video.get("loop") is True and video.get("playsinline") is True
+              and video.get("controls") is True, str(video))
+        check("hero video ships one same-origin mp4 source and a poster",
+              bool(video) and video.get("srcs") == ["/assets/app/demo.mp4"] and not video.get("src")
+              and video.get("poster") == "/assets/app/demo-poster.webp", str(video))
+        check("hero video is 540x1200 and the full 81s clip",
+              bool(video) and video.get("w") == 540 and video.get("h") == 1200 and video.get("dur") == 81, str(video))
+        check("hero video keeps the phone aspect ratio",
+              bool(video) and video.get("renderedH")
+              and abs((video["renderedW"] / video["renderedH"]) - (540 / 1200)) < 0.02, str(video))
+        check("hero video has an accessible label", bool(video) and len(video.get("label") or "") > 30, str(video))
+        check("hero video carries an in-element fallback and a link to the clip",
+              bool(video) and len(video.get("fallback") or "") > 10
+              and video.get("links") == ["/assets/app/demo.mp4"], str(video))
+        check("video sits in a phone frame", page.locator(".device-frame .device-video").count() == 1)
+        check("no second video or fake player chrome",
+              page.locator("video").count() == 1
+              and page.locator(".player, [class*='play-button'], [class*='play-icon'], button[aria-label*='play' i]").count() == 0)
+        media_urls = (video.get("srcs") or []) + (video.get("links") or [])
+        check("no iframe and every media URL is same-origin",
+              page.locator("iframe").count() == 0 and bool(media_urls)
+              and all(u.startswith("/") and urlparse(u).netloc in ("", host) for u in media_urls), str(media_urls))
         check("no device caption element", page.locator(".device-caption, .hero-device figcaption").count() == 0
               and "screen recording is coming later" not in page.locator("body").inner_text().lower())
+
+        # Playback proof: the clip decodes and media time advances in a real browser.
+        playback = page.evaluate("""async () => {
+            const v = document.querySelector('.hero .hero-device video');
+            if (!v) return {missing: true};
+            v.muted = true;
+            try { await v.play(); } catch (e) { /* autoplay refusal is the poster+controls fallback */ }
+            if (v.readyState < 2) await new Promise(r => {
+                v.addEventListener('loadeddata', r, {once: true});
+                setTimeout(r, 8000);
+            });
+            const t1 = v.currentTime;
+            await new Promise(r => setTimeout(r, 2000));
+            return {readyState: v.readyState, t1, t2: v.currentTime,
+                    error: v.error && v.error.code, w: v.videoWidth, h: v.videoHeight};
+        }""")
+        check("hero video decodes past metadata (readyState >= 2)",
+              bool(playback) and not playback.get("missing") and playback.get("readyState", 0) >= 2, str(playback))
+        check("hero video playback advances in real time",
+              bool(playback) and not playback.get("missing")
+              and playback.get("t2", 0) - playback.get("t1", 0) >= 1.0, str(playback))
 
         # Ambient backdrop behind the phone: decorative, clipped, physics-free.
         ambient = page.evaluate("""() => {
@@ -298,8 +354,9 @@ def main(argv: list[str]) -> int:
         check("footer maintainer and links", "FlutterGuard by Anas Fikhi" in page.locator("footer").inner_text() and page.locator(".footer-links a").count() == 2)
         check("at most five major content regions", page.evaluate("document.querySelectorAll('main > section, main > .hero').length") <= 5)
 
-        # Demo is fully removed from links, content and sitemap/llms metadata.
-        check("no demo/sample links", not any("/demo" in (a["href"] or "") for a in hrefs))
+        # Demo route is fully removed from links, content and sitemap/llms metadata.
+        # The shipped clip lives at /assets/app/demo.mp4, so only a /demo route is banned.
+        check("no demo/sample links", not any(urlparse(a["href"] or "").path.startswith("/demo") for a in hrefs))
         body_text = page.locator("body").inner_text().lower()
         # textContent of a detached body clone still includes collapsed <details>
         # content, so removed disclosures cannot hide behind a summary.
@@ -330,8 +387,8 @@ def main(argv: list[str]) -> int:
         check("no visible Android 8+ copy", "android 8" not in body_text, body_text[:200])
         check("no absolute no-export privacy claim", "cannot leave the device" not in body_text)
         home_html = page.request.get(base + "/").text()
-        check("recording handoff comment preserved for the real clip",
-              "Recording slot" in home_html and "<video" in home_html and "audit-recording.mp4" in home_html)
+        check("recording slot comment removed now that the clip ships",
+              "Recording slot" not in home_html and "audit-recording.mp4" not in home_html)
         for path in ("/sitemap.xml", "/llms.txt", "/llms-full.txt"):
             r = page.request.get(base + path)
             check(f"{path} avoids demo", r.status == 200 and "/demo" not in r.text(), str(r.status))
@@ -341,6 +398,8 @@ def main(argv: list[str]) -> int:
             ("/styles.css", "text/css"),
             ("/assets/fonts/manrope-latin.woff2", "font/woff2"),
             ("/assets/app/inventory.webp", "image/webp"),
+            ("/assets/app/demo.mp4", "video/mp4"),
+            ("/assets/app/demo-poster.webp", "image/webp"),
             ("/assets/brand/google-play-badge-en.svg", "image/svg+xml"),
             ("/assets/brand/github-lockup-white.svg", "image/svg+xml"),
             ("/icon-192.png", "image/png"),
@@ -350,6 +409,14 @@ def main(argv: list[str]) -> int:
             r = page.request.get(base + path)
             got = (r.headers.get("content-type") or "").split(";")[0]
             check(f"{path} 200 + {ctype}", r.status == 200 and got == ctype, f"{r.status} {got}")
+
+        clip = page.request.get(base + "/assets/app/demo.mp4")
+        check("demo clip is served and stays under 5 MB",
+              clip.status == 200 and 0 < len(clip.body()) <= 5_000_000, f"{clip.status} {len(clip.body())} bytes")
+        poster_asset = page.request.get(base + "/assets/app/demo-poster.webp")
+        check("demo poster is served with an image content type",
+              poster_asset.status == 200 and (poster_asset.headers.get("content-type") or "").startswith("image/"),
+              f"{poster_asset.status} {poster_asset.headers.get('content-type')}")
 
         # Dead rules must not ship once their markup is gone.
         css = page.request.get(base + "/styles.css").text()
@@ -363,7 +430,8 @@ def main(argv: list[str]) -> int:
         # Cache-Control), so presence checks run only against the shipped server.
         server = (home_headers.get("server") or "").lower()
         strict_headers = "nginx" in server
-        for path, needle in (("/assets/fonts/manrope-latin.woff2", "max-age=31536000"), ("/styles.css", "max-age=3600")):
+        for path, needle in (("/assets/fonts/manrope-latin.woff2", "max-age=31536000"), ("/styles.css", "max-age=3600"),
+                             ("/assets/app/demo.mp4", "max-age=604800")):
             r = page.request.get(base + path)
             cc = r.headers.get("cache-control")
             if strict_headers:
@@ -673,6 +741,10 @@ def main(argv: list[str]) -> int:
             info(f"captures written to {shots}")
 
         check("no console errors", not console_errors, "; ".join(console_errors))
+        check("same-origin media plays under the default-src CSP without a media-src exception",
+              bool(playback) and playback.get("readyState", 0) >= 2
+              and not any("Content Security Policy" in e or "Refused to load" in e for e in console_errors),
+              "; ".join(console_errors))
         check("no page errors", not page_errors, "; ".join(page_errors))
         check("no failed requests", not failed, "; ".join(failed))
         check("no failed asset responses", not bad_responses, "; ".join(bad_responses))
@@ -683,7 +755,7 @@ def main(argv: list[str]) -> int:
         njs = nojs.new_page()
         njs.goto(base + "/", wait_until="load")
         check("no-JS h1 visible", njs.locator("h1").is_visible())
-        check("no-JS poster visible", njs.locator(".device-poster").is_visible())
+        check("no-JS video poster visible", njs.locator(".device-video").is_visible())
         check("no-JS Play badge visible", njs.locator(".play-badge img").is_visible())
         check("no-JS working actions visible", njs.locator(f'a[href="{DOWNLOAD}"]').first.is_visible() and njs.locator(f'a[href="{SOURCE}"]').first.is_visible())
         nojs.close()

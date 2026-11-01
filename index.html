@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>FlutterGuard — Look inside a Flutter APK</title>
-    <meta name="description" content="On-device Flutter APK inspection for Android: libraries, endpoints and exposed strings. No uploads, no account. MIT open source.">
+    <meta name="description" content="Inspect a Flutter APK on Android: libraries, endpoints and exposed strings, saved on your device. Offline, no account, MIT open source.">
     <meta name="keywords" content="Flutter APK inspection, Android, offline, static analysis">
     <meta name="author" content="Anas Fikhi">
     <meta name="theme-color" content="#f4f6f5">
@@ -20,13 +20,13 @@
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="FlutterGuard">
     <meta property="og:title" content="Look inside a Flutter APK.">
-    <meta property="og:description" content="Inspect libraries, endpoints and exposed strings. On your Android device, without uploads or an account.">
+    <meta property="og:description" content="Inspect libraries, endpoints and exposed strings on your Android device. Offline, no account.">
     <meta property="og:url" content="https://flutterguard.dev/">
     <meta property="og:image" content="https://flutterguard.dev/og-image.png">
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="FlutterGuard screenshots and the line: Look inside a Flutter APK.">
+    <meta property="og:image:alt" content="FlutterGuard app preview inside a phone frame beside the line: Look inside a Flutter APK.">
     <meta property="og:locale" content="en_US">
 
     <meta name="twitter:card" content="summary_large_image">
@@ -68,51 +68,101 @@
           <img class="brand-mark" src="/assets/app/icon-512.png" alt="" width="28" height="28" decoding="async">
           FlutterGuard
         </a>
+        <nav class="site-nav" aria-label="Primary">
+          <a href="#features">Features</a>
+          <a href="#contact">Contact</a>
+        </nav>
       </div>
     </header>
 
     <main id="main-content" tabindex="-1">
-      <div class="sheet container">
-        <section class="intro" aria-labelledby="title">
+      <section class="hero container" aria-labelledby="title">
+        <div class="hero-copy">
+          <p class="eyebrow">Android app</p>
           <h1 id="title">Look inside a Flutter APK.</h1>
-          <p class="lead">Inspect libraries, endpoints and exposed strings. On your Android device, without uploads or an account.</p>
-          <p class="actions">
-            <a class="button" href="https://github.com/anasfik/FlutterGuard/releases/latest">Download APK</a>
-            <a class="quiet" href="https://github.com/anasfik/FlutterGuard">GitHub</a>
-            <a class="quiet" href="/demo/">See sample</a>
-          </p>
-          <p class="facts">Android 8+, offline, MIT open source.</p>
-        </section>
+          <p class="lead">Inspect an installed Flutter app or a single APK. Read its libraries, endpoints and exposed strings, then save the report on your device.</p>
 
-        <div class="contact-sheet" role="group" aria-label="FlutterGuard screenshots">
-          <figure>
-            <img src="/assets/app/inventory.webp" alt="FlutterGuard installed-app inventory listing Flutter apps with package, version, SDK range and APK size." width="720" height="1600" fetchpriority="high" decoding="async">
-          </figure>
-          <figure>
-            <img src="/assets/app/report.webp" alt="FlutterGuard report overview: severity counts, a grade F summary and APK artifact details for Conduit." width="720" height="1600" loading="lazy" decoding="async">
-          </figure>
+          <div class="install-actions">
+            <a class="download-button" href="https://github.com/anasfik/FlutterGuard/releases/latest">Download APK</a>
+            <a class="github-button" href="https://github.com/anasfik/FlutterGuard">
+              <img src="/assets/brand/github-lockup-white.svg" alt="GitHub" width="96" height="22">
+            </a>
+          </div>
+
+          <div class="play-slot">
+            <span class="play-badge">
+              <img src="/assets/brand/google-play-badge-en.svg" alt="Google Play badge — FlutterGuard is not yet available on Google Play" width="162" height="48">
+            </span>
+            <span class="store-note">Not yet available on Google Play</span>
+          </div>
+
+          <p class="facts">Android 8+ · Offline by design · MIT</p>
         </div>
-      </div>
 
-      <section class="notes container" aria-labelledby="notes-title">
-        <details>
-          <summary><span id="notes-title">Before you install</span></summary>
-          <p>Download the signed APK from <a href="https://github.com/anasfik/FlutterGuard/releases/latest">GitHub releases</a>. Android 8 or newer.</p>
-          <p>Static analysis records what the APK contains; it is evidence, not proof. Scan only apps you own or are authorised to test. Scans can take minutes.</p>
-          <p>Switching between Play and GitHub builds requires an uninstall, which deletes local reports, settings and history. Export first; exports are not a history restore.</p>
-        </details>
+        <figure class="hero-device">
+          <!-- Recording slot: the poster is the only media until a real clip exists.
+               To add one, replace the img below with:
+               <video class="device-poster" controls playsinline preload="none"
+                      poster="/assets/app/inventory.webp" width="720" height="1600">
+                 <source src="/assets/app/audit-recording.mp4" type="video/mp4">
+               </video>
+               Keep native controls, no autoplay and no analytics; keep the poster for no-JS. -->
+          <div class="device-frame">
+            <img class="device-poster" src="/assets/app/inventory.webp" alt="FlutterGuard installed-app inventory listing Flutter apps with package, version, SDK range and APK size." width="720" height="1600" fetchpriority="high" decoding="async">
+          </div>
+          <figcaption class="device-caption">App preview. A screen recording is coming later.</figcaption>
+        </figure>
+      </section>
+
+      <section id="features" class="section container" aria-labelledby="features-title">
+        <h2 id="features-title">What it does</h2>
+        <ul class="feature-list">
+          <li>
+            <h3>Discover</h3>
+            <p>Find Flutter apps already installed, or pick a single APK.</p>
+          </li>
+          <li>
+            <h3>Inspect</h3>
+            <p>Read libraries, endpoints and exposed strings from the release.</p>
+          </li>
+          <li>
+            <h3>Report</h3>
+            <p>Save the evidence on the phone; nothing is uploaded.</p>
+          </li>
+        </ul>
+      </section>
+
+      <section id="pros" class="section container" aria-labelledby="pros-title">
+        <h2 id="pros-title">Why it stays local</h2>
+        <ul class="pros-list">
+          <li>
+            <h3>Offline by design</h3>
+            <p>No INTERNET permission, so scan data cannot leave the device.</p>
+          </li>
+          <li>
+            <h3>Open source</h3>
+            <p>MIT code you can read, build and question.</p>
+          </li>
+          <li>
+            <h3>No account</h3>
+            <p>No sign-up, no sync, no analytics. Open it and scan.</p>
+          </li>
+        </ul>
+      </section>
+
+      <section id="contact" class="section container contact" aria-labelledby="contact-title">
+        <h2 id="contact-title">Contact</h2>
+        <p>Questions or feedback? Email <a href="mailto:work@gwhyyy.com">work@gwhyyy.com</a>, or open a <a href="https://github.com/anasfik/FlutterGuard/issues">GitHub issue</a>.</p>
       </section>
     </main>
 
     <footer class="site-footer">
       <div class="container footer-inner">
-        <p><a href="mailto:work@gwhyyy.com">Anas Fikhi, work@gwhyyy.com</a></p>
+        <p class="footer-name">FlutterGuard by <a href="https://gwhyyy.com">Anas Fikhi</a>.</p>
         <nav class="footer-links" aria-label="Project links">
-          <a href="https://github.com/anasfik/FlutterGuard/issues">Issues</a>
           <a href="https://gwhyyy.com/privacy/flutterguard">Privacy</a>
           <a href="https://github.com/anasfik/FlutterGuard/blob/main/LICENSE">MIT</a>
         </nav>
-        <p class="fine">Flutter is a trademark of Google LLC. Not affiliated with Google.</p>
       </div>
     </footer>
   </body>

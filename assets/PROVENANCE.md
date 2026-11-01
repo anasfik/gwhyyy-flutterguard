@@ -22,14 +22,48 @@ convert raw-overview.png -resize 720x1600 -strip -quality 80 assets/app/report.w
 
 The images keep the real Android status bar, app UI, package names and
 navigation bar. `inventory.webp` shows the installed-app list; `report.webp`
-shows the Conduit report overview. They are the only screenshots on the
-homepage and are referenced with explicit 720x1600 dimensions.
+shows the Conduit report overview. The homepage now uses `inventory.webp` as
+the single phone poster; `report.webp` stays in the repository as an unused
+canonical capture and is not copied into the nginx image. The poster is
+referenced with explicit 720x1600 dimensions and a documented native-video
+replacement point (see the HTML comment beside it); no recording exists yet.
 
 ## OG image
 
-`og-image.png` (1200x630) was rendered from the live local page assets — the
-real app icon, both new screenshots and the self-hosted Manrope face — with
-headless Chromium. No stock or generated imagery.
+`og-image.png` (1200x630, SHA-256
+`d3d18a56b8da25683f04c514250b1b90a97680ecf196f75c801e38066287d9f6`) was
+rendered for the split showcase with headless Chromium from the real app
+poster, the self-hosted Manrope face and the page's own color tokens. No stock
+or generated imagery. The source composition is a local scratch file, not a
+site dependency.
+
+## Official brand assets
+
+Copied unmodified from the research assets in
+`/tmp/opencode/flutterguard-showcase/`; no recoloring, cropping, filters or
+re-typing.
+
+| Output | Source | SHA-256 |
+|---|---|---|
+| `assets/brand/google-play-badge-en.svg` | `get-it-on-google-play-en.svg` (Google Play badge package, digital SVG, English) | `4ffa4c7edd2f10b297ca4de2131eddaa00d03b2278d1e178fe512920d824ca34` |
+| `assets/brand/github-lockup-white.svg` | `github-lockup-white.svg` (`GitHub_Logos.zip`, `GitHub Logos/SVG/GitHub_Lockup_White.svg`) | `d26a77282b5f0fc5e36d52aa64d0a8dfeb042dab5b65802805ce83373d72f5f5` |
+
+- Google Play badge: official Partner Marketing Hub artwork, kept full color at
+  48 CSS px high (natural ratio 238.96:70.87), with one-quarter-height clear
+  space and a solid page background. It is non-interactive (no link, no tab
+  stop) and is paired with the page's own text, "Not yet available on Google
+  Play". Availability was verified 2026-11-01: the listing URL returned HTTP
+  404 for default and US requests while a known-live control returned 200.
+  That proves those requests, not worldwide availability or Play Console
+  review state. There is no published Google rule for showing this badge while
+  a listing is unpublished; this truthful unavailable treatment is our
+  explicit product decision, not a Google-sanctioned pattern. When the listing
+  returns 200, make the badge a link to
+  `https://play.google.com/store/apps/details?id=com.flutterguard.app`.
+- GitHub lockup: official white mark plus wordmark on the brand-exception black
+  button, unchanged, linking to the source repository. GitHub's brand page
+  permits the Invertocat as a link/social button; this does not imply GitHub
+  endorsement. File-level hashes above match the research copies.
 
 ## Font
 

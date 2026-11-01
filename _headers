@@ -15,6 +15,9 @@
 /*.svg
   Cache-Control: public, max-age=86400
 
+/assets/brand/*.svg
+  Cache-Control: public, max-age=86400
+
 /*.png
   Cache-Control: public, max-age=86400
 

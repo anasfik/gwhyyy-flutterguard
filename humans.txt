@@ -9,7 +9,7 @@
   Flutter and Dart teams for the framework
 
 /* SITE */
-  Standards: hand-written HTML, CSS, JavaScript
+  Standards: hand-written HTML and CSS
   Serving: nginx + Docker
   Source: https://github.com/anasfik/FlutterGuard
   License: MIT

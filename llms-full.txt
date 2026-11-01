@@ -61,4 +61,4 @@ FlutterGuard is a local analysis tool. Use it only on applications you own or ar
 - Bugs and feature requests: https://github.com/anasfik/FlutterGuard/issues
 - Email: work@gwhyyy.com
 - Privacy policy: https://gwhyyy.com/privacy/flutterguard
-- Demo of the interface: https://flutterguard.dev/demo/
+- Install: https://github.com/anasfik/FlutterGuard/releases/latest (the Play listing is not public yet)

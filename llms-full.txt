@@ -1,61 +1,64 @@
-# FlutterGuard — full reference
+# FlutterGuard - full reference
 
-> Manual Flutter application security audits for APK and AAB releases.
+> FlutterGuard is an offline, on-device security audit app for Flutter APKs on Android. It reads the release you select and reports what it finds, with grades A, C or F as triage labels. No network access, no account, no root, no PC. MIT licensed.
+>
 > Canonical: https://flutterguard.dev/
-> Contact: work@gwhyyy.com — Booking: https://calendly.com/ffikhi-aanas/30min
+> Download: https://github.com/anasfik/FlutterGuard/releases/latest
+> Source (MIT): https://github.com/anasfik/FlutterGuard
+> Privacy: https://gwhyyy.com/privacy/flutterguard
+> Contact: work@gwhyyy.com
 
-## Who
+## What it is
 
-FlutterGuard is run by Mohamed Anas Fikhi (GWHYYY), Flutter & Software Engineer, Casablanca / remote worldwide.
-GitHub: https://github.com/anasfik — Portfolio: https://gwhyyy.com — LinkedIn: https://linkedin.com/in/mohamed-anas-fikhi
-Selected experience: Gathr (production Flutter app), Rollee Connect (sole Flutter SDK engineer), Dart OpenAI (600+ GitHub stars), Reqistry (5K+ Play Store downloads), Dart Nostr (open-source Dart protocol library).
+FlutterGuard is an Android app for people who ship Flutter apps and want to see what a release APK exposes before someone else does. It runs entirely on the phone. Static analysis of the APK produces evidence; the app organizes that evidence into checks with grades.
 
-## Positioning
+Maintainer: Anas Fikhi, Flutter and Software Engineer.
 
-Automated tools flag patterns; this service decides whether they matter. Automation may assist evidence collection, but the paid review adds context, attacker reasoning, false-positive removal, exploitability assessment, and architecture-aware remediation. Output is a decision, not signal.
+## Install
 
-## Attack surface inspected
+- Android 8.0 (API 26) or newer
+- Download the APK from https://github.com/anasfik/FlutterGuard/releases/latest and install it
+- No account, no root, no PC, no companion service
 
-1. APK / AAB anatomy: package metadata, versions, SDK levels, ABIs, native libraries, assets, Flutter evidence, release/build signals.
-2. Manifest attack surface: permissions, exported activities, services, receivers, providers, cleartext settings, debug flags, backup, deep links.
-3. Secrets and exposed configuration: hardcoded credentials, API keys, environment remnants, URLs, Firebase, Supabase, service configuration, staging infrastructure. A Firebase API key is not automatically a secret or a vulnerability.
-4. Flutter artifacts / libapp.so: readable strings, backend hosts, implementation clues, feature flags, channel names, environment indicators, release information surviving AOT compilation.
-5. Network and backend boundary: hosts, transport configuration, network security config, certificate trust, pinning context, API assumptions, client/server trust boundaries. Lack of certificate pinning is not automatically a vulnerability.
-6. WebViews and platform bridges: WebViews, JavaScript, URL handling, native Java/Kotlin wrappers, MethodChannel, EventChannel, JavaScript bridges, trust boundaries.
-7. Signing and release posture: APK signatures, certificate identity, debug certificate indicators, release configuration, distribution/build hygiene.
-8. Third-party SDK/service surface: Firebase, Google Maps, AWS, Sentry, Stripe, RevenueCat, OneSignal, Supabase, analytics SDKs. Presence is not vulnerability.
+## What it reads
 
-## Method
+1. APK container: entries, sizes, compression, bundled assets, native libraries and ABIs.
+2. AndroidManifest: package and version data, SDK levels, permissions, exported activities, services, receivers, providers, cleartext and backup settings, deep links, debug flags.
+3. Release contents: hosts, endpoints, URLs, keys and configuration values that shipped inside the APK, plus the SDKs they belong to.
+4. libapp.so: strings and symbols inside AOT machine code. This is the Flutter application binary, compiled ahead of time.
+5. Signing data: certificate identity and structural properties of the signature scheme.
+6. Route-like strings: candidate screen and route names found as strings in the binary.
 
-1. Scope and authorize: provide APK/AAB and context. Define authorized targets, permitted test types, exclusions, source/API access, test accounts where appropriate.
-2. Reconstruct the attacker view: inspect, extract, decompile, fingerprint the release. Map Flutter, Android wrapper, configuration, services, native boundaries, backend endpoints.
-3. Verify, don't just flag: manually inspect suspicious signals. Determine prerequisites, reachability, exploitability, impact, context, and whether a signal is only hardening advice.
-4. Report and fix: prioritized findings, evidence, attack path, reproduction information, impact, concrete fix, optional retesting.
+## Grades
 
-## Deliverable
+Each check result carries a grade of A, C or F. The grade is a triage label for that check, so you can decide what to inspect first. A grade is not a security certification and not a statement that an app is safe or unsafe.
 
-A report engineers can use: no compliance filler. Each issue explains where it came from, why it matters, and what to change. Findings carry severity, evidence, attack path, impact, and remediation. Example severities: high (e.g. staging infrastructure disclosed in release binary), medium (e.g. custom URL scheme accepts untrusted parameters), informational (release hardening opportunity).
+## Offline and private
 
-## Boundaries
+- The app declares no INTERNET permission, so it cannot send scan data anywhere.
+- The APK you open stays on the device.
+- Reports and history live in private app storage.
+- Uninstalling FlutterGuard deletes those private reports and history.
 
-- Active security testing only within explicitly authorized scope (your app or a client app).
-- Third-party applications: lawful, non-invasive analysis of publicly available artifacts and public information only, unless written authorization for active testing exists.
-- Secrets and credentials are minimized or redacted in reports and handled only as required for the engagement.
-- Only send artifacts you are authorized to share.
+## Limits
 
-## FAQ
+- Static analysis is evidence, not proof. A finding shows what is present in the release, not that it is exploitable.
+- No runtime hooking and no traffic interception. The app does not run the target or observe its network traffic.
+- libapp.so is AOT machine code. FlutterGuard reads strings and symbols; it does not decompile Dart source.
+- Routes are candidate strings, not a navigation graph.
+- AABs are not supported. Convert an AAB to APKs with bundletool first.
+- The signature check is structural: it inspects what the APK contains, it does not prove the signer's identity.
+- Some ROMs block APK reads, which can prevent or limit a scan.
+- Scan only apps you own or have permission to test.
+- Uninstalling the app deletes private reports and history.
 
-Q: Is this an automated scan?
-A: No. Automation may assist evidence collection, but the paid service is a manual security assessment performed by Mohamed. Findings are contextualized and verified rather than forwarded directly from a scanner.
+## Legal
 
-Q: What do you need from me?
-A: At minimum, an APK or AAB you are authorized to have reviewed. Test credentials, source access, API documentation, and a staging environment can support a deeper assessment.
+FlutterGuard is a local analysis tool. Use it only on applications you own or are authorized to test. Findings are evidence for your own review and are not an authorization to test third-party apps or infrastructure. FlutterGuard is MIT licensed.
 
-Q: Can you review a competitor's Flutter app?
-A: Publicly distributed artifacts and public information may be analyzed non-invasively. No intrusive testing against third-party infrastructure is performed without authorization.
+## Support
 
-Q: Is this an OWASP-certified penetration test?
-A: No invented badges or certifications. Where useful, findings can be mapped to recognized mobile-security categories and standards while the assessment remains focused on the real Flutter release.
-
-Q: Can you retest after fixes?
-A: Yes. A retest can verify that fixes address the reported attack path without introducing new exposure.
+- Bugs and feature requests: https://github.com/anasfik/FlutterGuard/issues
+- Email: work@gwhyyy.com
+- Privacy policy: https://gwhyyy.com/privacy/flutterguard
+- Demo of the interface: https://flutterguard.dev/demo/

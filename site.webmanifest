@@ -1,7 +1,7 @@
 {
   "name": "FlutterGuard",
   "short_name": "FlutterGuard",
-  "description": "Manual Flutter application security audits for APK and AAB releases.",
+  "description": "Offline on-device Flutter APK security audit for Android. Grades A to F with evidence, no network, MIT.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

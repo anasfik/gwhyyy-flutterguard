@@ -1,39 +1,45 @@
 # FlutterGuard
 
-> Manual Flutter APK and AAB security audits by Flutter engineer Mohamed Anas Fikhi (GWHYYY). Human review from the attacker's side: what is exposed, exploitable, and worth fixing — with evidence for every finding. No scanner-only noise.
+> FlutterGuard is an Android app that audits Flutter APKs on the device. You pick an APK, it reads the release and reports what it finds, graded A, C or F as triage labels. It has no network access. MIT licensed. Android 8.0 and newer.
 
 - Canonical: https://flutterguard.dev/
+- Download: https://github.com/anasfik/FlutterGuard/releases/latest
+- Source (MIT): https://github.com/anasfik/FlutterGuard
+- Privacy: https://gwhyyy.com/privacy/flutterguard
 - Contact: work@gwhyyy.com
-- Booking: https://calendly.com/ffikhi-aanas/30min
-- Reviewer: Mohamed Anas Fikhi — Flutter & Software Engineer, Casablanca / remote worldwide
-- Profiles: https://github.com/anasfik — https://gwhyyy.com — https://linkedin.com/in/mohamed-anas-fikhi
-- Source: https://github.com/anasfik/FlutterGuard
+- Issues: https://github.com/anasfik/FlutterGuard/issues
+- Maintainer: Anas Fikhi, Flutter and Software Engineer
 
-## Scope
+## What it reads
 
-- APK/AAB anatomy, manifest attack surface, secrets and exposed configuration
-- Flutter artifacts and libapp.so, network and backend boundary
-- WebViews and platform bridges, signing and release posture, third-party SDK surface
-- Context matters: a Firebase API key or missing certificate pinning is not automatically a vulnerability
+- Manifest and package data: permissions, exported components, SDK levels, ABIs, backup and debug flags
+- Release contents: bundled SDKs, endpoints, hosts, keys and configuration that shipped in the APK
+- libapp.so: strings and symbols inside AOT machine code
+- Signing data: certificate identity and structural signature facts
+- Route-like strings found in the binary
 
-## Method
+## Grades
 
-1. Scope and authorize (APK/AAB you are authorized to share, test accounts where useful)
-2. Reconstruct the attacker view (inspect, extract, fingerprint the release)
-3. Verify, don't just flag (exploitability, prerequisites, impact)
-4. Report and fix (prioritized findings, evidence, attack path, concrete fix, optional retest)
+A, C and F are triage labels attached to each check result. They tell you what to look at first. They are not a security certification.
 
-## Boundaries
+## Offline by design
 
-- Active security testing only within explicitly authorized scope
-- Third-party apps: lawful, non-invasive analysis of public artifacts only, unless written authorization exists
-- Secrets and credentials minimized or redacted in reports
+FlutterGuard requests no INTERNET permission. The APK you pick stays on the device, reports are kept in private app storage, and nothing is uploaded. No account, no root, no PC.
 
-## FAQ (summary)
+## Limits
 
-- Paid service is manual assessment, not an automated scan
-- Minimum input: an APK or AAB you are authorized to have reviewed
-- No invented certifications; findings can map to recognized mobile-security categories
-- Retesting available after fixes
+- Static analysis is evidence, not proof
+- No runtime hooking and no traffic interception
+- libapp.so is AOT machine code: strings and symbols, not decompiled Dart
+- Routes are candidate strings, not a navigation graph
+- AABs are not supported; convert with bundletool first
+- The signature check is structural
+- Some ROMs block APK reads
+- Scan only apps you own or have permission to test
+- Uninstalling the app deletes private reports and history
+
+## Legal
+
+Use FlutterGuard only on applications you own or have permission to test. Findings are evidence for your own review, not an authorization to test third-party apps.
 
 Full detail: https://flutterguard.dev/llms-full.txt

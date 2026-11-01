@@ -17,6 +17,14 @@ tabs.forEach((tab, index) => {
   tab.addEventListener("click", () => selectTab(tab));
 
   tab.addEventListener("keydown", (event) => {
+    if (event.key === "Home" || event.key === "End") {
+      event.preventDefault();
+      const next = tabs[event.key === "Home" ? 0 : tabs.length - 1];
+      next.focus();
+      selectTab(next);
+      return;
+    }
+
     const step = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
     if (!step) return;
     event.preventDefault();

@@ -3,35 +3,35 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>FlutterGuard | On-device Flutter APK audit for Android</title>
-    <meta name="description" content="Grades A to F with evidence: SDKs, endpoints, secrets, signing, manifest risk. No root, no PC, no account, no network.">
-    <meta name="keywords" content="Flutter APK audit, offline APK scanner, Android security, Flutter security, on-device audit">
+    <title>FlutterGuard — Look inside a Flutter APK</title>
+    <meta name="description" content="On-device Flutter APK inspection for Android: libraries, endpoints and exposed strings. No uploads, no account. MIT open source.">
+    <meta name="keywords" content="Flutter APK inspection, Android, offline, static analysis">
     <meta name="author" content="Anas Fikhi">
-    <meta name="theme-color" content="#0a0c0b">
-    <meta name="color-scheme" content="dark">
+    <meta name="theme-color" content="#f4f6f5">
+    <meta name="color-scheme" content="light">
     <meta name="robots" content="index, follow, max-image-preview:large">
     <link rel="canonical" href="https://flutterguard.dev/">
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
+    <link rel="preload" href="/assets/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/styles.css">
-    <script src="/site.js" defer></script>
 
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="FlutterGuard">
-    <meta property="og:title" content="Audit a Flutter APK without sending it anywhere.">
-    <meta property="og:description" content="Grades A to F with evidence: SDKs, endpoints, secrets, signing, manifest risk. No root, no PC, no account, no network.">
+    <meta property="og:title" content="Look inside a Flutter APK.">
+    <meta property="og:description" content="Inspect libraries, endpoints and exposed strings. On your Android device, without uploads or an account.">
     <meta property="og:url" content="https://flutterguard.dev/">
     <meta property="og:image" content="https://flutterguard.dev/og-image.png">
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="FlutterGuard on-device Flutter APK audit">
+    <meta property="og:image:alt" content="FlutterGuard screenshots and the line: Look inside a Flutter APK.">
     <meta property="og:locale" content="en_US">
 
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Audit a Flutter APK without sending it anywhere.">
-    <meta name="twitter:description" content="Grades A to F with evidence. On-device, offline, MIT.">
+    <meta name="twitter:title" content="Look inside a Flutter APK.">
+    <meta name="twitter:description" content="On-device Flutter APK inspection for Android. No uploads, no account.">
     <meta name="twitter:image" content="https://flutterguard.dev/og-image.png">
 
     <script type="application/ld+json">
@@ -40,10 +40,9 @@
         "@type": "SoftwareApplication",
         "name": "FlutterGuard",
         "url": "https://flutterguard.dev/",
-        "description": "On-device Flutter APK audit for Android. Grades A to F with evidence: SDKs, endpoints, secrets, signing, manifest risk.",
+        "description": "On-device Flutter APK inspection for Android. Reads libraries, endpoints and exposed strings; static findings are evidence, not proof.",
         "applicationCategory": "SecurityApplication",
         "operatingSystem": "Android 8.0+",
-        "softwareVersion": "0.3.3",
         "downloadUrl": "https://github.com/anasfik/FlutterGuard/releases/latest",
         "license": "https://github.com/anasfik/FlutterGuard/blob/main/LICENSE",
         "offers": {
@@ -59,416 +58,61 @@
         }
       }
     </script>
-
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        "mainEntity": [
-          {
-            "@type": "Question",
-            "name": "Is it free?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Yes. MIT licensed, no account, no ads, no analytics."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Does it really work offline?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Yes. The app has no INTERNET permission. Scans run on the phone."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Is it Android only?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Yes. Android 8.0+ (API 26). There is no iOS build."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Does it prove vulnerabilities?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "No. Static findings are leads to investigate, not proof. Read the evidence and verify."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Why is it not on Google Play yet?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "The Play release is in review. The GitHub APK is the current build."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Does uninstalling delete my reports?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Yes. Reports, history and settings live in private app storage and go with the uninstall. Export first."
-            }
-          }
-        ]
-      }
-    </script>
   </head>
   <body>
     <a class="skip-link" href="#main-content">Skip to content</a>
 
     <header class="site-header">
-      <nav class="nav container" aria-label="Primary navigation">
-        <div class="brand-lockup">
-          <a class="brand" href="#top" aria-label="FlutterGuard home">FlutterGuard<span aria-hidden="true">.</span></a>
-          <a class="byline" href="https://gwhyyy.com" target="_blank" rel="noopener noreferrer">by GWHYYY</a>
-        </div>
-
-        <div class="desktop-nav">
-          <a href="#scope">What it reads</a>
-          <a href="#method">How it works</a>
-          <a href="#install">Install</a>
-          <a href="#faq">FAQ</a>
-          <a href="https://github.com/anasfik/FlutterGuard" target="_blank" rel="noopener noreferrer">GitHub</a>
-        </div>
-
-        <a class="button button-small nav-cta" href="https://github.com/anasfik/FlutterGuard/releases/latest">Download APK</a>
-
-        <details class="mobile-nav">
-          <summary>Menu</summary>
-          <div class="mobile-nav-panel">
-            <a href="#scope">What it reads</a>
-            <a href="#method">How it works</a>
-            <a href="#install">Install</a>
-            <a href="#faq">FAQ</a>
-            <a href="https://github.com/anasfik/FlutterGuard" target="_blank" rel="noopener noreferrer">GitHub</a>
-            <a href="https://github.com/anasfik/FlutterGuard/releases/latest">Download APK</a>
-          </div>
-        </details>
-      </nav>
+      <div class="container header-inner">
+        <a class="brand" href="/">
+          <img class="brand-mark" src="/assets/app/icon-512.png" alt="" width="28" height="28" decoding="async">
+          FlutterGuard
+        </a>
+      </div>
     </header>
 
-    <main id="main-content">
-      <section class="hero" id="top">
-        <div class="hero-grid container">
-          <div class="hero-copy">
-            <p class="eyebrow">On-device &middot; Offline &middot; MIT</p>
-            <h1>Audit a Flutter APK without sending it anywhere.</h1>
-            <p class="hero-lede">Grades A to F with evidence: SDKs, endpoints, secrets, signing, manifest risk. No root, no PC, no account, no network.</p>
-            <div class="hero-actions">
-              <a class="button button-primary" href="https://github.com/anasfik/FlutterGuard/releases/latest">Download APK</a>
-              <a class="button button-ghost" href="/demo/">Test now</a>
-            </div>
-          </div>
+    <main id="main-content" tabindex="-1">
+      <div class="sheet container">
+        <section class="intro" aria-labelledby="title">
+          <h1 id="title">Look inside a Flutter APK.</h1>
+          <p class="lead">Inspect libraries, endpoints and exposed strings. On your Android device, without uploads or an account.</p>
+          <p class="actions">
+            <a class="button" href="https://github.com/anasfik/FlutterGuard/releases/latest">Download APK</a>
+            <a class="quiet" href="https://github.com/anasfik/FlutterGuard">GitHub</a>
+            <a class="quiet" href="/demo/">See sample</a>
+          </p>
+          <p class="facts">Android 8+, offline, MIT open source.</p>
+        </section>
 
-          <figure class="phone hero-phone">
-            <img src="/assets/app/fg-02-grade.webp" alt="FlutterGuard grade screen with an evidence-backed grade and severity summary" width="720" height="1280" fetchpriority="high" decoding="async">
+        <div class="contact-sheet" role="group" aria-label="FlutterGuard screenshots">
+          <figure>
+            <img src="/assets/app/inventory.webp" alt="FlutterGuard installed-app inventory listing Flutter apps with package, version, SDK range and APK size." width="720" height="1600" fetchpriority="high" decoding="async">
+          </figure>
+          <figure>
+            <img src="/assets/app/report.webp" alt="FlutterGuard report overview: severity counts, a grade F summary and APK artifact details for Conduit." width="720" height="1600" loading="lazy" decoding="async">
           </figure>
         </div>
-      </section>
+      </div>
 
-      <section class="facts" aria-label="Release facts">
-        <ul class="facts-grid container">
-          <li class="fact">
-            <span class="fact-value">0.3.3</span>
-            <span class="fact-label">Version</span>
-          </li>
-          <li class="fact">
-            <span class="fact-value">1.4 MB</span>
-            <span class="fact-label">APK size</span>
-          </li>
-          <li class="fact">
-            <span class="fact-value">Android 8.0+</span>
-            <span class="fact-label">Minimum</span>
-          </li>
-          <li class="fact">
-            <span class="fact-value">MIT</span>
-            <span class="fact-label">License</span>
-          </li>
-          <li class="fact">
-            <span class="fact-value">No INTERNET permission</span>
-            <span class="fact-label">Network</span>
-          </li>
-        </ul>
-      </section>
-
-      <section class="section method" id="method">
-        <div class="container">
-          <header class="section-heading" data-reveal>
-            <h2>Three screens. One artifact.</h2>
-            <p>Inventory, grade, findings. Each value keeps its evidence.</p>
-          </header>
-
-          <div class="trio">
-            <figure class="phone" data-reveal>
-              <img src="/assets/app/fg-01-inventory.webp" alt="Installed Flutter app inventory screen" width="720" height="1280" loading="lazy" decoding="async">
-              <figcaption>Inventory: what the APK declares.</figcaption>
-            </figure>
-            <figure class="phone" data-reveal>
-              <img src="/assets/app/fg-02-grade.webp" alt="Evidence-backed grade and report summary screen" width="720" height="1280" loading="lazy" decoding="async">
-              <figcaption>Grade: A to F, with reasons.</figcaption>
-            </figure>
-            <figure class="phone" data-reveal>
-              <img src="/assets/app/fg-03-findings.webp" alt="Findings list with exported service, cleartext traffic and user CA trust evidence" width="720" height="1280" loading="lazy" decoding="async">
-              <figcaption>Findings: evidence you can open.</figcaption>
-            </figure>
-          </div>
-        </div>
-      </section>
-
-      <section class="section scope" id="scope">
-        <div class="container">
-          <header class="section-heading" data-reveal>
-            <h2>What it reads from the APK</h2>
-            <p>Static evidence, grouped by where it hurts.</p>
-          </header>
-
-          <div class="bento" data-reveal>
-            <article class="bento-cell bento-cell-tint">
-              <h3>Flutter fingerprint</h3>
-              <p>Flutter or not, AOT or JIT, engine version, obfuscation, and a fingerprint for desktop follow-up.</p>
-            </article>
-            <article class="bento-cell">
-              <h3>Manifest risk</h3>
-              <p>Permissions, exported components, debug flags, backup, cleartext policy, and deep links.</p>
-            </article>
-            <article class="bento-cell">
-              <h3>Secrets and endpoints</h3>
-              <p>Keys, JWTs, DB URIs, .env files, X.509 blobs, and hosts classified by role.</p>
-            </article>
-            <article class="bento-cell bento-cell-feature">
-              <img src="/assets/app/feature-1024x500.webp" alt="" aria-hidden="true" width="1024" height="500" loading="lazy" decoding="async">
-              <div class="bento-feature-body">
-                <h3>SDK and AI surface</h3>
-                <p>About 135 services, from ads to auth, with LLM providers inventoried individually.</p>
-              </div>
-            </article>
-            <article class="bento-cell bento-cell-wide">
-              <h3>Artifact and signing</h3>
-              <p>ABIs, sizes, hashes, schemes, signer identity, and debug certificate detection.</p>
-            </article>
-          </div>
-
-          <div class="grades" data-reveal>
-            <div class="grades-head">
-              <h3>A, C, and F are the anchors</h3>
-              <p>A triage label, not a score. Read the findings, not the letter.</p>
-            </div>
-            <div class="grade-grid">
-              <article class="grade-tile">
-                <span class="grade-letter grade-letter-a">A</span>
-                <p>Clean.</p>
-              </article>
-              <article class="grade-tile">
-                <span class="grade-letter">C</span>
-                <p>Well-built, with a few hardening gaps.</p>
-              </article>
-              <article class="grade-tile">
-                <span class="grade-letter">F</span>
-                <p>Failed on something fundamental: debug build, debug cert, cleartext everywhere, or shipped credentials.</p>
-              </article>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="section offline" id="why">
-        <div class="container">
-          <header class="section-heading" data-reveal>
-            <h2>The APK never leaves the phone.</h2>
-            <p>No network permission means no upload path, no telemetry, and no server to trust.</p>
-          </header>
-
-          <dl class="ledger" data-reveal>
-            <div class="ledger-row">
-              <dt>Network</dt>
-              <dd>none declared</dd>
-            </div>
-            <div class="ledger-row">
-              <dt>Storage</dt>
-              <dd>private app storage</dd>
-            </div>
-            <div class="ledger-row">
-              <dt>Reports</dt>
-              <dd>masked until you reveal</dd>
-            </div>
-            <div class="ledger-row">
-              <dt>Screenshots</dt>
-              <dd>blocked on revealed screens</dd>
-            </div>
-            <div class="ledger-row">
-              <dt>Sharing</dt>
-              <dd>explicit, to another app</dd>
-            </div>
-            <div class="ledger-row">
-              <dt>Accounts</dt>
-              <dd>none</dd>
-            </div>
-          </dl>
-        </div>
-      </section>
-
-      <section class="section install" id="install">
-        <div class="container">
-          <header class="section-heading" data-reveal>
-            <h2>Install the current build.</h2>
-            <p class="install-status">Google Play release is in review. The GitHub APK is the current build.</p>
-          </header>
-
-          <div class="install-grid">
-            <ol class="install-steps">
-              <li>
-                <span class="step-no">01</span>
-                <div>
-                  <h3>Download</h3>
-                  <p>Get the signed APK from <a href="https://github.com/anasfik/FlutterGuard/releases/latest">releases/latest</a>.</p>
-                </div>
-              </li>
-              <li>
-                <span class="step-no">02</span>
-                <div>
-                  <h3>Verify the digest</h3>
-                  <p>Compare the SHA-256 with the digest on the release page before you install.</p>
-                </div>
-              </li>
-              <li>
-                <span class="step-no">03</span>
-                <div>
-                  <h3>Allow the install</h3>
-                  <p>Android asks once. Allow installs from your browser or file manager.</p>
-                </div>
-              </li>
-              <li>
-                <span class="step-no">04</span>
-                <div>
-                  <h3>Audit an APK</h3>
-                  <p>Open FlutterGuard, pick an APK, and read the report. No account, no network.</p>
-                </div>
-              </li>
-            </ol>
-
-            <div class="install-side">
-              <div class="checksum">
-                <p class="checksum-label">Verify the SHA-256</p>
-                <pre><code>sha256sum FlutterGuard-*.apk</code></pre>
-                <p>Compare the output with the digest on the <a href="https://github.com/anasfik/FlutterGuard/releases/latest">releases/latest</a> page.</p>
-              </div>
-
-              <aside class="callout callout-warn">
-                <p class="callout-label">Uninstall warning</p>
-                <p>Switching between GitHub APK and Play builds requires uninstall, which deletes private reports, history, settings. Export first.</p>
-              </aside>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="section limits">
-        <div class="container">
-          <header class="section-heading" data-reveal>
-            <h2>What it does not do</h2>
-            <p>Reads only what the APK exposes, and nothing more.</p>
-          </header>
-
-          <ul class="limits-grid" data-reveal>
-            <li>
-              <h3>Artifact reads only</h3>
-              <p>No runtime hooking, no traffic interception, no other apps' data.</p>
-            </li>
-            <li>
-              <h3>No decompiled Dart</h3>
-              <p>libapp.so is AOT machine code. You get strings, symbols and routes, not source.</p>
-            </li>
-            <li>
-              <h3>Routes are candidates</h3>
-              <p>Recovered route strings are grouped by prefix, not a navigation graph.</p>
-            </li>
-            <li>
-              <h3>AABs need bundletool</h3>
-              <p>Expand an AAB to APKs first. The app reads APK files.</p>
-            </li>
-            <li>
-              <h3>Signature checks are structural</h3>
-              <p>Schemes and signer identity, not a full apksigner verification.</p>
-            </li>
-            <li>
-              <h3>Some ROMs block APK reads</h3>
-              <p>That is an OS policy on the device, not a FlutterGuard setting.</p>
-            </li>
-          </ul>
-
-          <p class="legal">Scan only apps you own or have written permission to test.</p>
-        </div>
-      </section>
-
-      <section class="section faq" id="faq">
-        <div class="container faq-layout">
-          <header class="section-heading faq-heading" data-reveal>
-            <h2>Before you install.</h2>
-            <p>Something missing? <a href="mailto:work@gwhyyy.com">Ask directly.</a></p>
-          </header>
-
-          <div class="faq-list">
-            <details open>
-              <summary>Is it free?</summary>
-              <p>Yes. MIT licensed, no account, no ads, no analytics.</p>
-            </details>
-            <details>
-              <summary>Does it really work offline?</summary>
-              <p>Yes. The app has no INTERNET permission. Scans run on the phone.</p>
-            </details>
-            <details>
-              <summary>Is it Android only?</summary>
-              <p>Yes. Android 8.0+ (API 26). There is no iOS build.</p>
-            </details>
-            <details>
-              <summary>Does it prove vulnerabilities?</summary>
-              <p>No. Static findings are leads to investigate, not proof. Read the evidence and verify.</p>
-            </details>
-            <details>
-              <summary>Why is it not on Google Play yet?</summary>
-              <p>The Play release is in review. The GitHub APK is the current build.</p>
-            </details>
-            <details>
-              <summary>Does uninstalling delete my reports?</summary>
-              <p>Yes. Reports, history and settings live in private app storage and go with the uninstall. Export first.</p>
-            </details>
-          </div>
-        </div>
-      </section>
-
-      <section class="section contact" id="contact">
-        <div class="container contact-layout">
-          <div class="contact-copy" data-reveal>
-            <h2>Report a bug or a missed finding.</h2>
-            <p>Include the app name, Android version, and the report section. For anything else, email <a href="mailto:work@gwhyyy.com">work@gwhyyy.com</a>.</p>
-          </div>
-          <div class="contact-actions" data-reveal>
-            <a class="button button-primary" href="https://github.com/anasfik/FlutterGuard/issues" target="_blank" rel="noopener noreferrer">Report a bug</a>
-            <a class="button button-ghost" href="mailto:work@gwhyyy.com">Email work@gwhyyy.com</a>
-          </div>
-        </div>
+      <section class="notes container" aria-labelledby="notes-title">
+        <details>
+          <summary><span id="notes-title">Before you install</span></summary>
+          <p>Download the signed APK from <a href="https://github.com/anasfik/FlutterGuard/releases/latest">GitHub releases</a>. Android 8 or newer.</p>
+          <p>Static analysis records what the APK contains; it is evidence, not proof. Scan only apps you own or are authorised to test. Scans can take minutes.</p>
+          <p>Switching between Play and GitHub builds requires an uninstall, which deletes local reports, settings and history. Export first; exports are not a history restore.</p>
+        </details>
       </section>
     </main>
 
     <footer class="site-footer">
-      <div class="container footer-grid">
-        <div class="footer-brand">
-          <a class="brand" href="#top">FlutterGuard<span aria-hidden="true">.</span></a>
-          <p>On-device Flutter APK audit.</p>
-        </div>
-        <nav class="footer-links" aria-label="Footer navigation">
-          <a href="https://github.com/anasfik/FlutterGuard" target="_blank" rel="noopener noreferrer">GitHub</a>
-          <a href="https://gwhyyy.com" target="_blank" rel="noopener noreferrer">GWHYYY</a>
-          <a href="mailto:work@gwhyyy.com">Email</a>
+      <div class="container footer-inner">
+        <p><a href="mailto:work@gwhyyy.com">Anas Fikhi, work@gwhyyy.com</a></p>
+        <nav class="footer-links" aria-label="Project links">
+          <a href="https://github.com/anasfik/FlutterGuard/issues">Issues</a>
+          <a href="https://gwhyyy.com/privacy/flutterguard">Privacy</a>
+          <a href="https://github.com/anasfik/FlutterGuard/blob/main/LICENSE">MIT</a>
         </nav>
-      </div>
-      <div class="container footer-bottom">
-        <p class="footer-line">&copy; 2026 Anas Fikhi &middot; <a href="https://github.com/anasfik/FlutterGuard/blob/main/LICENSE">MIT</a> &middot; <a href="https://gwhyyy.com/privacy/flutterguard">Privacy</a> &middot; <a href="/.well-known/security.txt">security.txt</a> &middot; <a href="/sitemap.xml">Sitemap</a></p>
-        <p class="footer-trademark">Flutter is a trademark of Google LLC. FlutterGuard is not affiliated with or endorsed by Google.</p>
+        <p class="fine">Flutter is a trademark of Google LLC. Not affiliated with Google.</p>
       </div>
     </footer>
   </body>

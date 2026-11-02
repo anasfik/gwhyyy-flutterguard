@@ -19,6 +19,11 @@ from playwright.sync_api import TimeoutError as PlaywrightTimeoutError, sync_pla
 PLAY = "https://play.google.com/store/apps/details?id=com.flutterguard.app"
 SOURCE = "https://github.com/anasfik/FlutterGuard"
 CANONICAL = "https://flutterguard.dev/"
+GUIDES = {
+    "/flutter-security/": "Flutter app security: what a release APK exposes",
+    "/flutter-apk-inspection/": "How to inspect a Flutter APK on Android",
+    "/proguard-flutter/": "ProGuard and R8 in Flutter: what they hide",
+}
 
 
 def wait_until(page, predicate, timeout=10):
@@ -72,6 +77,7 @@ def main(args):
         check("plain GitHub navbar link", page.locator(f'header a[href="{SOURCE}"]').count() == 1 and page.locator(f'header a[href="{SOURCE}"] img').count() == 0)
         check("graphical APK layers explain real files", page.locator(".apk-stack .layer").count() >= 3 and "libapp.so" in page.locator(".apk-stack").inner_text())
         check("capabilities cover the audit surface", page.locator(".capability-list > li").count() == 6)
+        check("guides section links the cluster", page.locator('#guides a[href="/flutter-security/"], #guides a[href="/flutter-apk-inspection/"], #guides a[href="/proguard-flutter/"]').count() == 3)
         check("workflow remains ordered, not a marquee", page.locator(".workflow-list > li h3").all_text_contents() == ["Discover", "Inspect", "Report"] and page.locator('[aria-hidden="true"] .workflow-list').count() == 0)
         check("explicit graphics pause control", page.locator('input#pause-motion[type="checkbox"]').count() == 1)
         check("email and issue recovery paths", page.locator('a[href="mailto:work@gwhyyy.com"]').count() >= 1 and page.locator(f'a[href="{SOURCE}/issues"]').count() >= 1)
@@ -150,7 +156,8 @@ def main(args):
             r = page.request.get(base + path)
             check(f"asset {path}", r.status == 200 and mime in r.headers.get("content-type", ""))
         sitemap = ET.fromstring(page.request.get(base + "/sitemap.xml").text())
-        check("sitemap only canonical home", [e.text for e in sitemap.iter("{http://www.sitemaps.org/schemas/sitemap/0.9}loc")] == [CANONICAL])
+        locations = [e.text for e in sitemap.iter("{http://www.sitemaps.org/schemas/sitemap/0.9}loc")]
+        check("sitemap lists the homepage and every guide", locations == [CANONICAL] + [CANONICAL + g.lstrip("/") for g in GUIDES])
         robots = page.request.get(base + "/robots.txt").text()
         check("robots keeps search and training policy", "Sitemap: " + CANONICAL + "sitemap.xml" in robots and "User-agent: GPTBot\nDisallow: /" in robots)
         for path in ("/llms.txt", "/llms-full.txt"):
@@ -168,6 +175,32 @@ def main(args):
 
         beacon = page.locator('script[src="https://static.cloudflareinsights.com/beacon.min.js"]')
         check("analytics beacon wired", beacon.count() == 1 and "f9110d5432f446d6833224ec262cdd83" in (beacon.get_attribute("data-cf-beacon") or ""))
+
+        for gpath, gtitle in GUIDES.items():
+            gr = page.goto(base + gpath, wait_until="load")
+            page.evaluate("document.fonts.ready")
+            check(f"guide {gpath} 200", gr.status == 200)
+            check(f"guide {gpath} title", page.title() == gtitle and len(gtitle) <= 60)
+            desc = page.locator('meta[name="description"]')
+            check(f"guide {gpath} description", desc.count() == 1 and 120 <= len(desc.get_attribute("content") or "") <= 160)
+            canon = page.locator('link[rel="canonical"]')
+            check(f"guide {gpath} canonical", canon.count() == 1 and canon.get_attribute("href") == CANONICAL + gpath.lstrip("/"))
+            check(f"guide {gpath} one H1", page.locator("h1").all_text_contents() == [gtitle])
+            ld = [json.loads(t) for t in page.locator('script[type="application/ld+json"]').all_text_contents()]
+            types = {x.get("@type") for x in ld}
+            check(f"guide {gpath} article and breadcrumb schema", {"TechArticle", "BreadcrumbList"} <= types)
+            links = page.evaluate("() => [...document.querySelectorAll('main a[href]')].map(a=>a.getAttribute('href'))")
+            check(f"guide {gpath} links into the cluster", all(p in links for p in GUIDES if p != gpath) and "/" in links)
+            check(f"guide {gpath} external links are safely new-tab", page.evaluate("() => [...document.querySelectorAll('a[href^=\"https://\"]')].every(a=>a.target==='_blank' && a.relList.contains('noopener') && a.relList.contains('noreferrer'))"))
+            for width in (390, 1280):
+                page.set_viewport_size({"width": width, "height": 900})
+                check(f"guide {gpath} no overflow {width}", page.evaluate("document.documentElement.scrollWidth <= innerWidth + 1"))
+            page.set_viewport_size({"width": 1280, "height": 900})
+            page.evaluate("scrollTo(0,0)")
+            if shots:
+                page.screenshot(path=str(shots / f"guide-{gpath.strip('/')}.png"), full_page=True)
+        page.set_viewport_size({"width": 1440, "height": 900})
+        page.goto(base, wait_until="load")
 
         for path in ("/demo", "/demo/", "/demo/index.html", "/missing-page-xyz"):
             r = page.request.get(base + path)

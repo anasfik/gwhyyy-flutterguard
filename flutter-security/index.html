@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flutter app security: what a release APK exposes</title>
+  <meta name="description" content="A practical checklist for auditing a released Flutter app on Android: manifest policy, endpoints, exposed strings, dependencies and signing.">
+  <meta name="author" content="Anas Fikhi">
+  <meta name="theme-color" content="#f3f5ef">
+  <meta name="color-scheme" content="light">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <link rel="canonical" href="https://flutterguard.dev/flutter-security/">
+  <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM-readable summary">
+  <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="preload" href="/assets/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/site.js" defer></script>
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="FlutterGuard">
+  <meta property="og:title" content="Flutter app security: what a release APK exposes">
+  <meta property="og:description" content="Manifest policy, endpoints, exposed strings, dependencies and signing: a practical audit checklist for a shipped Flutter app.">
+  <meta property="og:url" content="https://flutterguard.dev/flutter-security/">
+  <meta property="og:image" content="https://flutterguard.dev/og-image.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="FlutterGuard app preview inside a phone frame beside the line: Security audit any released Flutter app.">
+  <meta property="og:locale" content="en_US">
+  <meta property="article:published_time" content="2026-11-02">
+  <meta property="article:modified_time" content="2026-11-02">
+  <meta property="article:author" content="Anas Fikhi">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Flutter app security: what a release APK exposes">
+  <meta name="twitter:description" content="The checks that matter in a shipped Flutter APK, and what static inspection cannot tell you.">
+  <meta name="twitter:image" content="https://flutterguard.dev/og-image.png">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"TechArticle","headline":"Flutter app security: what a release APK exposes","description":"A practical checklist for auditing a released Flutter app on Android: manifest policy, endpoints, exposed strings, dependencies and signing.","url":"https://flutterguard.dev/flutter-security/","mainEntityOfPage":"https://flutterguard.dev/flutter-security/","datePublished":"2026-11-02","dateModified":"2026-11-02","inLanguage":"en","image":"https://flutterguard.dev/og-image.png","author":{"@type":"Person","name":"Anas Fikhi","url":"https://gwhyyy.com"},"publisher":{"@type":"Organization","name":"FlutterGuard","url":"https://flutterguard.dev/","logo":{"@type":"ImageObject","url":"https://flutterguard.dev/icon-512.png"}},"about":{"@type":"SoftwareApplication","name":"FlutterGuard","url":"https://flutterguard.dev/","applicationCategory":"SecurityApplication","operatingSystem":"Android 8.0+"}}
+  </script>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"FlutterGuard","item":"https://flutterguard.dev/"},{"@type":"ListItem","position":2,"name":"Flutter app security","item":"https://flutterguard.dev/flutter-security/"}]}
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="/" aria-label="FlutterGuard"><img src="/assets/app/icon-512.png" width="36" height="36" alt=""><span>FlutterGuard</span></a>
+      <nav class="site-nav" aria-label="Primary">
+        <a class="nav-section" href="/#why">Why FlutterGuard</a>
+        <a class="nav-section" href="/#features">Features</a>
+        <a class="nav-section" href="/#guides">Guides</a>
+        <a class="nav-section" href="/#faq">FAQ</a>
+        <a class="nav-source" href="https://github.com/anasfik/FlutterGuard" target="_blank" rel="noopener noreferrer">GitHub <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg><span class="sr-only"> (opens in a new tab)</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content" tabindex="-1">
+    <article>
+      <header class="article-hero container">
+        <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">FlutterGuard</a><span aria-hidden="true">/</span><span aria-current="page">Flutter app security</span></nav>
+        <h1>Flutter app security: what a release APK exposes</h1>
+        <p class="article-lead">Most reviews start with the repository. An attacker starts with the APK you shipped. The two artifacts are not the same, and the difference is where the useful evidence sits.</p>
+        <p class="article-meta">By Anas Fikhi · <time datetime="2026-11-02">2 November 2026</time> · 8 minute read</p>
+      </header>
+
+      <div class="article-body container">
+        <p>A release build passes through R8, resource shrinking, Dart AOT compilation and signing. Configuration that was convenient in development can survive that pipeline, and code that looked harmless in source can leave a readable string in the binary. Auditing the release artifact answers a narrower and more honest question than auditing the repository: what can someone with the app installed actually see?</p>
+
+        <h2>What a Flutter release contains</h2>
+        <p>A Flutter Android app is still an Android package. The Flutter layer adds files and changes where the interesting data lives.</p>
+        <table>
+          <thead><tr><th>Part</th><th>What it holds</th></tr></thead>
+          <tbody>
+            <tr><td><code>AndroidManifest.xml</code></td><td>Package identity, permissions, exported components, intent filters, backup and cleartext policy.</td></tr>
+            <tr><td><code>classes.dex</code></td><td>The Android shell, plugins and embedding code. Usually small in a Flutter app, but plugin code still ships here.</td></tr>
+            <tr><td><code>lib/&lt;abi&gt;/libapp.so</code></td><td>The compiled Dart application: AOT machine code plus string literals and symbol metadata.</td></tr>
+            <tr><td><code>lib/&lt;abi&gt;/libflutter.so</code></td><td>The Flutter engine. Shared across apps and not where your application logic lives.</td></tr>
+            <tr><td><code>flutter_assets/</code></td><td>Asset manifest, fonts, images, bundled configuration and <code>NOTICES.Z</code>.</td></tr>
+            <tr><td><code>META-INF/</code></td><td>Signing material and digests. The certificate says who built and signed the release.</td></tr>
+          </tbody>
+        </table>
+        <p>That layout creates a useful split. Android policy lives in the manifest, data and endpoints live in strings and assets, and dependency clues live in the asset bundle and notice file. Each layer answers a different question.</p>
+
+        <h2>The checks that find real problems</h2>
+        <h3>1. Manifest policy</h3>
+        <p>Read permissions, then read the components that are exported. A permission can be justified and still combine badly with an exported activity, service, receiver or provider. Check intent filters for deep links, <code>android:allowBackup</code>, <code>android:debuggable</code>, <code>android:usesCleartextTraffic</code> and any network security configuration reference. A debuggable release is rare and serious; a broad deep-link surface is common and easy to overlook.</p>
+
+        <h3>2. Endpoints and environment leaks</h3>
+        <p>Collect domains, base URLs, WebSocket endpoints and provider names from the compiled library and assets. The finding worth escalating is not a public API host. It is a staging host, an internal admin URL, a bucket that accepts anonymous writes, or a second environment that was never meant to ship. Test those only on infrastructure you own or are authorised to assess.</p>
+
+        <h3>3. Exposed strings and assets</h3>
+        <p>Search for API keys, bearer tokens, passwords, private URLs and test accounts. String literals survive Dart compilation, including values passed through <code>--dart-define</code> at build time. Bundled JSON, <code>.env</code> files copied into assets, and Firebase configuration can carry the same material. Mask values during triage, then verify server-side whether a key is actually privileged before calling it a vulnerability.</p>
+
+        <h3>4. Dependency inventory</h3>
+        <p>Use <code>NOTICES.Z</code>, <code>package:</code> URIs and readable symbols to identify Dart packages and native SDKs. Version evidence is often partial, so treat a guessed version as a lead. The useful output is a short list of components with security relevance: authentication, payments, analytics, WebView bridges, ad SDKs and AI providers.</p>
+
+        <h3>5. Signing and build hygiene</h3>
+        <p>Check the signing certificate, the signature schemes present and whether the build looks like a debug or internally distributed artifact. A debug certificate on a public release means the signing process is broken. Missing modern signature schemes matter less, but they belong in the report.</p>
+
+        <h2>Flutter-specific traps</h2>
+        <ul>
+          <li><strong>Obfuscation is not encryption.</strong> <code>flutter build --obfuscate</code> renames Dart symbols. It does not encrypt string literals, assets or endpoints. See <a href="/proguard-flutter/">what ProGuard, R8 and Dart obfuscation actually hide</a>.</li>
+          <li><strong>Compile-time constants ship.</strong> <code>--dart-define</code> values and <code>String.fromEnvironment</code> are baked into the build. A key that arrives that way is in the artifact.</li>
+          <li><strong>Routes are candidates.</strong> Readable route-like strings suggest navigation paths. They are not a runtime map, and a name alone does not prove the route is reachable.</li>
+          <li><strong>Assets are files.</strong> Anything in <code>flutter_assets/</code> is extractable with the APK. Treat bundled configuration as public.</li>
+          <li><strong>Flutter does not remove Android risk.</strong> Exported components, WebView bridges and deep links still follow Android rules, and plugin code still lands in <code>classes.dex</code>.</li>
+        </ul>
+
+        <div class="article-note"><p><strong>A finding is a lead, not a verdict.</strong> Static inspection shows what shipped. It does not prove an endpoint is unauthenticated, a key is privileged, or a component is exploitable. Verify against the running system with permission before you report impact.</p></div>
+
+        <h2>What static inspection cannot tell you</h2>
+        <p>It cannot observe runtime behaviour, intercept traffic, test authentication, or confirm that a path is reachable. Server-side authorization, rate limits and data exposure are outside the APK. TLS pinning can be visible as configuration, but whether it can be bypassed is a dynamic question. A static report is strongest when it points to a specific file, string or manifest attribute and says what would confirm it.</p>
+
+        <h2>A repeatable workflow</h2>
+        <ol>
+          <li>Obtain the APK you are authorised to test: your own release build, a downloaded artifact, or a copy from a device you control.</li>
+          <li>Extract or read it without executing the app. Start with the manifest, then the compiled library, then assets.</li>
+          <li>Record each finding with its source location and a masked value. Separate policy observations from suspected secrets.</li>
+          <li>Verify the high-impact items against your own backend or a test environment. Drop anything you cannot substantiate.</li>
+          <li>Keep the report with the release version and certificate so the next audit has a baseline.</li>
+        </ol>
+        <p>On a phone, <a href="/flutter-apk-inspection/">FlutterGuard reads the package in place</a> and keeps the report local. On a workstation, MobSF, <code>apktool</code>, <code>jadx</code> and <code>strings</code> cover the same artifact with more setup. The tool matters less than reading the layers in the right order.</p>
+
+        <div class="article-cta">
+          <h2>Inspect a release on the device that runs it.</h2>
+          <p>FlutterGuard is an open-source Android app. It reads the manifest, compiled library and assets, then saves a local report. No account, no upload, no INTERNET permission.</p>
+          <a class="button" href="https://github.com/anasfik/FlutterGuard/releases/latest" target="_blank" rel="noopener noreferrer">Download the APK<span class="sr-only"> (opens in a new tab)</span></a>
+          <a class="quiet" href="https://github.com/anasfik/FlutterGuard" target="_blank" rel="noopener noreferrer">Source on GitHub<span class="sr-only"> (opens in a new tab)</span></a>
+        </div>
+
+        <nav class="article-related" aria-label="Related guides">
+          <h2>Continue reading</h2>
+          <ul>
+            <li><a href="/flutter-apk-inspection/">How to inspect a Flutter APK on Android</a></li>
+            <li><a href="/proguard-flutter/">ProGuard and R8 in Flutter: what they hide</a></li>
+            <li><a href="/">FlutterGuard: on-device Flutter APK inspection</a></li>
+          </ul>
+        </nav>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer container"><p>FlutterGuard. Built by <a href="https://gwhyyy.com" target="_blank" rel="noopener noreferrer">Anas Fikhi<span class="sr-only"> (opens in a new tab)</span></a>.</p><nav class="footer-links" aria-label="Legal"><a href="https://gwhyyy.com/privacy/flutterguard" target="_blank" rel="noopener noreferrer">Privacy<span class="sr-only"> (opens in a new tab)</span></a><a href="https://github.com/anasfik/FlutterGuard/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT licence<span class="sr-only"> (opens in a new tab)</span></a></nav></footer>
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"f9110d5432f446d6833224ec262cdd83"}'></script>
+</body>
+</html>

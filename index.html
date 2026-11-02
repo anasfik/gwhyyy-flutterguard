@@ -52,6 +52,7 @@
       <nav class="site-nav" aria-label="Primary">
         <a class="nav-section" href="#why">Why FlutterGuard</a>
         <a class="nav-section" href="#features">Features</a>
+        <a class="nav-section" href="#guides">Guides</a>
         <a class="nav-section" href="#faq">FAQ</a>
         <a class="nav-source" href="https://github.com/anasfik/FlutterGuard" target="_blank" rel="noopener noreferrer">GitHub <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg><span class="sr-only"> (opens in a new tab)</span></a>
       </nav>
@@ -111,6 +112,15 @@
         <li><span class="step-number" aria-hidden="true"></span><h3>Inspect</h3><p>Follow the findings back to the strings, files and policies that produced them.</p><span class="step-signal" aria-hidden="true"></span></li>
         <li><span class="step-number" aria-hidden="true"></span><h3>Report</h3><p>Save the evidence on the phone and come back to it whenever you need it.</p><span class="step-signal" aria-hidden="true"></span></li>
       </ol>
+    </section>
+
+    <section id="guides" class="guides container" aria-labelledby="guides-title">
+      <div class="section-heading"><h2 id="guides-title">Read before you inspect.</h2><p>Field notes on what a Flutter release exposes, how to read it, and what obfuscation actually hides.</p></div>
+      <ul class="guide-list">
+        <li><a href="/flutter-security/"><span class="guide-kicker">Guide</span><h3>Flutter app security</h3><p>What a release APK exposes, and the checks that catch the common mistakes.</p></a></li>
+        <li><a href="/flutter-apk-inspection/"><span class="guide-kicker">How-to</span><h3>Inspect a Flutter APK</h3><p>Read the package on Android, from manifest to libapp.so, without a desktop.</p></a></li>
+        <li><a href="/proguard-flutter/"><span class="guide-kicker">Explainer</span><h3>ProGuard and R8 in Flutter</h3><p>What Android shrinking hides, what Dart obfuscation changes, and what stays readable.</p></a></li>
+      </ul>
     </section>
 
     <section id="faq" class="faq container" aria-labelledby="faq-title">

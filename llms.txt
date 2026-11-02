@@ -17,6 +17,12 @@
 - Inspect: Read the SDK versions, endpoints and exposed strings inside the release.
 - Report: Save the evidence on the phone and come back to it whenever you need it.
 
+## Guides
+
+- [Flutter app security: what a release APK exposes](https://flutterguard.dev/flutter-security/)
+- [How to inspect a Flutter APK on Android](https://flutterguard.dev/flutter-apk-inspection/)
+- [ProGuard and R8 in Flutter: what they hide](https://flutterguard.dev/proguard-flutter/)
+
 ## Flutter-aware inspection
 
 A Flutter release carries clues in its compiled library and asset bundle, not just its permissions. FlutterGuard reads these layers alongside SDK versions, embedded endpoints, exposed strings, AI providers, signing information and network policy.

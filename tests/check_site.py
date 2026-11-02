@@ -155,6 +155,11 @@ def main(args):
         for icon in manifest.get("icons", []):
             check("manifest icon resolves", page.request.get(base + icon["src"]).status == 200)
 
+        security = page.request.get(base + "/.well-known/security.txt")
+        policy = next((l.split(":", 1)[1].strip() for l in security.text().splitlines() if l.lower().startswith("policy:")), "")
+        frag = policy.split("#", 1)[1] if "#" in policy else ""
+        check("security.txt policy points at a real section", security.status == 200 and bool(frag) and f'id="{frag}"' in page.content())
+
         for path in ("/demo", "/demo/", "/demo/index.html", "/missing-page-xyz"):
             r = page.request.get(base + path)
             check(f"removed/missing route {path}", r.status == 404 and (preview or "That page does not exist." in r.text()))

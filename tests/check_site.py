@@ -61,10 +61,15 @@ def main(args):
         page.evaluate("document.fonts.ready")
         check("homepage 200", response.status == 200)
         check("one accurate H1", page.locator("h1").all_text_contents() == ["Security audit any released Flutter app."])
-        check("one primary hero Play action", page.locator(".hero .play-cta").count() == 1 and page.locator(".hero .play-cta").get_attribute("href") == PLAY)
+        review_cta = page.locator(".hero .play-cta")
+        apk_cta = page.locator(f'.hero a[href="{SOURCE}/releases/latest"]')
+        check("hero states the Play listing is in review",
+              review_cta.count() == 1 and review_cta.get_attribute("href") is None
+              and "in review" in review_cta.inner_text().lower())
+        check("hero has one working APK install action", apk_cta.count() == 1 and apk_cta.inner_text().strip().startswith("Download the APK"))
+        check("no dead Play link anywhere", page.locator(f'a[href^="https://play.google.com/"]').count() == 0)
         check("no navbar install actions", page.locator(f'header a[href="{PLAY}"], header .navbar-cta, header .play-button').count() == 0)
         check("plain GitHub navbar link", page.locator(f'header a[href="{SOURCE}"]').count() == 1 and page.locator(f'header a[href="{SOURCE}"] img').count() == 0)
-        check("no Download APK CTA", "Download APK" not in page.locator("body").inner_text())
         check("graphical APK layers explain real files", page.locator(".apk-stack .layer").count() >= 3 and "libapp.so" in page.locator(".apk-stack").inner_text())
         check("capabilities cover the audit surface", page.locator(".capability-list > li").count() == 6)
         check("workflow remains ordered, not a marquee", page.locator(".workflow-list > li h3").all_text_contents() == ["Discover", "Inspect", "Report"] and page.locator('[aria-hidden="true"] .workflow-list').count() == 0)
@@ -119,8 +124,8 @@ def main(args):
         media_paused = wait_until(page, "document.querySelector('video').paused")
         check("reduced motion stops graphics and autoplay", media_paused and page.evaluate("() => document.getAnimations().every(a=>a.playState!=='running' || a.effect.getTiming().duration<=1)"))
         page.emulate_media(forced_colors="active")
-        page.locator(".play-cta").focus()
-        check("forced-colors CTA and focus remain defined", page.locator(".play-cta").evaluate("e=>{const s=getComputedStyle(e);return parseFloat(s.outlineWidth)>=2 && parseFloat(s.borderTopWidth)>=1}"))
+        page.locator(".hero .button").focus()
+        check("forced-colors CTA and focus remain defined", page.locator(".hero .button").evaluate("e=>{const s=getComputedStyle(e);return parseFloat(s.outlineWidth)>=2 && parseFloat(s.borderTopWidth)>=1}"))
         page.emulate_media(forced_colors="none", reduced_motion="no-preference")
 
         # Head/schema retain the actual searchable page and truthful app facts.
@@ -190,7 +195,7 @@ def main(args):
         nojs = browser.new_context(java_script_enabled=False, viewport={"width": 390, "height": 844})
         np = nojs.new_page()
         np.goto(base, wait_until="load")
-        check("no-JS real content and install path", np.locator("h1").is_visible() and np.locator(".play-cta").is_visible() and np.locator("#faq summary").first.is_visible() and np.locator("video").is_visible())
+        check("no-JS real content and install path", np.locator("h1").is_visible() and np.locator(".play-cta").is_visible() and np.locator(f'.hero a[href="{SOURCE}/releases/latest"]').is_visible() and np.locator("#faq summary").first.is_visible() and np.locator("video").is_visible())
         nojs.close()
         broken = browser.new_context(viewport={"width": 390, "height": 844})
         broken.route("**/assets/app/demo.mp4", lambda r: r.fulfill(status=503, content_type="text/plain", body="Demo unavailable"))

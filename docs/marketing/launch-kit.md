@@ -1,8 +1,9 @@
 # FlutterGuard launch kit
 
 Status: 2026-11-02. Site live at https://flutterguard.dev. App v0.3.3 on GitHub.
-Blocking item: the Google Play listing (`com.flutterguard.app`) returns 404. The hero CTA is
-kept on Play by decision; every visitor hits a dead store page until Google publishes it.
+Google Play listing (`com.flutterguard.app`) is in review and returns 404. The hero shows a
+non-clickable "In review on Google Play" chip and a working "Download the APK" action to the
+GitHub release, so no visitor hits a dead store page.
 
 ## Positioning
 
@@ -59,11 +60,11 @@ indexed and canonical. Sitemap is valid with 1 URL.
 Simple, lovable, complete check:
 
 - Simple: audit one APK, one job. Yes.
-- Lovable: real recorded demo, one-tap install, local report. Yes, once install works.
+- Lovable: real recorded demo, one-tap install from the GitHub APK, local report. Yes.
 - Complete: discovery, inspection, report, FAQ, privacy notice. Yes.
 
-The only incomplete piece is distribution: Play is not public. Ship the launch the day the
-listing resolves, or switch the hero CTA to GitHub if that slips past one week.
+Distribution is handled by the GitHub APK while Play is in review. Announce the Play listing
+once it resolves; the site needs no further change then.
 
 ## Channels
 
@@ -116,8 +117,8 @@ Body:
 Title: `FlutterGuard v0.3.3 - inspect a released Flutter APK on the phone itself`
 
 Body: state the problem in two sentences, list what it reads, link the APK and the site, say
-it is MIT and offline, ask which checks are missing. Disclose that you built it. Do not lead
-with the Play link until the listing is public.
+it is MIT and offline, ask which checks are missing. Disclose that you built it. Link the APK,
+not Play, while the listing is in review.
 
 ### dev.to follow-up
 
@@ -143,8 +144,8 @@ One paragraph: the problem, what the app does, offline and MIT, link. No hashtag
 
 ## Directories and listings
 
-Submit only after the Play listing or GitHub APK path is confirmed working from a logged-out
-browser. Track status in this table.
+Submit now: the GitHub APK path is live and confirmed. Revisit Play wording once the listing
+resolves. Track status in this table.
 
 | Directory | URL | Notes |
 |---|---|---|

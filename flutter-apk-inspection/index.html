@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>How to inspect a Flutter APK on Android</title>
-  <meta name="description" content="Inspect a Flutter APK on Android without a desktop: get the package, read libapp.so and flutter_assets, and triage findings without false alarms.">
+  <title>Flutter APK inspection: reading a release on Android</title>
+  <meta name="description" content="Inspect a Flutter APK on Android without a desktop: read the manifest, libapp.so and flutter_assets in five passes, then triage findings without false alarms.">
   <meta name="author" content="Anas Fikhi">
   <meta name="theme-color" content="#f3f5ef">
   <meta name="color-scheme" content="light">
@@ -19,7 +19,7 @@
   <script src="/site.js" defer></script>
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="FlutterGuard">
-  <meta property="og:title" content="How to inspect a Flutter APK on Android">
+  <meta property="og:title" content="Flutter APK inspection: reading a release on Android">
   <meta property="og:description" content="Get the package, read the manifest, libapp.so and flutter_assets, and triage findings without false alarms.">
   <meta property="og:url" content="https://flutterguard.dev/flutter-apk-inspection/">
   <meta property="og:image" content="https://flutterguard.dev/og-flutter-apk-inspection.png">
@@ -32,15 +32,18 @@
   <meta property="article:modified_time" content="2026-11-02">
   <meta property="article:author" content="Anas Fikhi">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="How to inspect a Flutter APK on Android">
+  <meta name="twitter:title" content="Flutter APK inspection: reading a release on Android">
   <meta name="twitter:description" content="A phone-first workflow for reading a released Flutter package, plus the desktop commands when you need them.">
   <meta name="twitter:image" content="https://flutterguard.dev/og-flutter-apk-inspection.png">
   <meta name="twitter:image:alt" content="How-to cover: inspecting a Flutter APK on Android, beside the FlutterGuard app.">
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"TechArticle","headline":"How to inspect a Flutter APK on Android","description":"Inspect a Flutter APK on Android without a desktop: get the package, read libapp.so and flutter_assets, and triage findings without false alarms.","url":"https://flutterguard.dev/flutter-apk-inspection/","mainEntityOfPage":"https://flutterguard.dev/flutter-apk-inspection/","datePublished":"2026-11-02","dateModified":"2026-11-02","inLanguage":"en","image":"https://flutterguard.dev/og-flutter-apk-inspection.png","author":{"@type":"Person","name":"Anas Fikhi","url":"https://gwhyyy.com"},"publisher":{"@type":"Organization","name":"FlutterGuard","url":"https://flutterguard.dev/","logo":{"@type":"ImageObject","url":"https://flutterguard.dev/icon-512.png"}},"about":{"@type":"SoftwareApplication","name":"FlutterGuard","url":"https://flutterguard.dev/","applicationCategory":"SecurityApplication","operatingSystem":"Android 8.0+"}}
+  {"@context":"https://schema.org","@type":"TechArticle","headline":"Flutter APK inspection: reading a release on Android","description":"Inspect a Flutter APK on Android without a desktop: read the manifest, libapp.so and flutter_assets in five passes, then triage findings without false alarms.","url":"https://flutterguard.dev/flutter-apk-inspection/","mainEntityOfPage":"https://flutterguard.dev/flutter-apk-inspection/","datePublished":"2026-11-02","dateModified":"2026-11-02","inLanguage":"en","image":"https://flutterguard.dev/og-flutter-apk-inspection.png","author":{"@type":"Person","name":"Anas Fikhi","url":"https://gwhyyy.com"},"publisher":{"@type":"Organization","name":"FlutterGuard","url":"https://flutterguard.dev/","logo":{"@type":"ImageObject","url":"https://flutterguard.dev/icon-512.png"}},"about":{"@type":"SoftwareApplication","name":"FlutterGuard","url":"https://flutterguard.dev/","applicationCategory":"SecurityApplication","operatingSystem":"Android 8.0+"}}
   </script>
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"FlutterGuard","item":"https://flutterguard.dev/"},{"@type":"ListItem","position":2,"name":"Inspect a Flutter APK","item":"https://flutterguard.dev/flutter-apk-inspection/"}]}
+  {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"FlutterGuard","item":"https://flutterguard.dev/"},{"@type":"ListItem","position":2,"name":"Flutter APK inspection","item":"https://flutterguard.dev/flutter-apk-inspection/"}]}
+  </script>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can I inspect a Flutter APK without a computer?","acceptedAnswer":{"@type":"Answer","text":"Yes, on Android. A package reader that can open a file you pick, or list the APKs the package manager exposes, is enough. FlutterGuard does the reading in place and keeps the report on the phone."}},{"@type":"Question","name":"Where is the Dart code inside a Flutter APK?","acceptedAnswer":{"@type":"Answer","text":"In lib/<abi>/libapp.so, as ahead-of-time machine code with string literals and symbol metadata. It is not recoverable Dart source, and it is not in classes.dex, which holds the Android shell and plugin code."}},{"@type":"Question","name":"Do I need root to inspect an installed app?","acceptedAnswer":{"@type":"Answer","text":"No. Opening an APK file you selected works on any device. Pulling another app's base APK over adb usually needs root, which is why an on-device reader is the practical route."}},{"@type":"Question","name":"What should I check first in a Flutter APK?","acceptedAnswer":{"@type":"Answer","text":"Manifest policy: exported components, backup, debuggable and cleartext settings. Then hostnames and key-like strings in the compiled library, then assets, dependencies and the signing certificate."}}]}
   </script>
 </head>
 <body>
@@ -61,13 +64,15 @@
   <main id="main-content" tabindex="-1">
     <article>
       <header class="article-hero container">
-        <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">FlutterGuard</a><span aria-hidden="true">/</span><span aria-current="page">Inspect a Flutter APK</span></nav>
-        <h1>How to inspect a Flutter APK on Android</h1>
+        <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">FlutterGuard</a><span aria-hidden="true">/</span><span aria-current="page">Flutter APK inspection</span></nav>
+        <h1>Flutter APK inspection: reading a release on Android</h1>
         <p class="article-lead">A Flutter package can be read on the phone that runs it. No root, no workstation, no upload. The useful checks fit in one careful pass over the manifest, the compiled library and the assets.</p>
         <p class="article-meta">By Anas Fikhi · <time datetime="2026-11-02">2 November 2026</time> · 7 minute read</p>
       </header>
 
       <div class="article-body container">
+        <div class="article-note"><p><strong>In short.</strong> Read the manifest first for policy, then <code>lib/&lt;abi&gt;/libapp.so</code> for strings and symbols, then <code>flutter_assets/</code>, the dependency notices and the signing certificate. Nothing has to run, and nothing has to leave the device.</p></div>
+
         <h2>Before you start</h2>
         <p>Inspect only an app you own or have written permission to test. The techniques below are read-only, but authorisation is still the boundary between an audit and an intrusion. Keep findings local while you triage, and mask any value that looks like a credential.</p>
         <p>You need the APK, an Android device or emulator, and a tool that can open a package. On the phone, <a href="/">FlutterGuard</a> does the reading in place. On a workstation, <code>apktool</code>, <code>jadx</code>, <code>unzip</code> and <code>strings</code> cover the same ground with more setup.</p>
@@ -115,7 +120,7 @@ apktool d app-release.apk -o decoded
 
 strings lib/arm64-v8a/libapp.so \
   | grep -Ei 'https?://|api[_-]?key|token|secret' | head -50</code></pre>
-        <p>The manifest is binary XML. <code>apktool</code>, <code>aapt2 dump</code> or <code>apkanalyzer</code> will decode it; plain <code>cat</code> will not. MobSF wraps these steps and adds scoring, but its generic rules produce false positives on Flutter apps because it cannot see Dart source. Use scores as a queue, not a conclusion.</p>
+        <p>The manifest is binary XML. <code>apktool</code>, <code>aapt2 dump</code> or <code>apkanalyzer</code> will decode it; plain <code>cat</code> will not. A <a href="/mobsf-alternative/">desktop scanner like MobSF</a> wraps these steps and adds scoring, but its generic rules produce false positives on Flutter apps because it cannot see Dart source. Use scores as a queue, not a conclusion.</p>
 
         <h2>Triage without false alarms</h2>
         <ul>
@@ -128,6 +133,14 @@ strings lib/arm64-v8a/libapp.so \
 
         <div class="article-note"><p><strong>Static evidence has a ceiling.</strong> It cannot prove authentication is missing, observe runtime behaviour or confirm exploitability. Report what you saw, where it lives, and what would verify it. See the <a href="/flutter-security/">full checklist for Flutter app security</a>.</p></div>
 
+        <h2>Questions people ask</h2>
+        <div class="faq-list">
+          <details><summary>Can I inspect a Flutter APK without a computer?</summary><p>Yes, on Android. A package reader that can open a file you pick, or list the APKs the package manager exposes, is enough. FlutterGuard does the reading in place and keeps the report on the phone.</p></details>
+          <details><summary>Where is the Dart code inside a Flutter APK?</summary><p>In <code>lib/&lt;abi&gt;/libapp.so</code>, as ahead-of-time machine code with string literals and symbol metadata. It is not recoverable Dart source, and it is not in <code>classes.dex</code>, which holds the Android shell and plugin code.</p></details>
+          <details><summary>Do I need root to inspect an installed app?</summary><p>No. Opening an APK file you selected works on any device. Pulling another app's base APK over <code>adb</code> usually needs root, which is why an on-device reader is the practical route.</p></details>
+          <details><summary>What should I check first in a Flutter APK?</summary><p>Manifest policy: exported components, backup, debuggable and cleartext settings. Then hostnames and key-like strings in the compiled library, then assets, dependencies and the signing certificate.</p></details>
+        </div>
+
         <div class="article-cta">
           <h2>Run the first pass on your phone.</h2>
           <p>FlutterGuard reads a released Flutter app or a single APK and keeps the evidence on the device. Open source, MIT, no account.</p>
@@ -138,7 +151,8 @@ strings lib/arm64-v8a/libapp.so \
         <nav class="article-related" aria-label="Related guides">
           <h2>Continue reading</h2>
           <ul>
-            <li><a href="/flutter-security/">Flutter app security: what a release APK exposes</a></li>
+            <li><a href="/flutter-security/">Flutter security: what a release APK exposes</a></li>
+            <li><a href="/mobsf-alternative/">MobSF alternative for auditing Flutter APKs</a></li>
             <li><a href="/proguard-flutter/">ProGuard and R8 in Flutter: what they hide</a></li>
             <li><a href="/">FlutterGuard: on-device Flutter APK inspection</a></li>
           </ul>

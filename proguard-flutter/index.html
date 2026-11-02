@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ProGuard and R8 in Flutter: what they hide</title>
+  <title>ProGuard for Flutter: what R8 and obfuscation hide</title>
   <meta name="description" content="R8 and ProGuard shrink Android code, while Dart uses --obfuscate. See what each hides, what remains in libapp.so, and what never to ship.">
   <meta name="author" content="Anas Fikhi">
   <meta name="theme-color" content="#f3f5ef">
@@ -19,7 +19,7 @@
   <script src="/site.js" defer></script>
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="FlutterGuard">
-  <meta property="og:title" content="ProGuard and R8 in Flutter: what they hide">
+  <meta property="og:title" content="ProGuard for Flutter: what R8 and obfuscation hide">
   <meta property="og:description" content="Android shrinking and Dart obfuscation are different tools. Here is what each changes in the shipped APK.">
   <meta property="og:url" content="https://flutterguard.dev/proguard-flutter/">
   <meta property="og:image" content="https://flutterguard.dev/og-proguard-flutter.png">
@@ -32,15 +32,18 @@
   <meta property="article:modified_time" content="2026-11-02">
   <meta property="article:author" content="Anas Fikhi">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="ProGuard and R8 in Flutter: what they hide">
+  <meta name="twitter:title" content="ProGuard for Flutter: what R8 and obfuscation hide">
   <meta name="twitter:description" content="What Android shrinking hides, what Dart obfuscation changes, and what stays readable in a release APK.">
   <meta name="twitter:image" content="https://flutterguard.dev/og-proguard-flutter.png">
   <meta name="twitter:image:alt" content="Explainer cover: ProGuard and R8 in Flutter and what they hide, beside the FlutterGuard app.">
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"TechArticle","headline":"ProGuard and R8 in Flutter: what they hide","description":"R8 and ProGuard shrink Android code, while Dart uses --obfuscate. See what each hides, what remains in libapp.so, and what never to ship.","url":"https://flutterguard.dev/proguard-flutter/","mainEntityOfPage":"https://flutterguard.dev/proguard-flutter/","datePublished":"2026-11-02","dateModified":"2026-11-02","inLanguage":"en","image":"https://flutterguard.dev/og-proguard-flutter.png","author":{"@type":"Person","name":"Anas Fikhi","url":"https://gwhyyy.com"},"publisher":{"@type":"Organization","name":"FlutterGuard","url":"https://flutterguard.dev/","logo":{"@type":"ImageObject","url":"https://flutterguard.dev/icon-512.png"}},"about":{"@type":"SoftwareApplication","name":"FlutterGuard","url":"https://flutterguard.dev/","applicationCategory":"SecurityApplication","operatingSystem":"Android 8.0+"}}
+  {"@context":"https://schema.org","@type":"TechArticle","headline":"ProGuard for Flutter: what R8 and obfuscation hide","description":"R8 and ProGuard shrink Android code, while Dart uses --obfuscate. See what each hides, what remains in libapp.so, and what never to ship.","url":"https://flutterguard.dev/proguard-flutter/","mainEntityOfPage":"https://flutterguard.dev/proguard-flutter/","datePublished":"2026-11-02","dateModified":"2026-11-02","inLanguage":"en","image":"https://flutterguard.dev/og-proguard-flutter.png","author":{"@type":"Person","name":"Anas Fikhi","url":"https://gwhyyy.com"},"publisher":{"@type":"Organization","name":"FlutterGuard","url":"https://flutterguard.dev/","logo":{"@type":"ImageObject","url":"https://flutterguard.dev/icon-512.png"}},"about":{"@type":"SoftwareApplication","name":"FlutterGuard","url":"https://flutterguard.dev/","applicationCategory":"SecurityApplication","operatingSystem":"Android 8.0+"}}
   </script>
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"FlutterGuard","item":"https://flutterguard.dev/"},{"@type":"ListItem","position":2,"name":"ProGuard and R8 in Flutter","item":"https://flutterguard.dev/proguard-flutter/"}]}
+  {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"FlutterGuard","item":"https://flutterguard.dev/"},{"@type":"ListItem","position":2,"name":"ProGuard for Flutter","item":"https://flutterguard.dev/proguard-flutter/"}]}
+  </script>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does ProGuard obfuscate Flutter code?","acceptedAnswer":{"@type":"Answer","text":"No. ProGuard and R8 process Android bytecode in classes.dex. The Dart program is compiled ahead of time into lib/<abi>/libapp.so and needs flutter build --obfuscate instead."}},{"@type":"Question","name":"Does --obfuscate hide API keys and URLs?","acceptedAnswer":{"@type":"Answer","text":"No. It renames Dart symbols. String literals, hostnames, asset files and values passed with --dart-define stay readable in the artifact."}},{"@type":"Question","name":"Can R8 break a Flutter plugin?","acceptedAnswer":{"@type":"Answer","text":"It can. Reflection-based plugins need keep rules, and some publish them. Test the release build, not the debug build, before you ship."}},{"@type":"Question","name":"Is obfuscation enough to protect a client secret?","acceptedAnswer":{"@type":"Answer","text":"No. A client is not a trust boundary. Keep secrets on the server, issue short-lived scoped tokens, and enforce authorization where the data lives."}}]}
   </script>
 </head>
 <body>
@@ -61,14 +64,16 @@
   <main id="main-content" tabindex="-1">
     <article>
       <header class="article-hero container">
-        <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">FlutterGuard</a><span aria-hidden="true">/</span><span aria-current="page">ProGuard and R8 in Flutter</span></nav>
-        <h1>ProGuard and R8 in Flutter: what they hide</h1>
+        <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">FlutterGuard</a><span aria-hidden="true">/</span><span aria-current="page">ProGuard for Flutter</span></nav>
+        <h1>ProGuard for Flutter: what R8 and obfuscation hide</h1>
         <p class="article-lead">Two toolchains get mixed up in Flutter release builds. R8 and ProGuard work on Java and Kotlin. Dart has its own obfuscator. Neither one encrypts what you ship.</p>
         <p class="article-meta">By Anas Fikhi · <time datetime="2026-11-02">2 November 2026</time> · 7 minute read</p>
       </header>
 
       <div class="article-body container">
         <p>The confusion is understandable. Flutter adds ProGuard rules, Gradle exposes <code>minifyEnabled</code>, and the Flutter build command has an <code>--obfuscate</code> flag. They sound like layers of the same defence. In practice they operate on different code, at different stages, with different limits.</p>
+
+                <div class="article-note"><p><strong>In short.</strong> R8 and ProGuard shrink and rename Java bytecode in <code>classes.dex</code>. Dart ships as ahead-of-time machine code in <code>libapp.so</code>, so <code>flutter build --obfuscate</code> is the separate switch for Dart symbols. Neither one encrypts string literals, URLs or assets.</p></div>
 
         <h2>Two toolchains, one APK</h2>
         <table>
@@ -141,6 +146,14 @@
 
         <div class="article-note"><p><strong>Obfuscation is measurable.</strong> If a Dart symbol name is still readable in <code>libapp.so</code>, the build did not obfuscate. If a URL is still readable after obfuscation, that is expected: the flag was never meant to remove it.</p></div>
 
+        <h2>Questions people ask</h2>
+        <div class="faq-list">
+          <details><summary>Does ProGuard obfuscate Flutter code?</summary><p>No. ProGuard and R8 process Android bytecode in <code>classes.dex</code>. The Dart program is compiled ahead of time into <code>lib/&lt;abi&gt;/libapp.so</code> and needs <code>flutter build --obfuscate</code> instead.</p></details>
+          <details><summary>Does <code>--obfuscate</code> hide API keys and URLs?</summary><p>No. It renames Dart symbols. String literals, hostnames, asset files and values passed with <code>--dart-define</code> stay readable in the artifact.</p></details>
+          <details><summary>Can R8 break a Flutter plugin?</summary><p>It can. Reflection-based plugins need keep rules, and some publish them. Test the release build, not the debug build, before you ship.</p></details>
+          <details><summary>Is obfuscation enough to protect a client secret?</summary><p>No. A client is not a trust boundary. Keep secrets on the server, issue short-lived scoped tokens, and enforce authorization where the data lives.</p></details>
+        </div>
+
         <div class="article-cta">
           <h2>See what your release actually exposes.</h2>
           <p>FlutterGuard reads the manifest, compiled library and assets on Android, then saves a local report. Open source, MIT, no account.</p>
@@ -151,8 +164,9 @@
         <nav class="article-related" aria-label="Related guides">
           <h2>Continue reading</h2>
           <ul>
-            <li><a href="/flutter-security/">Flutter app security: what a release APK exposes</a></li>
-            <li><a href="/flutter-apk-inspection/">How to inspect a Flutter APK on Android</a></li>
+            <li><a href="/flutter-security/">Flutter security: what a release APK exposes</a></li>
+            <li><a href="/flutter-apk-inspection/">Flutter APK inspection: reading a release on Android</a></li>
+            <li><a href="/mobsf-alternative/">MobSF alternative for auditing Flutter APKs</a></li>
             <li><a href="/">FlutterGuard: on-device Flutter APK inspection</a></li>
           </ul>
         </nav>

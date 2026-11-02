@@ -19,9 +19,10 @@
 
 ## Guides
 
-- [Flutter app security: what a release APK exposes](https://flutterguard.dev/flutter-security/)
-- [How to inspect a Flutter APK on Android](https://flutterguard.dev/flutter-apk-inspection/)
-- [ProGuard and R8 in Flutter: what they hide](https://flutterguard.dev/proguard-flutter/)
+- [Flutter security: what a release APK exposes](https://flutterguard.dev/flutter-security/)
+- [Flutter APK inspection: reading a release on Android](https://flutterguard.dev/flutter-apk-inspection/)
+- [ProGuard for Flutter: what R8 and obfuscation hide](https://flutterguard.dev/proguard-flutter/)
+- [MobSF alternative for auditing Flutter APKs](https://flutterguard.dev/mobsf-alternative/)
 
 ## Flutter-aware inspection
 

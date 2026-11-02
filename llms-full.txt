@@ -91,9 +91,10 @@ FlutterGuard is MIT licensed. It is a local analysis tool. Use it only on applic
 
 ## Guides
 
-- [Flutter app security: what a release APK exposes](https://flutterguard.dev/flutter-security/): the manifest, endpoint, string, dependency and signing checks that matter in a shipped Flutter app.
-- [How to inspect a Flutter APK on Android](https://flutterguard.dev/flutter-apk-inspection/): a phone-first workflow, the desktop commands, and triage rules that avoid false alarms.
-- [ProGuard and R8 in Flutter: what they hide](https://flutterguard.dev/proguard-flutter/): Android shrinking versus Dart obfuscation, and what remains readable in libapp.so.
+- [Flutter security: what a release APK exposes](https://flutterguard.dev/flutter-security/): the manifest, endpoint, string, dependency and signing checks that matter in a shipped Flutter app.
+- [Flutter APK inspection: reading a release on Android](https://flutterguard.dev/flutter-apk-inspection/): a phone-first workflow, the desktop commands, and triage rules that avoid false alarms.
+- [ProGuard for Flutter: what R8 and obfuscation hide](https://flutterguard.dev/proguard-flutter/): Android shrinking versus Dart obfuscation, and what remains readable in libapp.so.
+- [MobSF alternative for auditing Flutter APKs](https://flutterguard.dev/mobsf-alternative/): where a desktop scanner ends and a Flutter release begins, and which checks each side performs.
 
 ## Support
 

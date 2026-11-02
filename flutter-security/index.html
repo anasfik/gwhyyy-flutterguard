@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Flutter app security: what a release APK exposes</title>
+  <title>Flutter security: what a release APK exposes</title>
   <meta name="description" content="A practical checklist for auditing a released Flutter app on Android: manifest policy, endpoints, exposed strings, dependencies and signing.">
   <meta name="author" content="Anas Fikhi">
   <meta name="theme-color" content="#f3f5ef">
@@ -19,28 +19,36 @@
   <script src="/site.js" defer></script>
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="FlutterGuard">
-  <meta property="og:title" content="Flutter app security: what a release APK exposes">
+  <meta property="og:title" content="Flutter security: what a release APK exposes">
   <meta property="og:description" content="Manifest policy, endpoints, exposed strings, dependencies and signing: a practical audit checklist for a shipped Flutter app.">
   <meta property="og:url" content="https://flutterguard.dev/flutter-security/">
   <meta property="og:image" content="https://flutterguard.dev/og-flutter-security.png">
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Guide cover: Flutter app security, what a release APK exposes, beside the FlutterGuard app.">
+  <meta property="og:image:alt" content="Guide cover: Flutter security, what a release APK exposes, beside the FlutterGuard app.">
   <meta property="og:locale" content="en_US">
   <meta property="article:published_time" content="2026-11-02">
   <meta property="article:modified_time" content="2026-11-02">
   <meta property="article:author" content="Anas Fikhi">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Flutter app security: what a release APK exposes">
+  <meta name="twitter:title" content="Flutter security: what a release APK exposes">
   <meta name="twitter:description" content="The checks that matter in a shipped Flutter APK, and what static inspection cannot tell you.">
   <meta name="twitter:image" content="https://flutterguard.dev/og-flutter-security.png">
-  <meta name="twitter:image:alt" content="Guide cover: Flutter app security, what a release APK exposes, beside the FlutterGuard app.">
+  <meta name="twitter:image:alt" content="Guide cover: Flutter security, what a release APK exposes, beside the FlutterGuard app.">
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"TechArticle","headline":"Flutter app security: what a release APK exposes","description":"A practical checklist for auditing a released Flutter app on Android: manifest policy, endpoints, exposed strings, dependencies and signing.","url":"https://flutterguard.dev/flutter-security/","mainEntityOfPage":"https://flutterguard.dev/flutter-security/","datePublished":"2026-11-02","dateModified":"2026-11-02","inLanguage":"en","image":"https://flutterguard.dev/og-flutter-security.png","author":{"@type":"Person","name":"Anas Fikhi","url":"https://gwhyyy.com"},"publisher":{"@type":"Organization","name":"FlutterGuard","url":"https://flutterguard.dev/","logo":{"@type":"ImageObject","url":"https://flutterguard.dev/icon-512.png"}},"about":{"@type":"SoftwareApplication","name":"FlutterGuard","url":"https://flutterguard.dev/","applicationCategory":"SecurityApplication","operatingSystem":"Android 8.0+"}}
+  {"@context":"https://schema.org","@type":"TechArticle","headline":"Flutter security: what a release APK exposes","description":"A practical checklist for auditing a released Flutter app on Android: manifest policy, endpoints, exposed strings, dependencies and signing.","url":"https://flutterguard.dev/flutter-security/","mainEntityOfPage":"https://flutterguard.dev/flutter-security/","datePublished":"2026-11-02","dateModified":"2026-11-02","inLanguage":"en","image":"https://flutterguard.dev/og-flutter-security.png","author":{"@type":"Person","name":"Anas Fikhi","url":"https://gwhyyy.com"},"publisher":{"@type":"Organization","name":"FlutterGuard","url":"https://flutterguard.dev/","logo":{"@type":"ImageObject","url":"https://flutterguard.dev/icon-512.png"}},"about":{"@type":"SoftwareApplication","name":"FlutterGuard","url":"https://flutterguard.dev/","applicationCategory":"SecurityApplication","operatingSystem":"Android 8.0+"}}
   </script>
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"FlutterGuard","item":"https://flutterguard.dev/"},{"@type":"ListItem","position":2,"name":"Flutter app security","item":"https://flutterguard.dev/flutter-security/"}]}
+  {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"FlutterGuard","item":"https://flutterguard.dev/"},{"@type":"ListItem","position":2,"name":"Flutter security","item":"https://flutterguard.dev/flutter-security/"}]}
+  </script>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+    {"@type":"Question","name":"What does Flutter security mean for a shipped app?","acceptedAnswer":{"@type":"Answer","text":"It means the surface the package exposes to someone who has it installed: permissions and exported components, endpoints and environment names, string literals that look like credentials, bundled assets, third-party SDKs, and the certificate that signed the build. Source code is a different artifact and can disagree with what actually shipped."}},
+    {"@type":"Question","name":"Can a Flutter app be decompiled?","acceptedAnswer":{"@type":"Answer","text":"Dart is compiled ahead of time into machine code in libapp.so, so there is no bytecode to turn back into readable source. String literals, symbol names and class metadata survive that compilation, which is enough to recover endpoints, configuration and dependency clues. Reading those is inspection, not decompilation."}},
+    {"@type":"Question","name":"Does obfuscation protect API keys in a Flutter app?","acceptedAnswer":{"@type":"Answer","text":"No. --obfuscate renames Dart symbols. It does not encrypt string literals, assets or configuration, and a key passed through --dart-define is baked into the build. A key that must stay secret does not belong in the client at all."}},
+    {"@type":"Question","name":"Is it legal to inspect an APK?","acceptedAnswer":{"@type":"Answer","text":"Only for apps you own or have written permission to assess, and only within whatever scope that permission names. Reading a package is not the same as testing the service behind it. The technical steps on this page are not authorisation."}}
+  ]}
   </script>
 </head>
 <body>
@@ -61,14 +69,16 @@
   <main id="main-content" tabindex="-1">
     <article>
       <header class="article-hero container">
-        <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">FlutterGuard</a><span aria-hidden="true">/</span><span aria-current="page">Flutter app security</span></nav>
-        <h1>Flutter app security: what a release APK exposes</h1>
+        <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">FlutterGuard</a><span aria-hidden="true">/</span><span aria-current="page">Flutter security</span></nav>
+        <h1>Flutter security: what a release APK exposes</h1>
         <p class="article-lead">Most reviews start with the repository. An attacker starts with the APK you shipped. The two artifacts are not the same, and the difference is where the useful evidence sits.</p>
         <p class="article-meta">By Anas Fikhi · <time datetime="2026-11-02">2 November 2026</time> · 8 minute read</p>
       </header>
 
       <div class="article-body container">
         <p>A release build passes through R8, resource shrinking, Dart AOT compilation and signing. Configuration that was convenient in development can survive that pipeline, and code that looked harmless in source can leave a readable string in the binary. Auditing the release artifact answers a narrower and more honest question than auditing the repository: what can someone with the app installed actually see?</p>
+
+        <div class="article-note"><p><strong>In short.</strong> Flutter security review means reading the artifact you shipped. A release APK carries four readable layers: Android policy in the manifest, Dart strings in <code>libapp.so</code>, bundled data in <code>flutter_assets</code>, and signing material in <code>META-INF</code>. Most real findings sit in the first three, and none of them require running the app.</p></div>
 
         <h2>What a Flutter release contains</h2>
         <p>A Flutter Android app is still an Android package. The Flutter layer adds files and changes where the interesting data lives.</p>
@@ -123,7 +133,15 @@
           <li>Verify the high-impact items against your own backend or a test environment. Drop anything you cannot substantiate.</li>
           <li>Keep the report with the release version and certificate so the next audit has a baseline.</li>
         </ol>
-        <p>On a phone, <a href="/flutter-apk-inspection/">FlutterGuard reads the package in place</a> and keeps the report local. On a workstation, MobSF, <code>apktool</code>, <code>jadx</code> and <code>strings</code> cover the same artifact with more setup. The tool matters less than reading the layers in the right order.</p>
+        <p>On a phone, <a href="/flutter-apk-inspection/">FlutterGuard reads the package in place</a> and keeps the report local. On a workstation, <a href="/mobsf-alternative/">MobSF</a>, <code>apktool</code>, <code>jadx</code> and <code>strings</code> cover the same artifact with more setup. The tool matters less than reading the layers in the right order.</p>
+
+        <h2>Questions people ask</h2>
+        <div class="faq-list">
+          <details><summary>What does Flutter security mean for a shipped app?</summary><p>It means the surface the package exposes to someone who has it installed: permissions and exported components, endpoints and environment names, string literals that look like credentials, bundled assets, third-party SDKs, and the certificate that signed the build. Source code is a different artifact and can disagree with what actually shipped.</p></details>
+          <details><summary>Can a Flutter app be decompiled?</summary><p>Dart is compiled ahead of time into machine code in <code>libapp.so</code>, so there is no bytecode to turn back into readable source. String literals, symbol names and class metadata survive that compilation, which is enough to recover endpoints, configuration and dependency clues. Reading those is inspection, not decompilation.</p></details>
+          <details><summary>Does obfuscation protect API keys in a Flutter app?</summary><p>No. <code>--obfuscate</code> renames Dart symbols. It does not encrypt string literals, assets or configuration, and a key passed through <code>--dart-define</code> is baked into the build. A key that must stay secret does not belong in the client at all.</p></details>
+          <details><summary>Is it legal to inspect an APK?</summary><p>Only for apps you own or have written permission to assess, and only within whatever scope that permission names. Reading a package is not the same as testing the service behind it. The technical steps on this page are not authorisation.</p></details>
+        </div>
 
         <div class="article-cta">
           <h2>Inspect a release on the device that runs it.</h2>
@@ -135,8 +153,9 @@
         <nav class="article-related" aria-label="Related guides">
           <h2>Continue reading</h2>
           <ul>
-            <li><a href="/flutter-apk-inspection/">How to inspect a Flutter APK on Android</a></li>
-            <li><a href="/proguard-flutter/">ProGuard and R8 in Flutter: what they hide</a></li>
+            <li><a href="/flutter-apk-inspection/">Flutter APK inspection: reading a release on Android</a></li>
+            <li><a href="/proguard-flutter/">ProGuard for Flutter: what R8 and obfuscation hide</a></li>
+            <li><a href="/mobsf-alternative/">MobSF alternative for auditing Flutter APKs</a></li>
             <li><a href="/">FlutterGuard: on-device Flutter APK inspection</a></li>
           </ul>
         </nav>

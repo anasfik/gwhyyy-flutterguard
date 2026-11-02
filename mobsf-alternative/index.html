@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MobSF alternative for auditing Flutter APKs</title>
+  <meta name="description" content="MobSF is a server-side platform for static and dynamic mobile testing. FlutterGuard reads a Flutter APK on the phone. An honest comparison, and when each wins.">
+  <meta name="author" content="Anas Fikhi">
+  <meta name="theme-color" content="#f3f5ef">
+  <meta name="color-scheme" content="light">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <link rel="canonical" href="https://flutterguard.dev/mobsf-alternative/">
+  <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM-readable summary">
+  <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="preload" href="/assets/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/site.js" defer></script>
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="FlutterGuard">
+  <meta property="og:title" content="MobSF alternative for auditing Flutter APKs">
+  <meta property="og:description" content="MobSF does static and dynamic testing on a server. FlutterGuard reads a Flutter APK on the phone. What each is actually good at.">
+  <meta property="og:url" content="https://flutterguard.dev/mobsf-alternative/">
+  <meta property="og:image" content="https://flutterguard.dev/og-mobsf-alternative.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Guide cover: MobSF alternative for auditing Flutter APKs, comparing a server-side platform with an on-device audit.">
+  <meta property="og:locale" content="en_US">
+  <meta property="article:published_time" content="2026-11-02">
+  <meta property="article:modified_time" content="2026-11-02">
+  <meta property="article:author" content="Anas Fikhi">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MobSF alternative for auditing Flutter APKs">
+  <meta name="twitter:description" content="A server platform and a phone app both read the same APK. The difference is where the evidence goes and who can run it.">
+  <meta name="twitter:image" content="https://flutterguard.dev/og-mobsf-alternative.png">
+  <meta name="twitter:image:alt" content="Guide cover: MobSF alternative for auditing Flutter APKs, comparing a server-side platform with an on-device audit.">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"TechArticle","headline":"MobSF alternative for auditing Flutter APKs","description":"MobSF is a server-side platform for static and dynamic mobile testing. FlutterGuard reads a Flutter APK on the phone. An honest comparison, and when each wins.","url":"https://flutterguard.dev/mobsf-alternative/","mainEntityOfPage":"https://flutterguard.dev/mobsf-alternative/","datePublished":"2026-11-02","dateModified":"2026-11-02","inLanguage":"en","image":"https://flutterguard.dev/og-mobsf-alternative.png","author":{"@type":"Person","name":"Anas Fikhi","url":"https://gwhyyy.com"},"publisher":{"@type":"Organization","name":"FlutterGuard","url":"https://flutterguard.dev/","logo":{"@type":"ImageObject","url":"https://flutterguard.dev/icon-512.png"}},"about":{"@type":"SoftwareApplication","name":"FlutterGuard","url":"https://flutterguard.dev/","applicationCategory":"SecurityApplication","operatingSystem":"Android 8.0+"}}
+  </script>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"FlutterGuard","item":"https://flutterguard.dev/"},{"@type":"ListItem","position":2,"name":"MobSF alternative","item":"https://flutterguard.dev/mobsf-alternative/"}]}
+  </script>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+    {"@type":"Question","name":"Is FlutterGuard a replacement for MobSF?","acceptedAnswer":{"@type":"Answer","text":"No. MobSF is a full mobile security platform with static and dynamic analysis, iOS and Windows support, and a REST API. FlutterGuard is one Android app that reads a Flutter APK on the device. Use MobSF when you need instrumentation, a server-side report or a pipeline. Use FlutterGuard when the APK is already on the phone and nobody wants to upload it."}},
+    {"@type":"Question","name":"Does FlutterGuard do dynamic analysis?","acceptedAnswer":{"@type":"Answer","text":"It does not. It never runs the app, hooks it or intercepts traffic. Everything it reports comes from reading the package: the manifest, the compiled Dart library, the assets and the signing material. MobSF is the right choice when runtime behaviour is the question."}},
+    {"@type":"Question","name":"Can I use FlutterGuard and MobSF together?","acceptedAnswer":{"@type":"Answer","text":"That is the common pairing. FlutterGuard gives a quick first pass on a phone, with the report kept local. MobSF, apktool, jadx and Frida go deeper once you know which strings, endpoints or components deserve a second look."}},
+    {"@type":"Question","name":"Is apkleaks enough for a Flutter app?","acceptedAnswer":{"@type":"Answer","text":"Only partly. apkleaks searches what jadx disassembles, which is the DEX layer of the APK. A Flutter release keeps its Dart string literals in lib/libapp.so and its bundled data in flutter_assets, outside that output. A secret in Dart code can sit in the APK and never appear in a jadx-based scan."}}
+  ]}
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="/" aria-label="FlutterGuard"><img src="/assets/app/icon-512.png" width="36" height="36" alt=""><span>FlutterGuard</span></a>
+      <nav class="site-nav" aria-label="Primary">
+        <a class="nav-section" href="/#why">Why FlutterGuard</a>
+        <a class="nav-section" href="/#features">Features</a>
+        <a class="nav-section" href="/#guides">Guides</a>
+        <a class="nav-section" href="/#faq">FAQ</a>
+        <a class="nav-source" href="https://github.com/anasfik/FlutterGuard" target="_blank" rel="noopener noreferrer">GitHub <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg><span class="sr-only"> (opens in a new tab)</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content" tabindex="-1">
+    <article>
+      <header class="article-hero container">
+        <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">FlutterGuard</a><span aria-hidden="true">/</span><span aria-current="page">MobSF alternative</span></nav>
+        <h1>MobSF alternative for auditing Flutter APKs</h1>
+        <p class="article-lead">Both tools open the same APK. One runs on a server you have to stand up, the other runs on the phone that already has the file. Here is what that difference changes, and where MobSF stays the better answer.</p>
+        <p class="article-meta">By Anas Fikhi · <time datetime="2026-11-02">2 November 2026</time> · 7 minute read</p>
+      </header>
+
+      <div class="article-body container">
+        <div class="article-note"><p><strong>In short.</strong> MobSF is a mobile security platform: static and dynamic testing, Android, iOS and Windows binaries, a web UI, a REST API and a CLI. FlutterGuard is a single Android app that reads a Flutter APK on the device and keeps the report local. Choose MobSF for depth and pipelines. Choose FlutterGuard when the APK is on the phone and the Dart layer is the question.</p></div>
+
+        <p>People search for a MobSF alternative for two reasons. Either the Docker image, the Python install and the browser session are too much for a ten-minute question, or they are looking at a Flutter app and want the answer to be about Flutter. This page covers both, honestly, including the work MobSF does that FlutterGuard does not attempt.</p>
+
+        <h2>At a glance</h2>
+        <table>
+          <thead><tr><th></th><th>MobSF</th><th>FlutterGuard</th></tr></thead>
+          <tbody>
+            <tr><td>Where it runs</td><td>Server or laptop: Docker image, Python 3.12+, or the hosted demo at <code>mobsf.live</code></td><td>On the Android device, as a normal app</td></tr>
+            <tr><td>What it accepts</td><td>APK, XAPK, AAB, JAR, AAR, DEX, SO, IPA, DYLIB, APPX, plus Android and iOS source</td><td>An installed app's base APK, or one APK file you open</td></tr>
+            <tr><td>Reading the Flutter layers</td><td>General app structure and strings</td><td>Dart strings in <code>libapp.so</code>, the <code>flutter_assets</code> manifest, Flutter SDK and AI-provider markers</td></tr>
+            <tr><td>Dynamic analysis</td><td>Yes: emulators, simulators, Corellium, physical devices, Frida-based instrumentation, live traffic</td><td>No. The package is read, never executed</td></tr>
+            <tr><td>Network</td><td>Server UI, so the artifact leaves the device unless you host it locally</td><td>No <code>INTERNET</code> permission at all</td></tr>
+            <tr><td>Reports</td><td>Web report, JSON via API and CLI</td><td>On-device report, export as JSON or Markdown</td></tr>
+            <tr><td>Best fit</td><td>Client engagements, CI gates, runtime testing, iOS and Windows</td><td>Triage on the device, offline review, a first pass before the deeper one</td></tr>
+          </tbody>
+        </table>
+        <p>MobSF details above reflect its public documentation as of November 2026. Version numbers and feature lists change, so check the project before you plan around a specific capability.</p>
+
+        <h2>What MobSF does well</h2>
+        <p>MobSF earned its place by covering the whole engagement. It accepts almost every mobile binary format, it produces a web report a client can read, and its REST API and CLI let a pipeline fail a build. The dynamic analyser is the part no static tool replaces: it can drive an app on an emulator or a device, hook it with Frida, and show you the traffic and the runtime state. If your question is "what does this app do when it runs", MobSF answers it and FlutterGuard does not.</p>
+        <p>It is also broad on purpose. Android, iOS, Windows, source code, malware triage, privacy analysis. That breadth is why it needs a host, a browser and some setup.</p>
+
+        <h2>Where a Flutter release differs</h2>
+        <p>A Flutter app is an Android package with a second runtime inside it. The manifest and the signing material are ordinary Android. The application logic is not: Dart is compiled ahead of time into <code>lib/&lt;abi&gt;/libapp.so</code>, and the bundled data sits in <code>flutter_assets/</code>. String literals from Dart survive that compilation, including values passed with <code>--dart-define</code>, so endpoints and configuration end up in the shared object rather than in <code>classes.dex</code>.</p>
+        <p>That split is why a DEX-shaped scan can come back clean on a Flutter app that still ships a staging URL. Tools built around decompiled Java never see the Dart side. MobSF reads the whole package, so the evidence is in its output somewhere; the difference is how much of the report is organised around the Flutter layers and how much you have to assemble yourself.</p>
+        <p>FlutterGuard was built around that layout: the report is grouped as artifact facts, library and SDK markers, endpoints and routes, exposed strings, and package policy, with each finding tied to the file or attribute that produced it. See <a href="/flutter-security/">the full checklist for Flutter app security</a> for what each layer can and cannot show.</p>
+
+        <h2>The checks both tools perform</h2>
+        <p>Manifest policy, exported components, cleartext and backup settings, embedded endpoints, secret-pattern matches and the signing certificate are all readable from the APK, and both tools report them. On those checks the difference is ergonomics, not coverage: where the tool runs, how fast you get an answer, and where the report lives afterwards.</p>
+
+        <h2>When MobSF is the better choice</h2>
+        <ul>
+          <li>You need to observe runtime behaviour, intercept traffic or test authentication.</li>
+          <li>The target is iOS, Windows, a source tree or a whole portfolio of apps.</li>
+          <li>The output feeds a CI pipeline, a client deliverable or a compliance process.</li>
+          <li>You want one report covering static and dynamic findings side by side.</li>
+        </ul>
+
+        <h2>When FlutterGuard is the better choice</h2>
+        <ul>
+          <li>The APK is already on a phone and setting up a workstation is the slow part.</li>
+          <li>The artifact cannot leave the device, by policy or by preference.</li>
+          <li>You want to know what a Flutter release exposes before deciding whether a deeper review is worth it.</li>
+          <li>You need the answer offline, on a device with no network permission at all.</li>
+        </ul>
+        <p>The two combine well. Run the on-device pass first, export the report, then take the interesting paths into MobSF, <code>apktool</code> and Frida. <a href="/flutter-apk-inspection/">The APK inspection guide</a> covers the phone-side passes, and <a href="/proguard-flutter/">the obfuscation explainer</a> covers why a clean source tree can still ship readable strings.</p>
+
+        <h2>What neither tool proves</h2>
+        <p>Static inspection shows what shipped. It does not show that an endpoint is unauthenticated, a key is privileged or a component is reachable by an attacker. Those are runtime and server-side questions, and answering them requires permission over the target. Treat every static match as a lead with a location attached, then verify it against a system you own or are authorised to test.</p>
+
+        <h2>Questions people ask</h2>
+        <div class="faq-list">
+          <details><summary>Is FlutterGuard a replacement for MobSF?</summary><p>No. MobSF is a full mobile security platform with static and dynamic analysis, iOS and Windows support, and a REST API. FlutterGuard is one Android app that reads a Flutter APK on the device. Use MobSF when you need instrumentation, a server-side report or a pipeline. Use FlutterGuard when the APK is already on the phone and nobody wants to upload it.</p></details>
+          <details><summary>Does FlutterGuard do dynamic analysis?</summary><p>It does not. It never runs the app, hooks it or intercepts traffic. Everything it reports comes from reading the package: the manifest, the compiled Dart library, the assets and the signing material. MobSF is the right choice when runtime behaviour is the question.</p></details>
+          <details><summary>Can I use FlutterGuard and MobSF together?</summary><p>That is the common pairing. FlutterGuard gives a quick first pass on a phone, with the report kept local. MobSF, apktool, jadx and Frida go deeper once you know which strings, endpoints or components deserve a second look.</p></details>
+          <details><summary>Is apkleaks enough for a Flutter app?</summary><p>Only partly. apkleaks searches what jadx disassembles, which is the DEX layer of the APK. A Flutter release keeps its Dart string literals in <code>lib/libapp.so</code> and its bundled data in <code>flutter_assets</code>, outside that output. A secret in Dart code can sit in the APK and never appear in a jadx-based scan.</p></details>
+        </div>
+
+        <div class="article-cta">
+          <h2>Run the first pass on the phone.</h2>
+          <p>FlutterGuard is an open-source Android app. It reads the manifest, compiled library and assets, then saves a local report. No account, no upload, no INTERNET permission.</p>
+          <a class="button" href="https://github.com/anasfik/FlutterGuard/releases/latest" target="_blank" rel="noopener noreferrer">Download the APK<span class="sr-only"> (opens in a new tab)</span></a>
+          <a class="quiet" href="https://github.com/anasfik/FlutterGuard" target="_blank" rel="noopener noreferrer">Source on GitHub<span class="sr-only"> (opens in a new tab)</span></a>
+        </div>
+
+        <nav class="article-related" aria-label="Related guides">
+          <h2>Continue reading</h2>
+          <ul>
+            <li><a href="/flutter-security/">Flutter security: what a release APK exposes</a></li>
+            <li><a href="/flutter-apk-inspection/">Flutter APK inspection: reading a release on Android</a></li>
+            <li><a href="/proguard-flutter/">ProGuard for Flutter: what R8 and obfuscation hide</a></li>
+            <li><a href="/">FlutterGuard: on-device Flutter APK inspection</a></li>
+          </ul>
+        </nav>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer container"><p>FlutterGuard. Built by <a href="https://gwhyyy.com" target="_blank" rel="noopener noreferrer">Anas Fikhi<span class="sr-only"> (opens in a new tab)</span></a>.</p><nav class="footer-links" aria-label="Legal"><a href="https://gwhyyy.com/privacy/flutterguard" target="_blank" rel="noopener noreferrer">Privacy<span class="sr-only"> (opens in a new tab)</span></a><a href="https://github.com/anasfik/FlutterGuard/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT licence<span class="sr-only"> (opens in a new tab)</span></a></nav></footer>
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"f9110d5432f446d6833224ec262cdd83"}'></script>
+</body>
+</html>

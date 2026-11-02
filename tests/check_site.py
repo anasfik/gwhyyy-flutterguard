@@ -20,9 +20,10 @@ PLAY = "https://play.google.com/store/apps/details?id=com.flutterguard.app"
 SOURCE = "https://github.com/anasfik/FlutterGuard"
 CANONICAL = "https://flutterguard.dev/"
 GUIDES = {
-    "/flutter-security/": "Flutter app security: what a release APK exposes",
-    "/flutter-apk-inspection/": "How to inspect a Flutter APK on Android",
-    "/proguard-flutter/": "ProGuard and R8 in Flutter: what they hide",
+    "/flutter-security/": "Flutter security: what a release APK exposes",
+    "/flutter-apk-inspection/": "Flutter APK inspection: reading a release on Android",
+    "/proguard-flutter/": "ProGuard for Flutter: what R8 and obfuscation hide",
+    "/mobsf-alternative/": "MobSF alternative for auditing Flutter APKs",
 }
 
 
@@ -77,7 +78,7 @@ def main(args):
         check("plain GitHub navbar link", page.locator(f'header a[href="{SOURCE}"]').count() == 1 and page.locator(f'header a[href="{SOURCE}"] img').count() == 0)
         check("graphical APK layers explain real files", page.locator(".apk-stack .layer").count() >= 3 and "libapp.so" in page.locator(".apk-stack").inner_text())
         check("capabilities cover the audit surface", page.locator(".capability-list > li").count() == 6)
-        check("guides section links the cluster", page.locator('#guides a[href="/flutter-security/"], #guides a[href="/flutter-apk-inspection/"], #guides a[href="/proguard-flutter/"]').count() == 3)
+        check("guides section links the cluster", page.locator('#guides a[href="/flutter-security/"], #guides a[href="/flutter-apk-inspection/"], #guides a[href="/proguard-flutter/"], #guides a[href="/mobsf-alternative/"]').count() == 4)
         check("workflow remains ordered, not a marquee", page.locator(".workflow-list > li h3").all_text_contents() == ["Discover", "Inspect", "Report"] and page.locator('[aria-hidden="true"] .workflow-list').count() == 0)
         check("explicit graphics pause control", page.locator('input#pause-motion[type="checkbox"]').count() == 1)
         check("email and issue recovery paths", page.locator('a[href="mailto:work@gwhyyy.com"]').count() >= 1 and page.locator(f'a[href="{SOURCE}/issues"]').count() >= 1)

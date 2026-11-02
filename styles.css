@@ -243,6 +243,7 @@ body:has(#pause-motion:checked) *,body:has(#pause-motion:checked) *::before,body
 .article-body pre{background:var(--ink);color:var(--base);padding:var(--s4);border-radius:var(--radius);overflow-x:auto;margin-bottom:var(--s6)}
 .article-body pre code{background:none;padding:0;color:inherit;font-size:.8125rem}
 .article-body table{width:100%;border-collapse:collapse;margin-bottom:var(--s6);font-size:.875rem}
+@media (min-width:640px){.article-body td:first-child{white-space:nowrap}}
 .article-body th,.article-body td{text-align:left;padding:var(--s3);border-bottom:1px solid var(--line);vertical-align:top}
 .article-note{border-left:3px solid var(--green);background:#e8eee1;padding:var(--s4) var(--s6);border-radius:0 var(--radius) var(--radius) 0;margin-bottom:var(--s6)}
 .article-note p:last-child{margin-bottom:0}

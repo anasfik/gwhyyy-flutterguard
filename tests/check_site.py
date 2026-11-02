@@ -160,6 +160,8 @@ def main(args):
         check("sitemap lists the homepage and every guide", locations == [CANONICAL] + [CANONICAL + g.lstrip("/") for g in GUIDES])
         robots = page.request.get(base + "/robots.txt").text()
         check("robots keeps search and training policy", "Sitemap: " + CANONICAL + "sitemap.xml" in robots and "User-agent: GPTBot\nDisallow: /" in robots)
+        indexnow = page.request.get(base + "/28d5bd8ab11b364e4a6e8e4ac44d2a11.txt")
+        check("IndexNow key file served verbatim", indexnow.status == 200 and indexnow.text() == "28d5bd8ab11b364e4a6e8e4ac44d2a11")
         for path in ("/llms.txt", "/llms-full.txt"):
             r = page.request.get(base + path)
             check(f"agent reference {path}", r.status == 200 and "FlutterGuard" in r.text() and "Discover" in r.text() and "/demo/" not in r.text())
@@ -185,6 +187,12 @@ def main(args):
             check(f"guide {gpath} description", desc.count() == 1 and 120 <= len(desc.get_attribute("content") or "") <= 160)
             canon = page.locator('link[rel="canonical"]')
             check(f"guide {gpath} canonical", canon.count() == 1 and canon.get_attribute("href") == CANONICAL + gpath.lstrip("/"))
+            og_url = CANONICAL + f"og-{gpath.strip('/')}.png"
+            og = page.locator('meta[property="og:image"]')
+            tw = page.locator('meta[name="twitter:image"]')
+            check(f"guide {gpath} own OG image", og.count() == 1 and og.get_attribute("content") == og_url and tw.count() == 1 and tw.get_attribute("content") == og_url)
+            png = page.request.get(base + f"/og-{gpath.strip('/')}.png").body()
+            check(f"guide {gpath} OG is a real 1200x630 PNG", png[:8] == b"\x89PNG\r\n\x1a\n" and struct.unpack(">II", png[16:24]) == (1200, 630))
             check(f"guide {gpath} one H1", page.locator("h1").all_text_contents() == [gtitle])
             ld = [json.loads(t) for t in page.locator('script[type="application/ld+json"]').all_text_contents()]
             types = {x.get("@type") for x in ld}

@@ -37,6 +37,7 @@ SITEMAP_NS = "{http://www.sitemaps.org/schemas/sitemap/0.9}"
 BANNED_LD_KEYS = ("aggregateRating", "review", "ratingValue", "softwareVersion")
 DOWNLOAD = "https://github.com/anasfik/FlutterGuard/releases/latest"
 SOURCE = "https://github.com/anasfik/FlutterGuard"
+PLAY = "https://play.google.com/store/apps/details?id=com.flutterguard.app"
 EMAIL = "mailto:work@gwhyyy.com"
 PRIVACY = "https://gwhyyy.com/privacy/flutterguard"
 LICENSE = "https://github.com/anasfik/FlutterGuard/blob/main/LICENSE"
@@ -63,12 +64,23 @@ FAQ_ITEMS = [
     ("Does a finding prove the app is exploitable?",
      "No. Findings are static evidence from the release, not a confirmed exploit."),
     ("Where do updates come from?",
-     "GitHub releases. There is no Play listing to install from yet."),
+     "The Play listing is not public yet, so install from the GitHub release today. The navbar Play button opens the listing once it is live."),
 ]
 FLUTTER_MARK_PATH = (
     "M14.314 0 2.3 12 6 15.7 21.684.013h-7.357zm.014 11.072-6.471 6.458 "
     "6.47 6.47H21.7l-6.46-6.468 6.46-6.46h-7.37z"
 )
+# Simple Icons `googleplay`, fetched once from https://cdn.simpleicons.org/googleplay
+# (sha256 b9144b1db526e2bcf8fd9b87e8ee543eec8e839b0b14e1c10149fe8a5657dba1) and
+# vendored inline; only fill is changed to currentColor.
+PLAY_ICON_PATH = (
+    "M22.018 13.298l-3.919 2.218-3.515-3.493 3.543-3.521 3.891 2.202a1.49 1.49 0 0 1 "
+    "0 2.594zM1.337.924a1.486 1.486 0 0 0-.112.568v21.017c0 .217.045.419.124.6l11.155-11.087"
+    "L1.337.924zm12.207 10.065l3.258-3.238L3.45.195a1.466 1.466 0 0 0-.946-.179l11.04 "
+    "10.973zm0 2.067l-11 10.933c.298.036.612-.016.906-.183l13.324-7.54-3.23-3.21z"
+)
+# Material Icons `file_download` (Apache-2.0), vendored inline and filled.
+DOWNLOAD_ICON_PATH = "M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"
 
 
 def norm(text: str) -> str:
@@ -319,7 +331,7 @@ def main(argv: list[str]) -> int:
         check("video sits in a phone frame", page.locator(".device-frame .device-video").count() == 1)
         check("no second video or fake player chrome",
               page.locator("video").count() == 1
-              and page.locator(".player, [class*='play-button'], [class*='play-icon'], button[aria-label*='play' i]").count() == 0)
+              and page.locator(".hero .player, .hero [class*='play-button'], .hero [class*='play-icon'], .hero button[aria-label*='play' i]").count() == 0)
         media_urls = (video.get("srcs") or []) + (video.get("links") or [])
         check("no iframe and every media URL is same-origin",
               page.locator("iframe").count() == 0 and bool(media_urls)
@@ -392,8 +404,10 @@ def main(argv: list[str]) -> int:
         }""")
         check("no unavailable Play copy anywhere in the DOM, hidden nodes included",
               "not yet available on google play" not in early_dom)
-        check("no link points at the dead Play listing",
-              not any("play.google.com" in (a["href"] or "") for a in hrefs))
+        check("exactly one link to the Play listing, and it is the navbar action",
+              [a["href"] for a in hrefs].count(PLAY) == 1
+              and page.locator(f'header a[href="{PLAY}"]').count() == 1,
+              str([a["href"] for a in hrefs if "play.google.com" in (a["href"] or "")]))
         gh = page.evaluate("""() => {
             const a = document.querySelector('header .github-button');
             if (!a) return null;
@@ -406,6 +420,81 @@ def main(argv: list[str]) -> int:
         check("black GitHub button with official white lockup", bool(gh) and gh["href"] == SOURCE and gh["name"] == "GitHub"
               and gh["bg"] in ("rgb(24, 23, 23)", "rgb(0, 0, 0)") and gh["icon"] == "/assets/brand/github-lockup-white.svg"
               and gh["iconOk"], str(gh))
+
+        # Play returns as a normal destination in the navbar: linked, never
+        # promised. No badge image, no disabled state, no availability wording.
+        play_anchors = page.eval_on_selector_all(
+            'header a[href^="https://play.google.com"]',
+            """els => els.map(a => {
+                const svgs = [...a.querySelectorAll(':scope > svg')];
+                const s = svgs[0];
+                const cs = s ? getComputedStyle(s) : null;
+                const as_ = getComputedStyle(a);
+                return {href: a.getAttribute('href'), target: a.getAttribute('target'),
+                        rel: (a.getAttribute('rel') || '').split(/\\s+/).filter(Boolean),
+                        cls: a.className, text: a.textContent.replace(/\\s+/g, ' ').trim(),
+                        disabled: a.hasAttribute('disabled'), ariaDisabled: a.getAttribute('aria-disabled'),
+                        imgs: a.querySelectorAll('img').length, svgCount: svgs.length,
+                        hidden: s ? s.getAttribute('aria-hidden') : null,
+                        focusable: s ? s.getAttribute('focusable') : null,
+                        fill: s ? s.getAttribute('fill') : null,
+                        path: s && s.querySelector('path') ? s.querySelector('path').getAttribute('d') : null,
+                        w: cs ? Math.round(parseFloat(cs.width) * 10) / 10 : null,
+                        h: cs ? Math.round(parseFloat(cs.height) * 10) / 10 : null,
+                        bg: as_.backgroundColor, radius: as_.borderTopLeftRadius,
+                        minH: as_.minHeight};
+            })""")
+        check("exactly one navbar Play action links the Play listing in a new tab",
+              len(play_anchors) == 1 and play_anchors[0]["href"] == PLAY
+              and play_anchors[0]["target"] == "_blank"
+              and "noopener" in play_anchors[0]["rel"] and "noreferrer" in play_anchors[0]["rel"],
+              str(play_anchors))
+        check("Play action is a labelled button with the Simple Icons glyph, not a badge image",
+              bool(play_anchors) and "Google Play" in play_anchors[0]["text"]
+              and play_anchors[0]["svgCount"] == 1 and play_anchors[0]["imgs"] == 0
+              and play_anchors[0]["hidden"] == "true" and play_anchors[0]["focusable"] == "false"
+              and play_anchors[0]["fill"] == "currentColor"
+              and play_anchors[0]["path"] == PLAY_ICON_PATH
+              and 18 <= play_anchors[0]["w"] <= 20 and 18 <= play_anchors[0]["h"] <= 20
+              and NEW_TAB_NOTE in play_anchors[0]["text"], str(play_anchors))
+        check("Play action carries no disabled state and no availability claim",
+              bool(play_anchors) and not play_anchors[0]["disabled"]
+              and play_anchors[0]["ariaDisabled"] is None
+              and not re.search(r"not yet available|coming soon", page.locator("header").inner_text(), re.I)
+              and page.locator("header img[src*='google-play-badge']").count() == 0,
+              str(play_anchors))
+        action_hrefs = page.eval_on_selector_all(
+            "header .header-actions > a", "els => els.map(e => e.getAttribute('href'))")
+        check("navbar actions are GitHub, Play and Get app in that order",
+              action_hrefs == [SOURCE, PLAY, DOWNLOAD], str(action_hrefs))
+        cta_icon = page.evaluate("""() => {
+            const a = document.querySelector('header .navbar-cta');
+            const s = a ? a.querySelector(':scope > svg') : null;
+            const cs = s ? getComputedStyle(s) : null;
+            return s ? {hidden: s.getAttribute('aria-hidden'), focusable: s.getAttribute('focusable'),
+                        fill: s.getAttribute('fill'),
+                        path: s.querySelector('path') ? s.querySelector('path').getAttribute('d') : null,
+                        w: Math.round(parseFloat(cs.width) * 10) / 10,
+                        h: Math.round(parseFloat(cs.height) * 10) / 10} : null;
+        }""")
+        check("Get app carries a decorative inline download glyph",
+              bool(cta_icon) and cta_icon["hidden"] == "true" and cta_icon["focusable"] == "false"
+              and cta_icon["fill"] == "currentColor" and cta_icon["path"] == DOWNLOAD_ICON_PATH
+              and 18 <= cta_icon["w"] <= 20 and 18 <= cta_icon["h"] <= 20, str(cta_icon))
+        system = page.evaluate("""() => {
+            const els = [...document.querySelectorAll('header .header-actions > a')];
+            return els.map(e => {
+                const r = e.getBoundingClientRect(); const s = getComputedStyle(e);
+                return {cls: e.className, h: Math.round(r.height * 10) / 10, w: Math.round(r.width * 10) / 10,
+                        top: Math.round(r.top * 10) / 10, radius: s.borderTopLeftRadius,
+                        padL: s.paddingLeft, padR: s.paddingRight};
+            });
+        }""")
+        check("navbar actions share one button system",
+              len(system) == 3 and all(b["h"] >= 43.5 for b in system)
+              and len({b["radius"] for b in system}) == 1
+              and len({b["top"] for b in system}) == 1
+              and len({b["padL"] for b in system}) == 1, str(system))
         check("touch targets >= 44px", page.evaluate("""() => {
             const els = [...document.querySelectorAll('.install-actions a, header a, footer a')];
             return els.every(e => { const r = e.getBoundingClientRect(); return r.height >= 43.5 || r.width >= 43.5; });
@@ -501,11 +590,10 @@ def main(argv: list[str]) -> int:
         nodes = STEPS
         chain = page.evaluate("""() => {
             const tracks = [...document.querySelectorAll('#features .chain__track')];
-            const real = tracks.find(t => t.getAttribute('aria-hidden') !== 'true') || tracks[0];
-            const dup = tracks.find(t => t.getAttribute('aria-hidden') === 'true');
-            const read = (ul) => [...ul.querySelectorAll(':scope > li')].map(li => [
+            const real = tracks[0];
+            const read = (ul) => ul ? [...ul.querySelectorAll(':scope > li')].map(li => [
                 (li.querySelector('h3')?.textContent || '').trim(),
-                (li.querySelector('p')?.textContent || '').trim()]);
+                (li.querySelector('p')?.textContent || '').trim()]) : [];
             const icons = real ? [...real.querySelectorAll(':scope > li')].map(li => {
                 const svgs = [...li.querySelectorAll('svg')];
                 const svg = svgs[0];
@@ -528,18 +616,22 @@ def main(argv: list[str]) -> int:
             // moving context, where the gap actually exists.
             const first = real && real.querySelector('li');
             const conn = first ? getComputedStyle(first, '::after') : null;
-            const dupStyle = dup ? getComputedStyle(dup) : null;
+            const trackStyle = real ? getComputedStyle(real) : null;
+            const sweep = document.querySelector('#features .chain__sweep');
             return {tracks: tracks.length,
-                    real: real ? read(real) : [], dup: dup ? read(dup) : [],
-                    dupFocusable: dup ? dup.querySelectorAll('a, button, input, select, textarea, [tabindex]').length : -1,
+                    hiddenTracks: tracks.filter(t => t.getAttribute('aria-hidden') === 'true').length,
+                    real: read(real),
                     connector: !!conn && conn.content !== 'none',
-                    dupUserSelect: dupStyle ? dupStyle.userSelect : '',
+                    trackName: trackStyle ? trackStyle.animationName : null,
+                    trackTransform: trackStyle ? trackStyle.transform : null,
+                    sweep: !!sweep && sweep.getAttribute('aria-hidden') === 'true',
                     icons};
         }""")
         check("three named steps in one connected track with the new copy",
               chain["real"] == [[t, b] for t, b in nodes], str(chain["real"]))
-        check("duplicate loop track is hidden from AT and inert",
-              chain["tracks"] == 2 and chain["dup"] == chain["real"] and chain["dupFocusable"] == 0, str(chain))
+        check("one semantic track in fixed order, no duplicated marquee copy",
+              chain["tracks"] == 1 and chain["hiddenTracks"] == 0
+              and [s[0] for s in chain["real"]] == ["Discover", "Inspect", "Report"], str(chain))
         check("each step carries one decorative 20px stroked icon above its heading",
               len(chain["icons"]) == 3 and all(
                   i["count"] == 1 and i["hidden"] == "true" and i["focusable"] == "false"
@@ -548,7 +640,9 @@ def main(argv: list[str]) -> int:
                   and i["px"] == 20 and i["color"] == "rgb(82, 97, 89)"
                   for i in chain["icons"]), str(chain["icons"]))
         check("chain nodes are visually connected", chain["connector"], str(chain))
-        check("duplicate loop track is not copy-selectable", chain["dupUserSelect"] == "none", str(chain))
+        check("steps are static copy, not a translating marquee",
+              chain["trackName"] in (None, "none") and chain["trackTransform"] in (None, "none")
+              and chain["sweep"], str(chain))
         check("no removed 'Why it stays local' section",
               page.locator("#pros, #pros-title, .pros-list").count() == 0
               and "why it stays local" not in page.locator("body").inner_text().lower())
@@ -666,6 +760,12 @@ def main(argv: list[str]) -> int:
         check("opening a FAQ item reveals its answer and leaves the other open",
               bool(opened) and opened["open"][:2] == [True, True] and all(opened["visible"]), str(opened))
         check("faq summary carries a css +/− marker", opened["marker"] in ('"+"', '"-"', '"−"'), str(opened["marker"]))
+        faq_pad = page.evaluate("""() => {
+            const d = document.querySelector('#faq details[open] p');
+            return d ? getComputedStyle(d).paddingBlockStart : null;
+        }""")
+        check("open FAQ answer gives the focus ring room above the first line",
+              bool(faq_pad) and float(faq_pad.rstrip("px") or 0) >= 3, str(faq_pad))
         if page.locator("#faq details").count() == 5:
             first.locator("summary").click()
             second.locator("summary").click()
@@ -851,8 +951,16 @@ def main(argv: list[str]) -> int:
         check("css no longer pauses the chain on hover",
               ":hover .chain__track" not in css
               and ".chain:hover" not in css, "hover pause rule still present")
-        check("css keeps the keyboard focus pause",
-              ".chain:focus-within .chain__track" in css, "focus-within pause rule missing")
+        check("css drops the step marquee and keeps the connector sweep",
+              "@keyframes chain-scroll" not in css and "chain-scroll" not in css
+              and "@keyframes connector-sweep" in css, "marquee keyframe still present")
+        check("css routes the pause control at the connector sweep and the drift",
+              "body:has(#pause-motion:checked) .chain__sweep::after" in css
+              and "body:has(#pause-motion:checked) .device-ambient" in css,
+              "pause rule missing")
+        check("css draws the pause focus ring on the whole 44px label",
+              ".motion-control:has(input:focus-visible)" in css
+              and ".motion-control input:focus-visible" in css, "label focus ring rule missing")
 
         # Caching is a server concern; nginx must send it, Python preview may not.
         # Presence is asserted before policy: a vanished header must fail the run
@@ -911,8 +1019,23 @@ def main(argv: list[str]) -> int:
                         anchorMid: Math.round(anchorMid), vw: innerWidth, anchors: anchors.length,
                         overflow: Math.round(document.documentElement.scrollWidth - innerWidth)};
             }""")
-            check(f"navbar holds one row at {width}px", nav["count"] == 7 and nav["spread"] <= 2
+            check(f"navbar holds one row at {width}px", nav["count"] == 8 and nav["spread"] <= 2
                   and nav["headerH"] <= 72 and nav["overflow"] <= 1, str(nav))
+            actions_row = page.evaluate("""() => {
+                const els = [...document.querySelectorAll('header .header-actions > a')];
+                const rects = els.map(e => e.getBoundingClientRect());
+                return {n: els.length,
+                        tops: [...new Set(rects.map(r => Math.round(r.top)))],
+                        heights: rects.map(r => Math.round(r.height * 10) / 10),
+                        widths: rects.map(r => Math.round(r.width * 10) / 10),
+                        right: Math.round(Math.max(...rects.map(r => r.right))),
+                        vw: innerWidth};
+            }""")
+            check(f"navbar actions sit on one aligned row at {width}px",
+                  actions_row["n"] == 3 and len(actions_row["tops"]) == 1
+                  and all(h >= 43.5 for h in actions_row["heights"])
+                  and all(w >= 43.5 for w in actions_row["widths"])
+                  and actions_row["right"] <= actions_row["vw"], str(actions_row))
             check(f"navbar anchors sit centred at {width}px",
                   abs(nav["anchorMid"] - nav["vw"] / 2) <= 24, str(nav))
 
@@ -924,18 +1047,63 @@ def main(argv: list[str]) -> int:
                     .filter(e => e.getBoundingClientRect().width > 0)
                     .map(e => { const r = e.getBoundingClientRect();
                         return {cls: e.className, left: Math.round(r.left), right: Math.round(r.right),
-                                h: Math.round(r.height * 10) / 10}; });
-                return {els, vw: innerWidth, overflow: Math.round(document.documentElement.scrollWidth - innerWidth),
+                                w: Math.round(r.width * 10) / 10, h: Math.round(r.height * 10) / 10}; });
+                const names = [...document.querySelectorAll('header .header-actions > a')]
+                    .map(a => (a.getAttribute('aria-label') || a.textContent || '').replace(/\\s+/g, ' ').trim());
+                return {els, names, vw: innerWidth,
+                        overflow: Math.round(document.documentElement.scrollWidth - innerWidth),
                         anchors: [...document.querySelectorAll('header .site-nav > a')]
                             .filter(a => a.getBoundingClientRect().width > 0).length};
             }""")
-            check(f"navbar drops the four anchors and keeps brand, GitHub and Get app at {width}px",
-                  navsmall["overflow"] <= 1 and len(navsmall["els"]) == 3 and navsmall["anchors"] == 0
+            check(f"navbar drops the four anchors and keeps brand, GitHub, Play and Get app at {width}px",
+                  navsmall["overflow"] <= 1 and len(navsmall["els"]) == 4 and navsmall["anchors"] == 0
                   and any("brand" in e["cls"] for e in navsmall["els"])
                   and any("github-button" in e["cls"] for e in navsmall["els"])
+                  and any("play-button" in e["cls"] for e in navsmall["els"])
                   and any("navbar-cta" in e["cls"] for e in navsmall["els"])
-                  and all(0 <= e["left"] and e["right"] <= navsmall["vw"] and e["h"] >= 43.5 for e in navsmall["els"]),
+                  and all(0 <= e["left"] and e["right"] <= navsmall["vw"]
+                          and e["h"] >= 43.5 and e["w"] >= 43.5 for e in navsmall["els"]),
                   str(navsmall))
+            check(f"every navbar action keeps an accessible name at {width}px",
+                  len(navsmall["names"]) == 3 and all(navsmall["names"]), str(navsmall["names"]))
+
+        # D1 (ship blocker): 200% text zoom at 390px used to squeeze the GitHub
+        # lockup into a 32px sliver and clip the brand. Nothing may be sliced.
+        page.set_viewport_size({"width": 390, "height": 844})
+        page.evaluate("document.documentElement.style.fontSize = '200%'")
+        page.wait_for_timeout(150)
+        zoom = page.evaluate("""() => {
+            const rect = (sel) => { const e = document.querySelector(sel); if (!e) return null;
+                const r = e.getBoundingClientRect(); const s = getComputedStyle(e);
+                return {x: Math.round(r.left), right: Math.round(r.right), y: Math.round(r.top),
+                        w: Math.round(r.width * 10) / 10, h: Math.round(r.height * 10) / 10,
+                        display: s.display, visibility: s.visibility}; };
+            const name = document.querySelector('.brand-name');
+            const nr = name ? name.getBoundingClientRect() : null;
+            const ns = name ? getComputedStyle(name) : null;
+            return {brand: rect('header .brand'), github: rect('header .github-button'),
+                    play: rect('header .play-button'), cta: rect('header .navbar-cta'),
+                    name: nr ? {x: Math.round(nr.left), right: Math.round(nr.right),
+                                w: Math.round(nr.width), h: Math.round(nr.height),
+                                display: ns.display, visibility: ns.visibility,
+                                clipped: name.scrollWidth > name.clientWidth + 1} : null,
+                    vw: innerWidth, scroll: document.documentElement.scrollWidth - innerWidth};
+        }""")
+        zoom_parts = {k: zoom[k] for k in ("brand", "github", "play", "cta")}
+        check("200% text zoom at 390px keeps every navbar action whole and inside the viewport",
+              all(p and p["display"] != "none" and p["visibility"] != "hidden"
+                  and p["x"] >= 0 and p["right"] <= zoom["vw"]
+                  and p["w"] >= 43.5 and p["h"] >= 43.5 for p in zoom_parts.values()), str(zoom))
+        check("200% text zoom at 390px adds no horizontal overflow", zoom["scroll"] <= 1, str(zoom["scroll"]))
+        wordmark = zoom["name"]
+        wordmark_ok = (wordmark is None
+                       or wordmark["display"] == "none" or wordmark["visibility"] == "hidden"
+                       or (wordmark["w"] > 0 and wordmark["h"] > 0 and not wordmark["clipped"]
+                           and wordmark["x"] >= 0 and wordmark["right"] <= zoom["vw"]))
+        check("200% text zoom shows the brand wordmark fully or not at all",
+              wordmark_ok, str(wordmark))
+        page.evaluate("document.documentElement.style.fontSize = ''")
+        page.wait_for_timeout(120)
 
         page.set_viewport_size({"width": 390, "height": 844})
         page.wait_for_timeout(100)
@@ -952,9 +1120,15 @@ def main(argv: list[str]) -> int:
         header_fit = page.evaluate("""() => {
             const b = document.querySelector('header .brand')?.getBoundingClientRect();
             const n = document.querySelector('header .header-actions')?.getBoundingClientRect();
-            return b && n ? {brandRight: Math.round(b.right), actionsLeft: Math.round(n.left)} : null;
+            if (!b || !n) return null;
+            const overlapX = Math.min(b.right, n.right) - Math.max(b.left, n.left);
+            const overlapY = Math.min(b.bottom, n.bottom) - Math.max(b.top, n.top);
+            return {overlapX: Math.round(overlapX), overlapY: Math.round(overlapY),
+                    brandRight: Math.round(b.right), actionsLeft: Math.round(n.left), vw: innerWidth};
         }""")
-        check("header brand and actions do not collide at 320px", bool(header_fit) and header_fit["brandRight"] <= header_fit["actionsLeft"], str(header_fit))
+        check("header brand and actions never overlap at 320px",
+              bool(header_fit) and (header_fit["overlapX"] <= 1 or header_fit["overlapY"] <= 1)
+              and header_fit["brandRight"] <= header_fit["vw"], str(header_fit))
 
         page.set_viewport_size({"width": 1280, "height": 720})
         page.wait_for_timeout(100)
@@ -1088,60 +1262,79 @@ def main(argv: list[str]) -> int:
         check("reduced motion collapses transitions", all(d in ("0.00001s", "0s", "0.01ms", "1e-05s") for d in durations), str(durations))
 
         static_motion = page.evaluate("""() => {
-            const tracks = [...document.querySelectorAll('.chain__track')];
+            const track = document.querySelector('.chain__track');
+            const sweep = document.querySelector('.chain__sweep');
             const amb = document.querySelector('.device-ambient');
-            if (tracks.length !== 2 || !amb) return null;
-            const t = getComputedStyle(tracks[0]);
-            const dup = getComputedStyle(tracks[1]);
+            if (!track || !amb) return null;
+            const t = getComputedStyle(track);
             const a = getComputedStyle(amb);
-            return {trackName: t.animationName, trackPlay: t.animationPlayState,
-                    dupName: dup.animationName, dupDisplay: dup.display,
-                    transform: t.transform, dupTransform: dup.transform,
+            const s = sweep ? getComputedStyle(sweep) : null;
+            return {trackName: t.animationName, trackTransform: t.transform,
+                    sweepName: s ? s.animationName : null, sweepDisplay: s ? s.display : null,
+                    nodes: track.children.length,
                     ambName: a.animationName, ambPlay: a.animationPlayState, ambBg: a.backgroundImage};
         }""")
-        check("reduced motion leaves both tracks and the hero backdrop fully static",
+        check("reduced motion leaves the steps, the sweep and the hero backdrop fully static",
               bool(static_motion) and static_motion["trackName"] == "none"
-              and static_motion["dupName"] == "none"
-              and static_motion["trackPlay"] == "paused" and static_motion["dupDisplay"] == "none"
-              and static_motion["transform"] == "none"
+              and static_motion["trackTransform"] == "none"
+              and static_motion["sweepName"] in (None, "none")
+              and static_motion["sweepDisplay"] in (None, "none")
+              and static_motion["nodes"] == 3
               and static_motion["ambName"] == "none" and static_motion["ambPlay"] == "paused"
               and static_motion["ambBg"] not in ("", "none"), str(static_motion))
 
-        # Motion context: the loop and the drift run, and the native pause control works.
-        # Measured at 390px first: that is where a missing clip on .chain turns the
-        # moving tracks into a horizontal scrollbar (the reduce branch cannot see it).
+        # Motion context: the connector highlight and the drift run, and the
+        # native pause control stops both. Measured at 390px first: that is where
+        # a missing clip on .chain turns the sweep into a horizontal scrollbar.
         motion = browser.new_context(viewport={"width": 390, "height": 844}, reduced_motion="no-preference")
         mp = motion.new_page()
         mp.goto(base + "/", wait_until="load")
         mp.wait_for_timeout(250)
         anim = mp.evaluate("""() => {
             const track = document.querySelector('.chain__track');
+            const sweep = document.querySelector('.chain__sweep');
             const amb = document.querySelector('.device-ambient');
             if (!track || !amb) return null;
             const t = getComputedStyle(track);
             const a = getComputedStyle(amb);
+            const sw = sweep ? getComputedStyle(sweep, '::after') : null;
             const secs = (s) => (s || '0s').split(',').map(v => parseFloat(v) || 0);
-            const li = document.querySelector('#features .chain__track:not([aria-hidden="true"]) > li');
-            const conn = li ? getComputedStyle(li, '::after') : null;
-            return {trackName: t.animationName, trackDur: secs(t.animationDuration), trackPlay: t.animationPlayState,
-                    trackIter: t.animationIterationCount, ambName: a.animationName,
-                    ambDur: secs(a.animationDuration), ambPlay: a.animationPlayState,
-                    overflowX: document.documentElement.scrollWidth - innerWidth,
-                    connector: conn ? {content: conn.content, insetEnd: parseFloat(conn.insetInlineEnd),
-                                       width: parseFloat(conn.width)} : null};
+            return {trackName: t.animationName, trackTransform: t.transform,
+                    sweepName: sw ? sw.animationName : null,
+                    sweepDur: sw ? secs(sw.animationDuration) : [],
+                    sweepIter: sw ? sw.animationIterationCount : null,
+                    sweepPlay: sw ? sw.animationPlayState : null,
+                    ambName: a.animationName, ambDur: secs(a.animationDuration),
+                    ambPlay: a.animationPlayState,
+                    overflowX: document.documentElement.scrollWidth - innerWidth};
         }""")
-        check("chain loops on the 22s cycle, endlessly",
-              bool(anim) and anim["trackName"] == "chain-scroll" and anim["trackDur"] == [22]
-              and anim["trackIter"] == "infinite", str(anim))
+        check("the steps stay static and the connector highlight loops endlessly",
+              bool(anim) and anim["trackName"] == "none" and anim["trackTransform"] == "none"
+              and anim["sweepName"] == "connector-sweep" and anim["sweepDur"] == [22]
+              and anim["sweepIter"] == "infinite", str(anim))
         check("hero ambient drift runs behind the phone",
               bool(anim) and anim["ambName"] != "none" and all(d >= 25 for d in anim["ambDur"]), str(anim))
-        check("chain connector bridges the gap to the next node",
-              bool(anim) and bool(anim["connector"]) and anim["connector"]["content"] != "none"
-              and anim["connector"]["insetEnd"] < -0.5 and anim["connector"]["width"] > 20, str(anim["connector"]))
-        check("no horizontal overflow while the chain animates at 390px",
+        check("no horizontal overflow while the connector sweeps at 390px",
               bool(anim) and anim["overflowX"] <= 1, str(anim))
         mp.set_viewport_size({"width": 1440, "height": 900})
         mp.wait_for_timeout(250)
+        desk = mp.evaluate("""() => {
+            const nodes = [...document.querySelectorAll('#features .chain__track > li')];
+            const conn = nodes.length ? getComputedStyle(nodes[0], '::after') : null;
+            return {connector: conn ? {content: conn.content, insetEnd: parseFloat(conn.insetInlineEnd),
+                                       width: parseFloat(conn.width)} : null,
+                    order: nodes.map(li => (li.querySelector('h3')?.textContent || '').trim()),
+                    lastConnector: nodes.length
+                        ? getComputedStyle(nodes[nodes.length - 1], '::after').content : null,
+                    tops: nodes.map(li => Math.round(li.getBoundingClientRect().top)),
+                    overflowX: document.documentElement.scrollWidth - innerWidth};
+        }""")
+        check("connector bridges the gap to the next dot without moving the steps",
+              bool(desk) and bool(desk["connector"]) and desk["connector"]["content"] != "none"
+              and desk["connector"]["insetEnd"] < -0.5 and desk["connector"]["width"] > 20
+              and desk["order"] == ["Discover", "Inspect", "Report"]
+              and desk["lastConnector"] == "none" and len(set(desk["tops"])) == 1
+              and desk["overflowX"] <= 1, str(desk))
         # Read the row with the pointer parked on it: hovering must not freeze it.
         mp.locator("#features .chain").scroll_into_view_if_needed()
         mp.wait_for_timeout(100)
@@ -1150,20 +1343,23 @@ def main(argv: list[str]) -> int:
             mp.mouse.move(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)
         mp.wait_for_timeout(150)
         hover_one = mp.evaluate("""() => {
-            const t = document.querySelector('.chain__track');
-            return {matrix: getComputedStyle(t).transform, at: Math.round(performance.now())};
+            const s = document.querySelector('.chain__sweep');
+            if (!s) return null;
+            return {matrix: getComputedStyle(s, '::after').transform, at: Math.round(performance.now())};
         }""")
         mp.wait_for_timeout(1700)
         hover_two = mp.evaluate("""() => {
-            const t = document.querySelector('.chain__track');
-            return {matrix: getComputedStyle(t).transform, at: Math.round(performance.now()),
-                    dur: getComputedStyle(t).animationDuration, name: getComputedStyle(t).animationName};
+            const s = document.querySelector('.chain__sweep');
+            if (!s) return null;
+            const cs = getComputedStyle(s, '::after');
+            return {matrix: cs.transform, at: Math.round(performance.now()),
+                    dur: cs.animationDuration, name: cs.animationName};
         }""")
-        info(f"motion sample A {hover_one['at']}ms {hover_one['matrix']}")
-        info(f"motion sample B {hover_two['at']}ms {hover_two['matrix']}")
-        check("chain visibly advances while hovered (no hover freeze)",
+        info(f"motion sample A {hover_one['at'] if hover_one else None}ms {hover_one['matrix'] if hover_one else None}")
+        info(f"motion sample B {hover_two['at'] if hover_two else None}ms {hover_two['matrix'] if hover_two else None}")
+        check("connector highlight advances while the pointer is parked (no hover freeze)",
               bool(hover_one) and bool(hover_two) and hover_one["matrix"] != hover_two["matrix"]
-              and hover_two["name"] == "chain-scroll" and hover_two["dur"] == "22s",
+              and hover_two["name"] == "connector-sweep" and hover_two["dur"] == "22s",
               f"{hover_one} -> {hover_two}")
         mp.mouse.move(0, 0)
         props = mp.evaluate("""() => {
@@ -1200,14 +1396,18 @@ def main(argv: list[str]) -> int:
         paused = mp.evaluate("""() => {
             const box = document.querySelector('#pause-motion');
             const track = document.querySelector('.chain__track');
+            const sweep = document.querySelector('.chain__sweep');
             const amb = document.querySelector('.device-ambient');
-            if (!box || !track || !amb) return null;
-            return {checked: box.checked, trackPlay: getComputedStyle(track).animationPlayState,
+            if (!box || !track || !sweep || !amb) return null;
+            return {checked: box.checked,
+                    trackPlay: getComputedStyle(track).animationPlayState,
+                    sweepPlay: getComputedStyle(sweep, '::after').animationPlayState,
+                    dotPlay: getComputedStyle(track.querySelector('li'), '::before').animationPlayState,
                     ambPlay: getComputedStyle(amb).animationPlayState};
         }""")
-        check("pause control freezes the chain and the ambient drift",
-              bool(paused) and paused["checked"] and paused["trackPlay"] == "paused"
-              and paused["ambPlay"] == "paused", str(paused))
+        check("pause control freezes the connector highlight, the dots and the ambient drift",
+              bool(paused) and paused["checked"] and paused["sweepPlay"] == "paused"
+              and paused["dotPlay"] == "paused" and paused["ambPlay"] == "paused", str(paused))
         if shots and ctl:
             mp.set_viewport_size({"width": 1440, "height": 900})
             mp.locator("#features").scroll_into_view_if_needed()
@@ -1322,6 +1522,7 @@ def main(argv: list[str]) -> int:
                         h: Math.round(r.height * 10) / 10};
             };
             return {download: read(document.querySelector('.download-button')),
+                    play: read(document.querySelector('.play-button')),
                     cta: read(document.querySelector('.navbar-cta')),
                     page: getComputedStyle(document.body).backgroundColor};
         }""")
@@ -1331,6 +1532,12 @@ def main(argv: list[str]) -> int:
               and fc_primary["download"]["borderW"] >= 1 and fc_primary["download"]["borderStyle"] == "solid"
               and fc_primary["download"]["borderColor"] not in visible_border
               and fc_primary["download"]["contrast"] >= 4.5 and fc_primary["download"]["h"] >= 43.5,
+              str(fc_primary))
+        check("forced colors keeps the navbar Play action a readable button",
+              bool(fc_primary) and fc_primary["play"] is not None
+              and fc_primary["play"]["borderW"] >= 1 and fc_primary["play"]["borderStyle"] == "solid"
+              and fc_primary["play"]["borderColor"] not in visible_border
+              and fc_primary["play"]["contrast"] >= 4.5 and fc_primary["play"]["h"] >= 43.5,
               str(fc_primary))
         check("forced colors keeps the navbar Get app a readable button",
               bool(fc_primary) and fc_primary["cta"] is not None
@@ -1358,9 +1565,14 @@ def main(argv: list[str]) -> int:
         check("forced colors keeps a visible focus outline on the navbar Get app",
               fc_nav_focus["cls"] == "navbar-cta" and ring_ok(fc_nav_focus), str(fc_nav_focus))
         fcp.keyboard.press("Shift+Tab")
+        fc_play_focus = focus_state(fcp)
+        check("forced colors keeps a visible focus outline on the Play button",
+              fc_play_focus["cls"] == "play-button" and ring_ok(fc_play_focus), str(fc_play_focus))
+        fcp.keyboard.press("Shift+Tab")
         fc_focus = focus_state(fcp)
         check("forced colors keeps a visible focus outline on the GitHub button",
               fc_focus["cls"] == "github-button" and ring_ok(fc_focus), str(fc_focus))
+        fcp.keyboard.press("Tab")
         fcp.keyboard.press("Tab")
         fcp.keyboard.press("Tab")
         fc_hero_focus = focus_state(fcp)

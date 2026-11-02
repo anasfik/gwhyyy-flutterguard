@@ -3,6 +3,7 @@
 > Security audit any released Flutter app. FlutterGuard is an offline, on-device security audit app for Flutter apps on Android. It reads the release you select and reports what it finds, with grades A, C or F as triage labels. No INTERNET permission, no account, no root, no PC. MIT licensed.
 >
 > Canonical: https://flutterguard.dev/
+> Google Play: https://play.google.com/store/apps/details?id=com.flutterguard.app
 > Download: https://github.com/anasfik/FlutterGuard/releases/latest
 > Source (MIT): https://github.com/anasfik/FlutterGuard
 > Privacy: https://gwhyyy.com/privacy/flutterguard
@@ -18,7 +19,7 @@ The page at https://flutterguard.dev/ states the same thing in three steps:
 2. Inspect: Read the SDK versions, endpoints and exposed strings inside the release.
 3. Report: Save the evidence on the phone and come back to it whenever you need it.
 
-Why it is not another APK scanner: generic scanners stop at permissions and package names. A Flutter app keeps its real surface inside libapp.so and the asset bundle, and FlutterGuard reads that layer.
+Flutter-aware inspection: a Flutter release carries clues in its compiled library and asset bundle, not just its permissions. FlutterGuard reads these layers alongside SDK versions, embedded endpoints, exposed strings, AI providers, signing information and network policy.
 
 Maintainer: Anas Fikhi, Flutter and Software Engineer.
 
@@ -27,7 +28,7 @@ Maintainer: Anas Fikhi, Flutter and Software Engineer.
 - Android 8.0 (API 26) or newer
 - Download the APK from https://github.com/anasfik/FlutterGuard/releases/latest and install it
 - No account, no root, no PC, no companion service
-- There is no Play listing to install from yet
+- Google Play listing: https://play.google.com/store/apps/details?id=com.flutterguard.app
 
 ## What it reads
 
@@ -44,9 +45,10 @@ Each check result carries a grade of A, C or F. The grade is a triage label for 
 
 ## Offline and private
 
-- The app declares no INTERNET permission, so scan data cannot leave the device.
+- The app declares no INTERNET permission. Scans run locally without uploads.
 - The app or APK you open stays on the device.
 - Reports and history live in private app storage.
+- A report can leave the device when you explicitly export it and choose a destination.
 - Uninstalling FlutterGuard deletes those private reports and history.
 
 ## FAQ
@@ -69,7 +71,7 @@ No. Findings are static evidence from the release, not a confirmed exploit.
 
 ### Where do updates come from?
 
-GitHub releases. There is no Play listing to install from yet.
+Updates and APK releases are published on GitHub. The Google Play link opens the store listing.
 
 ## Limits
 

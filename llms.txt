@@ -3,6 +3,7 @@
 > Security audit any released Flutter app. FlutterGuard is an Android app that reads an installed Flutter app or a single APK on the device and reports libraries, endpoints and exposed strings. No INTERNET permission, no account, MIT licensed. Android 8.0 and newer.
 
 - Canonical: https://flutterguard.dev/
+- Google Play: https://play.google.com/store/apps/details?id=com.flutterguard.app
 - Download: https://github.com/anasfik/FlutterGuard/releases/latest
 - Source (MIT): https://github.com/anasfik/FlutterGuard
 - Privacy: https://gwhyyy.com/privacy/flutterguard
@@ -16,9 +17,9 @@
 - Inspect: Read the SDK versions, endpoints and exposed strings inside the release.
 - Report: Save the evidence on the phone and come back to it whenever you need it.
 
-## Why this is not another APK scanner
+## Flutter-aware inspection
 
-Generic scanners stop at permissions and package names. A Flutter app keeps its real surface inside libapp.so and the asset bundle. FlutterGuard reads that layer: SDK versions, embedded endpoints, exposed strings, AI providers, signing and network policy.
+A Flutter release carries clues in its compiled library and asset bundle, not just its permissions. FlutterGuard reads these layers alongside SDK versions, embedded endpoints, exposed strings, AI providers, signing information and network policy.
 
 ## What it reads
 
@@ -34,7 +35,7 @@ A, C and F are triage labels on each check result. They tell you what to look at
 
 ## Offline by design
 
-FlutterGuard requests no INTERNET permission, so it cannot send scan data anywhere. The app or APK you pick stays on the device, reports are kept in private app storage, and nothing is uploaded. No account, no root, no PC.
+FlutterGuard requests no INTERNET permission. Scans run locally without uploads, and reports are kept in private app storage. A report can leave the device when you explicitly export it and choose a destination. No account, no root, no PC.
 
 ## Limits
 
@@ -54,7 +55,7 @@ FlutterGuard requests no INTERNET permission, so it cannot send scan data anywhe
 - Does it need an internet connection? No, the app has no INTERNET permission and scans run on the device.
 - Which apps can it check? Flutter apps you own or are authorised to test, installed or supplied as a single APK.
 - Does a finding prove the app is exploitable? No, findings are static evidence from the release.
-- Where do updates come from? GitHub releases. There is no Play listing to install from yet.
+- Where do updates come from? Updates and APK releases are published on GitHub. The Google Play link opens the store listing.
 
 ## Licence
 

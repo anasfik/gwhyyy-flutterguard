@@ -1,7 +1,7 @@
 # Asset provenance
 
-Last updated: 2026-11-01. Only the files below are new; existing `icon-512.png`
-files and the canonical raw captures were left untouched.
+Last updated: 2026-11-02. The app icon, canonical captures and recorded demo
+are genuine app assets. The direct redesign does not alter their pixels.
 
 ## Screenshots
 
@@ -22,11 +22,28 @@ convert raw-overview.png -resize 720x1600 -strip -quality 80 assets/app/report.w
 
 The images keep the real Android status bar, app UI, package names and
 navigation bar. `inventory.webp` shows the installed-app list; `report.webp`
-shows the Conduit report overview. The homepage now uses `inventory.webp` as
-the single phone poster; `report.webp` stays in the repository as an unused
-canonical capture and is not copied into the nginx image. The poster is
-referenced with explicit 720x1600 dimensions and a documented native-video
-replacement point (see the HTML comment beside it); no recording exists yet.
+shows the Conduit report overview. These remain reference captures. The
+homepage uses the recording and its Findings poster described below;
+`report.webp` is not copied into the nginx image.
+
+## Demo recording
+
+The user supplied the latest recording from their connected phone:
+`/sdcard/Movies/screen-20261102-002011.mp4`, pulled on 2026-11-02. The source
+is an 80.97-second, 1080x2400 HEVC recording, 108,560,057 bytes, with no audio.
+It shows FlutterGuard's inventory, findings, dependencies and scan queue.
+
+- `assets/app/demo.mp4`: H.264, yuv420p, 540x1200, 30 fps, 81 seconds,
+  4,778,363 bytes, no audio, faststart. SHA-256:
+  `0bf3982e152929d4fee7b0220376d0712802ce8fcd49291f3a12625797f866a0`.
+- Encoding: `ffmpeg -i latest.mp4 -vf scale=540:1200 -r 30 -an -c:v libx264 -crf 31 -preset medium -pix_fmt yuv420p -movflags +faststart demo.mp4`.
+- `assets/app/demo-poster.webp`: Findings frame at 20 seconds, 360x800,
+  30,570 bytes. SHA-256:
+  `9b3c0542af6c41d53d900836cf56792d95b5606c816003a2016899b99790859e`.
+
+The video has native controls and an explicit recording link on playback
+failure. Reduced motion disables automatic playback; the page's pause
+control pauses the video and decorative CSS animations.
 
 ## OG image
 
@@ -49,32 +66,26 @@ re-typing.
 | `assets/brand/google-play-badge-en.svg` | `get-it-on-google-play-en.svg` (Google Play badge package, digital SVG, English) | `4ffa4c7edd2f10b297ca4de2131eddaa00d03b2278d1e178fe512920d824ca34` |
 | `assets/brand/github-lockup-white.svg` | `github-lockup-white.svg` (`GitHub_Logos.zip`, `GitHub Logos/SVG/GitHub_Lockup_White.svg`) | `d26a77282b5f0fc5e36d52aa64d0a8dfeb042dab5b65802805ce83373d72f5f5` |
 
-- Google Play badge: official Partner Marketing Hub artwork, kept full color at
-  48 CSS px high (natural ratio 238.96:70.87), with one-quarter-height clear
-  space and a solid page background. It is non-interactive (no link, no tab
-  stop) and is paired with the page's own text, "Not yet available on Google
-  Play". Availability was verified 2026-11-01: the listing URL returned HTTP
-  404 for default and US requests while a known-live control returned 200.
-  That proves those requests, not worldwide availability or Play Console
-  review state. There is no published Google rule for showing this badge while
-  a listing is unpublished; this truthful unavailable treatment is our
-  explicit product decision, not a Google-sanctioned pattern. When the listing
-  returns 200, make the badge a link to
+- The official badge and lockup remain unmodified reference assets but are
+  not displayed in the direct redesign. GitHub is a plain navbar text link.
+- The sole hero install action links to the user-requested Google Play URL:
   `https://play.google.com/store/apps/details?id=com.flutterguard.app`.
-- GitHub lockup: official white mark plus wordmark on the brand-exception black
-  button, unchanged, linking to the source repository. GitHub's brand page
-  permits the Invertocat as a link/social button; this does not imply GitHub
-  endorsement. File-level hashes above match the research copies.
+  It uses the inline Google Play glyph from the prior implementation, not a
+  modified official badge. The latest bounded default/US listing checks
+  returned 404; the link is future-ready, not proof of public availability.
+- The Flutter mark is reused from the repository's `flutter.svg` glyph.
+  APK layers and orbit graphics are explanatory CSS diagrams, not invented
+  app screenshots or measured scan results. No endorsement is implied.
 
 ## Font
 
-- Family: Manrope, variable weight range 400–600, latin subset.
-- File: `assets/fonts/manrope-latin.woff2` — 24,532 bytes,
+- Family: Manrope, variable weight range 400-600, latin subset.
+- File: `assets/fonts/manrope-latin.woff2`, 24,532 bytes,
   SHA-256 `8c2def024c1bf31aacf3624ae3c4d701269b4ec3dc765c04830839f0d36b2d9e`.
 - Source: Google Fonts CSS API v23 (`fonts.googleapis.com/css2?family=Manrope:wght@400..600`),
   binary from `fonts.gstatic.com/s/manrope/v23/xn7gYHE41ni1AdIRggexSg.woff2`.
 - License: SIL Open Font License 1.1, copyright 2018 The Manrope Project
   Authors. Full text in `assets/fonts/OFL.txt`.
 - Served locally from `/assets/fonts/` with `font/woff2`; the page makes no
-  runtime request to a font CDN. Arabic and other non-latin text falls back to
-  `Noto Sans Arabic`/`Tahoma` from the font stack.
+  runtime request to a font CDN. Other scripts use the browser's sans-serif
+  fallback. The technical captions use the platform monospace stack.

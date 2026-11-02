@@ -15,7 +15,7 @@
   const showFallback = () => video.parentElement.classList.add('media-error');
   video.addEventListener('error', showFallback);
   video.querySelector('source')?.addEventListener('error', showFallback);
-  if (video.error) showFallback();
+  if (video.error || video.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) showFallback();
   pause.addEventListener('change', applyPreference);
   reduce.addEventListener('change', applyPreference);
   applyPreference();

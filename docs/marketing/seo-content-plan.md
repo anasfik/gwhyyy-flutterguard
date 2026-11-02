@@ -1,6 +1,6 @@
 # FlutterGuard SEO content plan
 
-Status: 2026-11-02. Companion to `launch-kit.md`, which holds positioning, channel copy and
+Status: 2026-11-02, after the MobSF page. Companion to `launch-kit.md`, which holds positioning, channel copy and
 directory work. This file covers search: what the site targets, why, and how it will be judged.
 
 ## Measured baseline
@@ -40,6 +40,7 @@ it is marked unmeasured instead of estimated.
 | how do i find security vulnerabilities in flutter and react native applications? | Long-tail how-to | `/flutter-security/`, then `/flutter-apk-inspection/` | Page shipped, not yet indexed |
 | proguard flutter | Informational, tooling confusion | `/proguard-flutter/` | Page shipped, not yet indexed |
 | how to inspect a flutter apk | Informational, how-to (unmeasured) | `/flutter-apk-inspection/` | Page shipped, not yet indexed |
+| mobsf alternative | Commercial comparison (unmeasured) | `/mobsf-alternative/` | Page shipped, not yet indexed |
 | seguridad flutter | Spanish, informational | none | Gap: not targeted |
 
 `seguridad flutter` is recorded demand with no Spanish content. It stays a gap until the
@@ -48,16 +49,18 @@ answer is known.
 
 ## What shipped on 2026-11-02
 
-Three static pages, each with a single intent, one H1, a unique title under 60 characters, a
-description between 120 and 160 characters, an exact canonical, and `TechArticle` plus
-`BreadcrumbList` JSON-LD. All are server-rendered, carry the site's CSP and cache headers, and
-work with JavaScript disabled.
+Four static pages, each with a single intent, one H1, a unique title under 60 characters, a
+description between 120 and 160 characters, an exact canonical, and `TechArticle`, `BreadcrumbList`
+plus `FAQPage` JSON-LD. Each opens with a one-paragraph answer and closes with the questions people
+type into a search box. All are server-rendered, carry the site's CSP and cache headers, and work
+with JavaScript disabled.
 
 | URL | Title | Job |
 | --- | --- | --- |
-| `/flutter-security/` | Flutter app security: what a release APK exposes | Pillar. The checks that find real problems in a shipped APK, and what static inspection cannot prove. |
-| `/flutter-apk-inspection/` | How to inspect a Flutter APK on Android | How-to. Phone-first workflow, desktop commands, triage rules that avoid false alarms. |
-| `/proguard-flutter/` | ProGuard and R8 in Flutter: what they hide | Explainer. Android shrinking versus Dart obfuscation, and what remains readable. |
+| `/flutter-security/` | Flutter security: what a release APK exposes | Pillar. The checks that find real problems in a shipped APK, and what static inspection cannot prove. |
+| `/flutter-apk-inspection/` | Flutter APK inspection: reading a release on Android | How-to. Phone-first workflow, desktop commands, triage rules that avoid false alarms. |
+| `/proguard-flutter/` | ProGuard for Flutter: what R8 and obfuscation hide | Explainer. Android shrinking versus Dart obfuscation, and what remains readable. |
+| `/mobsf-alternative/` | MobSF alternative for auditing Flutter APKs | Comparison. What MobSF does well, where a Flutter release differs, and when each tool is the better fit. |
 
 Each page differentiates on the released artifact. The SERP for `proguard flutter` is
 tutorials without artifact evidence, and `how to inspect a flutter apk` mostly returns Flutter
@@ -66,8 +69,8 @@ then show the APK-layer method.
 
 ## Internal links
 
-- Homepage `#guides` section links all three pages; the navbar points at `#guides`.
-- Each guide links the other two and the homepage in its "Continue reading" block.
+- Homepage `#guides` section links all four pages; the navbar points at `#guides`.
+- Each guide links the other three and the homepage in its "Continue reading" block.
 - Every guide ends with the same install action: GitHub APK release, then source.
 - Breadcrumbs on each guide return to the homepage.
 
@@ -77,7 +80,7 @@ No orphan pages, no cross-links to unrelated sections.
 
 - Guides: `TechArticle` with headline, description, dates, author, publisher, image and an
   `about` reference to the `SoftwareApplication`; `BreadcrumbList` matching the visible
-  breadcrumb.
+  breadcrumb; `FAQPage` matching the visible questions and answers verbatim.
 - Homepage: `SoftwareApplication` and `FAQPage`, both already matching visible content
   verbatim. Do not add ratings, review counts or version numbers that the app does not have.
 
@@ -88,7 +91,7 @@ Review at 14 and 28 days after indexing, using the same 28-day window:
 1. Search Console, per page: impressions, clicks, average position for each mapped query.
    The target for `/flutter-security/` is a position better than the homepage's 51.5 on
    `flutter security`; the target for `/proguard-flutter/` is better than 45.
-2. Search Console, index status: all four URLs indexed, no canonical mismatch.
+2. Search Console, index status: all five URLs indexed, no canonical mismatch.
 3. Cloudflare Web Analytics: page views and referrers per guide, to see whether the pages pull
    traffic the homepage did not.
 4. Rich results: confirm `TechArticle` and `BreadcrumbList` are detected on each guide.
@@ -99,13 +102,13 @@ or removed rather than multiplied.
 
 ## Backlog, in order
 
-1. Request indexing for the three guides and resubmit the sitemap in Search Console (approval
-   gate: remote change).
-2. Ship a fifth page only when the first three have 28 days of data. Candidate topics, all
-   unmeasured: reading `libapp.so` strings, MobSF versus an on-device pass, and a walkthrough
-   with a real open-source APK. Choose by which one the data supports.
+1. Request indexing for the four guides in Search Console. Sitemap resubmitted 2026-11-02 22:18.
+   The API can inspect but cannot request indexing; that click is a Search Console UI action.
+2. Wait for 28 days of data before adding a page. Remaining unmeasured candidates: reading
+   `libapp.so` strings and a walkthrough with a real open-source APK. The MobSF comparison page
+   shipped early because the comparison intent had no page at all.
 3. Spanish page for `seguridad flutter` once the English pillar shows it can rank.
-4. Add per-guide Open Graph images only if social referrals appear in analytics.
+4. Per-guide Open Graph images shipped with the pages; check social referrals before making more.
 
 ## Guardrails
 

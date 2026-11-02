@@ -162,7 +162,7 @@ def main(args):
         check("security.txt policy points at a real section", security.status == 200 and bool(frag) and f'id="{frag}"' in page.content())
 
         beacon = page.locator('script[src="https://static.cloudflareinsights.com/beacon.min.js"]')
-        check("analytics beacon wired", beacon.count() == 1 and "49f8f2af776247769eac7e60936b697f" in (beacon.get_attribute("data-cf-beacon") or ""))
+        check("analytics beacon wired", beacon.count() == 1 and "f9110d5432f446d6833224ec262cdd83" in (beacon.get_attribute("data-cf-beacon") or ""))
 
         for path in ("/demo", "/demo/", "/demo/index.html", "/missing-page-xyz"):
             r = page.request.get(base + path)

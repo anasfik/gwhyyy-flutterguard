@@ -161,7 +161,7 @@ Skip paid directories and any "submit to 100 sites" service.
 
 ## Measurement
 
-Today: Search Console plus Cloudflare Web Analytics (site tag `49f8f2af776247769eac7e60936b697f`,
+Today: Search Console plus Cloudflare Web Analytics (site token `f9110d5432f446d6833224ec262cdd83`,
 beacon installed 2026-11-02; CSP allows only `static.cloudflareinsights.com` and
 `cloudflareinsights.com`, so no other third-party script can load). No cookies, no cross-site
 tracking, no change to the app's no-telemetry claim. Cloudflare exposes page views and referrers,

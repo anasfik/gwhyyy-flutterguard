@@ -82,15 +82,15 @@
 
         <h2>At a glance</h2>
         <table>
-          <thead><tr><th></th><th>MobSF</th><th>FlutterGuard</th></tr></thead>
+          <thead><tr><td></td><th scope="col">MobSF</th><th scope="col">FlutterGuard</th></tr></thead>
           <tbody>
-            <tr><td>Where it runs</td><td>Server or laptop: Docker image, Python 3.12+, or the hosted demo at <code>mobsf.live</code></td><td>On the Android device, as a normal app</td></tr>
-            <tr><td>What it accepts</td><td>APK, XAPK, AAB, JAR, AAR, DEX, SO, IPA, DYLIB, APPX, plus Android and iOS source</td><td>An installed app's base APK, or one APK file you open</td></tr>
-            <tr><td>Reading the Flutter layers</td><td>General app structure and strings</td><td>Dart strings in <code>libapp.so</code>, the <code>flutter_assets</code> manifest, Flutter SDK and AI-provider markers</td></tr>
-            <tr><td>Dynamic analysis</td><td>Yes: emulators, simulators, Corellium, physical devices, Frida-based instrumentation, live traffic</td><td>No. The package is read, never executed</td></tr>
-            <tr><td>Network</td><td>Server UI, so the artifact leaves the device unless you host it locally</td><td>No <code>INTERNET</code> permission at all</td></tr>
-            <tr><td>Reports</td><td>Web report, JSON via API and CLI</td><td>On-device report, export as JSON or Markdown</td></tr>
-            <tr><td>Best fit</td><td>Client engagements, CI gates, runtime testing, iOS and Windows</td><td>Triage on the device, offline review, a first pass before the deeper one</td></tr>
+            <tr><th scope="row">Where it runs</th><td>Server or laptop: Docker image, Python 3.12+, or the hosted demo at <code>mobsf.live</code></td><td>On the Android device, as a normal app</td></tr>
+            <tr><th scope="row">What it accepts</th><td>APK, XAPK, AAB, JAR, AAR, DEX, SO, IPA, DYLIB, APPX, plus Android and iOS source</td><td>An installed app's base APK, or one APK file you open</td></tr>
+            <tr><th scope="row">Reading the Flutter layers</th><td>General app structure and strings</td><td>Dart strings in <code>libapp.so</code>, the <code>flutter_assets</code> manifest, Flutter SDK and AI-provider markers</td></tr>
+            <tr><th scope="row">Dynamic analysis</th><td>Yes: emulators, simulators, Corellium, physical devices, Frida-based instrumentation, live traffic</td><td>No. The package is read, never executed</td></tr>
+            <tr><th scope="row">Network</th><td>Server UI, so the artifact leaves the device unless you host it locally</td><td>No <code>INTERNET</code> permission at all</td></tr>
+            <tr><th scope="row">Reports</th><td>Web report, JSON via API and CLI</td><td>On-device report, export as JSON or Markdown</td></tr>
+            <tr><th scope="row">Best fit</th><td>Client engagements, CI gates, runtime testing, iOS and Windows</td><td>Triage on the device, offline review, a first pass before the deeper one</td></tr>
           </tbody>
         </table>
         <p>MobSF details above reflect its public documentation as of November 2026. Version numbers and feature lists change, so check the project before you plan around a specific capability.</p>

@@ -2,13 +2,13 @@
 
 > Security audit any released Flutter app. FlutterGuard is an Android app that reads an installed Flutter app or a single APK on the device and reports libraries, endpoints and exposed strings. No INTERNET permission, no account, MIT licensed. Android 8.0 and newer.
 
-- Canonical: https://flutterguard.dev/
-- Google Play: https://play.google.com/store/apps/details?id=com.flutterguard.app
-- Download: https://github.com/anasfik/FlutterGuard/releases/latest
-- Source (MIT): https://github.com/anasfik/FlutterGuard
-- Privacy: https://gwhyyy.com/privacy/flutterguard
+- [Canonical site](https://flutterguard.dev/)
+- [Google Play listing](https://play.google.com/store/apps/details?id=com.flutterguard.app)
+- [Download the latest APK](https://github.com/anasfik/FlutterGuard/releases/latest)
+- [Source (MIT)](https://github.com/anasfik/FlutterGuard)
+- [Privacy notice](https://gwhyyy.com/privacy/flutterguard)
 - Contact: work@gwhyyy.com
-- Issues: https://github.com/anasfik/FlutterGuard/issues
+- [Issues](https://github.com/anasfik/FlutterGuard/issues)
 - Maintainer: Anas Fikhi, Flutter and Software Engineer
 
 ## What it does
@@ -61,4 +61,4 @@ FlutterGuard requests no INTERNET permission. Scans run locally without uploads,
 
 MIT. Use FlutterGuard only on applications you own or have permission to test. Findings are evidence for your own review, not an authorisation to test third-party apps.
 
-Full detail: https://flutterguard.dev/llms-full.txt
+Full detail: [llms-full.txt](https://flutterguard.dev/llms-full.txt)

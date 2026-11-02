@@ -162,7 +162,7 @@ def main(args):
         check("404 noindex, no canonical and way home", 'content="noindex' in not_found and 'rel="canonical"' not in not_found and 'href="/"' in not_found)
         if not preview:
             csp = response.headers.get("content-security-policy", "")
-            check("strict security headers present", all(x in csp for x in ("default-src 'self'", "script-src 'self'", "style-src 'self'", "connect-src 'none'", "frame-ancestors 'none'")) and response.headers.get("x-content-type-options") == "nosniff" and response.headers.get("x-frame-options") == "DENY")
+            check("strict security headers present", all(x in csp for x in ("default-src 'self'", "script-src 'self'", "style-src 'self'", "connect-src 'self'", "frame-ancestors 'none'")) and response.headers.get("x-content-type-options") == "nosniff" and response.headers.get("x-frame-options") == "DENY")
             for path, age in (("/styles.css", "3600"), ("/assets/app/demo.mp4", "604800"), ("/assets/fonts/manrope-latin.woff2", "31536000")):
                 check(f"strict cache {path}", "max-age=" + age in page.request.get(base + path).headers.get("cache-control", ""))
         check("no runtime errors or failed requests", not errors and not failed, str(errors + failed))

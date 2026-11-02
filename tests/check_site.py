@@ -19,7 +19,11 @@ header and keeps its INFO downgrade.
 
 from __future__ import annotations
 
+import json
+import re
+import struct
 import sys
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -27,7 +31,10 @@ from playwright.sync_api import sync_playwright
 
 CHROMIUM = "/usr/bin/chromium"
 WORD_LIMIT = 300
-OVERFLOW_WIDTHS = (320, 390, 768, 1280, 1440)
+OVERFLOW_WIDTHS = (320, 360, 390, 768, 1024, 1280, 1440, 1920)
+CANONICAL = "https://flutterguard.dev/"
+SITEMAP_NS = "{http://www.sitemaps.org/schemas/sitemap/0.9}"
+BANNED_LD_KEYS = ("aggregateRating", "review", "ratingValue", "softwareVersion")
 DOWNLOAD = "https://github.com/anasfik/FlutterGuard/releases/latest"
 SOURCE = "https://github.com/anasfik/FlutterGuard"
 EMAIL = "mailto:work@gwhyyy.com"
@@ -70,6 +77,26 @@ def norm(text: str) -> str:
 
 def strip_note(text: str) -> str:
     return (text or "").replace(NEW_TAB_NOTE, "").strip()
+
+
+def png_size(data: bytes) -> tuple[int, int] | None:
+    """Read width/height straight out of the PNG IHDR chunk (no dependency)."""
+    if len(data) < 24 or data[:8] != b"\x89PNG\r\n\x1a\n" or data[12:16] != b"IHDR":
+        return None
+    return struct.unpack(">II", data[16:24])
+
+
+def ld_keys(node, out=None):
+    """Collect every object key in a parsed JSON-LD tree."""
+    out = [] if out is None else out
+    if isinstance(node, dict):
+        for key, value in node.items():
+            out.append(key)
+            ld_keys(value, out)
+    elif isinstance(node, list):
+        for value in node:
+            ld_keys(value, out)
+    return out
 
 results: list[tuple[str, bool, str]] = []
 
@@ -134,6 +161,83 @@ def main(argv: list[str]) -> int:
               and titles["og"] == "Security audit any released Flutter app."
               and titles["twitter"] == "Security audit any released Flutter app."
               and "Security audit any released Flutter app" in titles["alt"], str(titles))
+
+        # Head metadata: one of each, canonical exactly the production root, the
+        # LLM pointer right after it, and lengths search engines will not truncate.
+        head = page.evaluate("""() => {
+            const contents = (sel) => [...document.querySelectorAll(sel)].map(e => e.getAttribute('content') || '');
+            return {lang: document.documentElement.getAttribute('lang'),
+                    titles: document.querySelectorAll('title').length,
+                    description: contents('meta[name="description"]'),
+                    canonical: [...document.querySelectorAll('link[rel="canonical"]')].map(e => e.getAttribute('href') || ''),
+                    robots: contents('meta[name="robots"]'),
+                    llms: [...document.querySelectorAll('link[rel="alternate"]')].map(e => ({
+                        href: e.getAttribute('href') || '', type: e.getAttribute('type') || '',
+                        title: e.getAttribute('title') || ''})),
+                    llmsAfterCanonical: (() => {
+                        const c = document.querySelector('link[rel="canonical"]');
+                        const a = document.querySelector('link[rel="alternate"][href="/llms.txt"]');
+                        if (!c || !a) return false;
+                        return !!((c.compareDocumentPosition(a) & Node.DOCUMENT_POSITION_FOLLOWING));
+                    })()};
+        }""")
+        check("head carries exactly one title, description, canonical and robots meta",
+              head["titles"] == 1 and len(head["description"]) == 1
+              and len(head["canonical"]) == 1 and len(head["robots"]) == 1
+              and head["lang"] == "en", str(head))
+        check("canonical is exactly the production root",
+              head["canonical"] == [CANONICAL], str(head["canonical"]))
+        check("title fits in 60 characters", 0 < len(titles["title"]) <= 60, f"{len(titles['title'])} chars: {titles['title']}")
+        check("description is 120-160 characters",
+              len(head["description"]) == 1 and 120 <= len(head["description"][0]) <= 160,
+              f"{len(head['description'][0]) if head['description'] else 0} chars: {head['description']}")
+        check("description states the audit subject plainly",
+              bool(head["description"]) and "flutter" in head["description"][0].lower()
+              and "audit" in head["description"][0].lower()
+              and not re.search(r"\b(best|AI)\b", head["description"][0]), str(head["description"]))
+        check("llms.txt is linked as an alternate right after the canonical",
+              any(l["href"] == "/llms.txt" and l["type"] == "text/plain" and l["title"] for l in head["llms"])
+              and head["llmsAfterCanonical"], str(head["llms"]))
+
+        # Open Graph and Twitter: every URL absolute on the production origin,
+        # the committed clip declared, and the image dimensions stated correctly.
+        social = page.evaluate("""() => {
+            const out = {};
+            for (const m of document.querySelectorAll('meta[property^="og:"], meta[name^="twitter:"]')) {
+                const key = m.getAttribute('property') || m.getAttribute('name');
+                out[key] = m.getAttribute('content') || '';
+            }
+            return out;
+        }""")
+        social_urls = {k: v for k, v in social.items() if v.startswith(("http:", "https:"))}
+        check("every og/twitter URL is absolute https on flutterguard.dev",
+              len(social_urls) >= 3 and all(
+                  v.startswith("https://") and urlparse(v).netloc == "flutterguard.dev"
+                  for v in social_urls.values()), str(social_urls))
+        check("og:url is the canonical",
+              social.get("og:url") == CANONICAL, social.get("og:url"))
+        check("og and twitter images are the absolute og-image.png",
+              social.get("og:image") == CANONICAL + "og-image.png"
+              and social.get("twitter:image") == CANONICAL + "og-image.png", str(social.get("og:image")))
+        check("og:image declares the real 1200x630 frame",
+              social.get("og:image:width") == "1200" and social.get("og:image:height") == "630"
+              and social.get("og:image:type") == "image/png", str(social.get("og:image:width")))
+        og_png = page.request.get(base + "/og-image.png")
+        og_dims = png_size(og_png.body())
+        check("served og-image.png is a real 1200x630 PNG",
+              og_png.status == 200 and og_dims == (1200, 630), f"{og_png.status} {og_dims}")
+        video_url = CANONICAL + "assets/app/demo.mp4"
+        check("og:video declares the committed demo clip and its real size",
+              social.get("og:video") == video_url and social.get("og:video:secure_url") == video_url
+              and social.get("og:video:type") == "video/mp4"
+              and social.get("og:video:width") == "540" and social.get("og:video:height") == "1200",
+              str({k: social.get(k) for k in ("og:video", "og:video:secure_url", "og:video:type",
+                                              "og:video:width", "og:video:height")}))
+        og_video = page.request.get(base + "/assets/app/demo.mp4")
+        check("og:video URL is served as video/mp4",
+              og_video.status == 200
+              and (og_video.headers.get("content-type") or "").startswith("video/mp4"),
+              f"{og_video.status} {og_video.headers.get('content-type')}")
         hero_text = page.locator(".hero-copy").inner_text().lower()
         check("no visible Android 8+ copy in the hero", "android 8" not in hero_text, hero_text)
         # The old #pros sentence is gone with that section; the on-device claim
@@ -566,6 +670,147 @@ def main(argv: list[str]) -> int:
             first.locator("summary").click()
             second.locator("summary").click()
             page.wait_for_timeout(60)
+
+        # Structured data: both blocks parse, the app facts stay true, and the
+        # FAQPage is a copy of the served #faq text rather than a fixture.
+        ld_raw = page.evaluate(
+            """() => [...document.querySelectorAll('script[type="application/ld+json"]')].map(s => s.textContent)""")
+        parsed, ld_errors = [], []
+        for raw in ld_raw:
+            try:
+                parsed.append(json.loads(raw))
+            except Exception as exc:  # noqa: BLE001 - report, never abort the run
+                ld_errors.append(f"{exc}: {raw[:120]}")
+        by_type = {}
+        for obj in parsed:
+            if isinstance(obj, dict):
+                by_type.setdefault(obj.get("@type"), obj)
+        check("both JSON-LD blocks parse as JSON",
+              len(ld_raw) == 2 and not ld_errors
+              and set(by_type) == {"SoftwareApplication", "FAQPage"},
+              f"{len(ld_raw)} blocks, errors={ld_errors}, types={sorted(by_type)}")
+        check("every JSON-LD block uses the schema.org context",
+              bool(parsed) and all(o.get("@context") == "https://schema.org" for o in parsed), str(parsed)[:200])
+
+        app = by_type.get("SoftwareApplication") or {}
+        offers = app.get("offers") or {}
+        check("SoftwareApplication keeps the verified app facts",
+              app.get("name") == "FlutterGuard" and app.get("url") == CANONICAL
+              and app.get("applicationCategory") == "SecurityApplication"
+              and app.get("operatingSystem") == "Android 8.0+"
+              and app.get("downloadUrl") == DOWNLOAD and app.get("license") == LICENSE,
+              str(app))
+        check("SoftwareApplication is offered free with no rating or version",
+              str(offers.get("price")) == "0" and offers.get("priceCurrency") == "USD"
+              and not any(k in ld_keys(app) for k in BANNED_LD_KEYS), str(offers))
+        check("SoftwareApplication points at images that exist",
+              app.get("image") == CANONICAL + "og-image.png"
+              and app.get("screenshot") == CANONICAL + "assets/app/demo-poster.webp", str(app.get("image")))
+        for key in ("image", "screenshot"):
+            value = app.get(key) or ""
+            if value.startswith(CANONICAL):
+                r = page.request.get(base + urlparse(value).path)
+                check(f"SoftwareApplication {key} resolves with an image content type",
+                      r.status == 200 and (r.headers.get("content-type") or "").startswith("image/"),
+                      f"{value} {r.status} {r.headers.get('content-type')}")
+        features = app.get("featureList")
+        check("SoftwareApplication featureList matches the visible step names",
+              isinstance(features, list) and [f for f in features] == [t for t, _ in STEPS],
+              str(features))
+
+        faq_dom = norm(page.evaluate("() => document.querySelector('#faq')?.textContent || ''"))
+        faq_page = by_type.get("FAQPage") or {}
+        entities = faq_page.get("mainEntity") or []
+        pairs = []
+        for entity in entities if isinstance(entities, list) else []:
+            answer = (entity or {}).get("acceptedAnswer") or {}
+            pairs.append((norm(entity.get("name")), norm(answer.get("text"))))
+        check("FAQPage holds exactly the five visible question/answer pairs",
+              len(entities) == 5 and pairs == [(q, a) for q, a in FAQ_ITEMS]
+              and all(e.get("@type") == "Question" for e in entities), str(pairs))
+        check("every FAQPage string appears verbatim in the served #faq text",
+              len(pairs) == 5 and all(q and a and q in faq_dom and a in faq_dom for q, a in pairs),
+              str([p for p in pairs if not (p[0] in faq_dom and p[1] in faq_dom)]))
+        check("JSON-LD carries no invented rating, review or version",
+              not [k for k in ld_keys(parsed) if k in BANNED_LD_KEYS]
+              and not any(token in raw for raw in ld_raw
+                          for token in ("aggregateRating", "ratingValue", "softwareVersion")),
+              str([k for k in ld_keys(parsed) if k in BANNED_LD_KEYS]))
+
+        # Sitemap: one canonical entry, a lastmod, and no /demo route.
+        sitemap = page.request.get(base + "/sitemap.xml")
+        sitemap_text = sitemap.text()
+        sitemap_root = None
+        try:
+            sitemap_root = ET.fromstring(sitemap_text)
+        except ET.ParseError as exc:
+            info(f"sitemap.xml does not parse: {exc}")
+        locs = [e.text or "" for e in sitemap_root.iter(SITEMAP_NS + "loc")] if sitemap_root is not None else []
+        lastmods = [e.text or "" for e in sitemap_root.iter(SITEMAP_NS + "lastmod")] if sitemap_root is not None else []
+        check("sitemap.xml parses with exactly one canonical loc",
+              sitemap.status == 200 and sitemap_root is not None and locs == [CANONICAL],
+              f"{sitemap.status} {locs}")
+        check("sitemap.xml carries a lastmod date and no /demo route",
+              bool(lastmods) and re.fullmatch(r"\d{4}-\d{2}-\d{2}", lastmods[0]) is not None
+              and "/demo" not in sitemap_text, f"{lastmods} {sitemap_text[:80]}")
+        check("sitemap lastmod is the humans.txt last-update date",
+              bool(lastmods) and f"Last update: {lastmods[0]}" in page.request.get(base + "/humans.txt").text(),
+              f"{lastmods}")
+
+        # robots.txt keeps the crawler policy and points at absolute files.
+        robots = page.request.get(base + "/robots.txt")
+        robots_text = robots.text()
+        check("robots.txt allows the site and lists an absolute sitemap",
+              robots.status == 200 and "Allow: /" in robots_text
+              and re.search(r"^Sitemap:\s*https://flutterguard\.dev/sitemap\.xml\s*$", robots_text, re.M) is not None,
+              f"{robots.status} {robots_text[:80]}")
+        check("robots.txt points LLM agents at the absolute llms.txt",
+              "https://flutterguard.dev/llms.txt" in robots_text)
+        check("robots.txt allows the answer engines it claims",
+              "OAI-SearchBot" in robots_text and "PerplexityBot" in robots_text
+              and "GPTBot" in robots_text, robots_text[:80])
+        robots_meta = page.evaluate("""() => [...document.querySelectorAll('meta[name="robots"]')]
+            .map(m => m.getAttribute('content') || '').join(' ')""")
+        check("home page is indexable: no noindex, no nofollow",
+              "noindex" not in robots_meta and "nofollow" not in robots_meta, robots_meta)
+
+        # LLM files describe the page that actually ships.
+        h1_subject = norm(h1s[0] if h1s else "").rstrip(".").lower()
+        for path in ("/llms.txt", "/llms-full.txt"):
+            r = page.request.get(base + path)
+            text = r.text()
+            check(f"{path} describes the current page and steps",
+                  r.status == 200 and h1_subject in text.lower()
+                  and all(name.lower() in text.lower() for name, _ in STEPS)
+                  and "/demo" not in text, f"{r.status} {len(text)} bytes")
+            check(f"{path} stays factual: no ratings, benchmarks or Play availability",
+                  r.status == 200
+                  and not re.search(r"benchmark|ratingvalue|aggregaterating|available on google play|play listing is live",
+                                    text, re.I),
+                  text[:120])
+
+        # Manifest: valid JSON, install metadata, icons that resolve.
+        manifest_resp = page.request.get(base + "/site.webmanifest")
+        try:
+            manifest = json.loads(manifest_resp.text())
+        except json.JSONDecodeError:
+            manifest = {}
+        icons = manifest.get("icons") or []
+        icon_results = []
+        for icon in icons:
+            r = page.request.get(base + (icon.get("src") or ""))
+            icon_results.append((icon.get("src") or "", r.status,
+                                 (r.headers.get("content-type") or "").split(";")[0]))
+        check("site.webmanifest parses with name, short_name, start_url and display",
+              manifest_resp.status == 200 and manifest.get("name") and manifest.get("short_name")
+              and manifest.get("start_url") == "/" and manifest.get("display") == "standalone"
+              and manifest.get("theme_color") == "#f4f6f5"
+              and manifest.get("description") == head["description"][0], str(manifest)[:200])
+        check("every manifest icon resolves with an image content type",
+              len(icons) == 2 and len(icon_results) == 2
+              and all(status == 200 and ctype.startswith("image/") for _, status, ctype in icon_results),
+              str(icon_results))
+
         home_html = page.request.get(base + "/").text()
         check("recording slot comment removed now that the clip ships",
               "Recording slot" not in home_html and "audit-recording.mp4" not in home_html)
@@ -646,7 +891,7 @@ def main(argv: list[str]) -> int:
             check(f"no horizontal overflow at {width}px", overflow <= 1, f"{overflow}px")
 
         # Navbar is one row of reachable controls at desktop widths.
-        for width in (1024, 1280, 1440):
+        for width in (1024, 1280, 1440, 1920):
             page.set_viewport_size({"width": width, "height": 900})
             page.wait_for_timeout(80)
             nav = page.evaluate("""() => {

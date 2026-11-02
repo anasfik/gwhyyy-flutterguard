@@ -1,7 +1,7 @@
 {
   "name": "FlutterGuard",
   "short_name": "FlutterGuard",
-  "description": "On-device Flutter APK inspection for Android: libraries, endpoints and exposed strings. No uploads, no account. MIT.",
+  "description": "Security audit any released Flutter app on Android: read libraries, endpoints and exposed strings, then save the evidence on your device. MIT.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

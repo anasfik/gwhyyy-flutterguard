@@ -4,13 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>FlutterGuard: Security audit any released Flutter app</title>
-    <meta name="description" content="Inspect a Flutter APK on Android: libraries, endpoints and exposed strings, saved on your device. Offline, no account, MIT open source.">
+    <meta name="description" content="Security audit any released Flutter app on Android: read libraries, endpoints and exposed strings, then save the evidence on your device. MIT.">
     <meta name="keywords" content="Flutter APK inspection, Android, offline, static analysis">
     <meta name="author" content="Anas Fikhi">
     <meta name="theme-color" content="#f4f6f5">
     <meta name="color-scheme" content="light">
     <meta name="robots" content="index, follow, max-image-preview:large">
     <link rel="canonical" href="https://flutterguard.dev/">
+    <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM-readable summary">
     <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
@@ -20,13 +21,18 @@
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="FlutterGuard">
     <meta property="og:title" content="Security audit any released Flutter app.">
-    <meta property="og:description" content="Inspect libraries, endpoints and exposed strings on your Android device. Offline, no account.">
+    <meta property="og:description" content="Read libraries, endpoints and exposed strings on your Android device. Offline, no account.">
     <meta property="og:url" content="https://flutterguard.dev/">
     <meta property="og:image" content="https://flutterguard.dev/og-image.png">
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="FlutterGuard app preview inside a phone frame beside the line: Security audit any released Flutter app.">
+    <meta property="og:video" content="https://flutterguard.dev/assets/app/demo.mp4">
+    <meta property="og:video:secure_url" content="https://flutterguard.dev/assets/app/demo.mp4">
+    <meta property="og:video:type" content="video/mp4">
+    <meta property="og:video:width" content="540">
+    <meta property="og:video:height" content="1200">
     <meta property="og:locale" content="en_US">
 
     <meta name="twitter:card" content="summary_large_image">
@@ -43,6 +49,13 @@
         "description": "On-device Flutter APK inspection for Android. Reads libraries, endpoints and exposed strings; static findings are evidence, not proof.",
         "applicationCategory": "SecurityApplication",
         "operatingSystem": "Android 8.0+",
+        "image": "https://flutterguard.dev/og-image.png",
+        "screenshot": "https://flutterguard.dev/assets/app/demo-poster.webp",
+        "featureList": [
+          "Discover",
+          "Inspect",
+          "Report"
+        ],
         "downloadUrl": "https://github.com/anasfik/FlutterGuard/releases/latest",
         "license": "https://github.com/anasfik/FlutterGuard/blob/main/LICENSE",
         "offers": {
@@ -56,6 +69,54 @@
           "alternateName": "GWHYYY",
           "url": "https://gwhyyy.com"
         }
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is FlutterGuard free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. It is open source under the MIT licence, with no account, no ads and no paid tier."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does it need an internet connection?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. The app has no INTERNET permission, so scans run entirely on the device."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Which apps can it check?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Flutter apps you own or are authorised to test, either installed on the device or supplied as a single APK."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does a finding prove the app is exploitable?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Findings are static evidence from the release, not a confirmed exploit."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Where do updates come from?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "GitHub releases. There is no Play listing to install from yet."
+            }
+          }
+        ]
       }
     </script>
   </head>

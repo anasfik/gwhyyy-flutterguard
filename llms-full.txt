@@ -1,6 +1,6 @@
 # FlutterGuard - full reference
 
-> FlutterGuard is an offline, on-device security audit app for Flutter APKs on Android. It reads the release you select and reports what it finds, with grades A, C or F as triage labels. No network access, no account, no root, no PC. MIT licensed.
+> Security audit any released Flutter app. FlutterGuard is an offline, on-device security audit app for Flutter apps on Android. It reads the release you select and reports what it finds, with grades A, C or F as triage labels. No INTERNET permission, no account, no root, no PC. MIT licensed.
 >
 > Canonical: https://flutterguard.dev/
 > Download: https://github.com/anasfik/FlutterGuard/releases/latest
@@ -10,7 +10,15 @@
 
 ## What it is
 
-FlutterGuard is an Android app for people who ship Flutter apps and want to see what a release APK exposes before someone else does. It runs entirely on the phone. Static analysis of the APK produces evidence; the app organizes that evidence into checks with grades.
+FlutterGuard is an Android app for people who ship Flutter apps and want to see what a release exposes before someone else does. You point it at an installed Flutter app or a single APK. It runs entirely on the phone and turns the static evidence it reads into checks with grades.
+
+The page at https://flutterguard.dev/ states the same thing in three steps:
+
+1. Discover: FlutterGuard lists the Flutter apps installed on this device, or you pick a single APK.
+2. Inspect: Read the SDK versions, endpoints and exposed strings inside the release.
+3. Report: Save the evidence on the phone and come back to it whenever you need it.
+
+Why it is not another APK scanner: generic scanners stop at permissions and package names. A Flutter app keeps its real surface inside libapp.so and the asset bundle, and FlutterGuard reads that layer.
 
 Maintainer: Anas Fikhi, Flutter and Software Engineer.
 
@@ -19,13 +27,14 @@ Maintainer: Anas Fikhi, Flutter and Software Engineer.
 - Android 8.0 (API 26) or newer
 - Download the APK from https://github.com/anasfik/FlutterGuard/releases/latest and install it
 - No account, no root, no PC, no companion service
+- There is no Play listing to install from yet
 
 ## What it reads
 
 1. APK container: entries, sizes, compression, bundled assets, native libraries and ABIs.
-2. AndroidManifest: package and version data, SDK levels, permissions, exported activities, services, receivers, providers, cleartext and backup settings, deep links, debug flags.
+2. AndroidManifest: package and version data, SDK levels, permissions, exported activities, services, receivers and providers, cleartext and backup settings, deep links, debug flags.
 3. Release contents: hosts, endpoints, URLs, keys and configuration values that shipped inside the APK, plus the SDKs they belong to.
-4. libapp.so: strings and symbols inside AOT machine code. This is the Flutter application binary, compiled ahead of time.
+4. libapp.so: strings and symbols inside the AOT machine code. This is the Flutter application binary, compiled ahead of time.
 5. Signing data: certificate identity and structural properties of the signature scheme.
 6. Route-like strings: candidate screen and route names found as strings in the binary.
 
@@ -35,10 +44,32 @@ Each check result carries a grade of A, C or F. The grade is a triage label for 
 
 ## Offline and private
 
-- The app declares no INTERNET permission, so it cannot send scan data anywhere.
-- The APK you open stays on the device.
+- The app declares no INTERNET permission, so scan data cannot leave the device.
+- The app or APK you open stays on the device.
 - Reports and history live in private app storage.
 - Uninstalling FlutterGuard deletes those private reports and history.
+
+## FAQ
+
+### Is FlutterGuard free?
+
+Yes. It is open source under the MIT licence, with no account, no ads and no paid tier.
+
+### Does it need an internet connection?
+
+No. The app has no INTERNET permission, so scans run entirely on the device.
+
+### Which apps can it check?
+
+Flutter apps you own or are authorised to test, either installed on the device or supplied as a single APK.
+
+### Does a finding prove the app is exploitable?
+
+No. Findings are static evidence from the release, not a confirmed exploit.
+
+### Where do updates come from?
+
+GitHub releases. There is no Play listing to install from yet.
 
 ## Limits
 
@@ -52,13 +83,13 @@ Each check result carries a grade of A, C or F. The grade is a triage label for 
 - Scan only apps you own or have permission to test.
 - Uninstalling the app deletes private reports and history.
 
-## Legal
+## Licence and legal
 
-FlutterGuard is a local analysis tool. Use it only on applications you own or are authorized to test. Findings are evidence for your own review and are not an authorization to test third-party apps or infrastructure. FlutterGuard is MIT licensed.
+FlutterGuard is MIT licensed. It is a local analysis tool. Use it only on applications you own or are authorised to test. Findings are evidence for your own review and are not an authorisation to test third-party apps or infrastructure.
 
 ## Support
 
 - Bugs and feature requests: https://github.com/anasfik/FlutterGuard/issues
 - Email: work@gwhyyy.com
 - Privacy policy: https://gwhyyy.com/privacy/flutterguard
-- Install: https://github.com/anasfik/FlutterGuard/releases/latest (the Play listing is not public yet)
+- Install: https://github.com/anasfik/FlutterGuard/releases/latest

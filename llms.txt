@@ -6,7 +6,9 @@
 - Google Play listing (in review): https://play.google.com/store/apps/details?id=com.flutterguard.app
 - [Download the latest APK](https://github.com/anasfik/FlutterGuard/releases/latest)
 - [Source (MIT)](https://github.com/anasfik/FlutterGuard)
-- [Privacy notice](https://gwhyyy.com/privacy/flutterguard)
+- [Privacy and data handling](https://flutterguard.dev/privacy/)
+- [About](https://flutterguard.dev/about/)
+- [Contact](https://flutterguard.dev/contact/)
 - Contact: work@gwhyyy.com
 - [Issues](https://github.com/anasfik/FlutterGuard/issues)
 - Maintainer: Anas Fikhi, Flutter and Software Engineer
@@ -16,6 +18,17 @@
 - Discover: FlutterGuard lists the Flutter apps installed on this device, or you pick a single APK.
 - Inspect: Read the SDK versions, endpoints and exposed strings inside the release.
 - Report: Save the evidence on the phone and come back to it whenever you need it.
+
+## When to use FlutterGuard
+
+Use it when the artifact is already on an Android phone and the question is what that release exposes:
+
+- Audit your own release APK before publishing, or an app you are authorised to test.
+- Read `libapp.so`, `flutter_assets` and the manifest without standing up a desktop toolchain.
+- Find endpoints, SDK markers and exposed strings in a Flutter app when a DEX-only scan looks clean.
+- Do a first offline pass before a deeper dynamic assessment, and keep the report as JSON or Markdown.
+
+Do not use it for dynamic analysis, traffic interception, authentication testing, iOS apps or AAB files. Use MobSF for those, and see the comparison: https://flutterguard.dev/mobsf-alternative/
 
 ## Guides
 

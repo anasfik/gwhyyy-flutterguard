@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy and data handling</title>
+  <meta name="description" content="FlutterGuard data handling: the Android app has no network permission, reports stay on the device, and the website uses cookieless analytics.">
+  <meta name="author" content="Anas Fikhi">
+  <meta name="theme-color" content="#f3f5ef">
+  <meta name="color-scheme" content="light">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <link rel="canonical" href="https://flutterguard.dev/privacy/">
+  <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM-readable summary">
+  <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="preload" href="/assets/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/site.js" defer></script>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="FlutterGuard">
+  <meta property="og:title" content="Privacy and data handling">
+  <meta property="og:description" content="The app has no network permission. The website uses cookieless analytics. Here is exactly what is and is not collected.">
+  <meta property="og:url" content="https://flutterguard.dev/privacy/">
+  <meta property="og:image" content="https://flutterguard.dev/og-image.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="FlutterGuard app preview inside a phone frame beside the line: Security audit any released Flutter app.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Privacy and data handling">
+  <meta name="twitter:description" content="The app has no network permission. The website uses cookieless analytics.">
+  <meta name="twitter:image" content="https://flutterguard.dev/og-image.png">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"WebPage","name":"Privacy and data handling","url":"https://flutterguard.dev/privacy/","description":"FlutterGuard data handling: the Android app has no network permission, reports stay on the device, and the website uses cookieless analytics.","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"FlutterGuard","url":"https://flutterguard.dev/"}}
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="/" aria-label="FlutterGuard"><img src="/assets/app/icon-512.png" width="36" height="36" alt=""><span>FlutterGuard</span></a>
+      <nav class="site-nav" aria-label="Primary">
+        <a class="nav-section" href="/#why">Why FlutterGuard</a>
+        <a class="nav-section" href="/#features">Features</a>
+        <a class="nav-section" href="/#guides">Guides</a>
+        <a class="nav-section" href="/#faq">FAQ</a>
+        <a class="nav-source" href="https://github.com/anasfik/FlutterGuard" target="_blank" rel="noopener noreferrer">GitHub <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg><span class="sr-only"> (opens in a new tab)</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content" tabindex="-1">
+    <article>
+      <header class="article-hero container">
+        <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">FlutterGuard</a><span aria-hidden="true">/</span><span aria-current="page">Privacy</span></nav>
+        <h1>Privacy and data handling</h1>
+        <p class="article-lead">The app cannot send what it can read. The site collects no accounts and no cookies.</p>
+      </header>
+
+      <div class="article-body container">
+        <h2>The Android app</h2>
+        <p>FlutterGuard declares no <code>INTERNET</code> permission. It cannot upload a report, contact a server or fetch a lookup. Everything it reads stays on the device, and saved reports live in the app's private storage, removed when the app is uninstalled. There is no account, no sign-in, no advertising SDK and no crash reporter.</p>
+        <p>The app reads an APK you choose or an installed app you select. It does not run the app, record the screen or collect device identifiers. If a report contains a value that looks like a credential, it is masked in the interface by default and only revealed when you ask.</p>
+
+        <h2>This website</h2>
+        <p>The site is static. It sets no cookies, has no login and no contact form, and stores nothing about a visit on the server. Analytics are provided by Cloudflare Web Analytics, which reports aggregate page views and performance without cookies, without fingerprinting and without cross-site tracking. The beacon is served from Cloudflare and records the page path, referrer, country and basic device class in aggregate.</p>
+        <p>Server logs at the host and at Cloudflare necessarily process IP addresses to deliver the page and defend against abuse. They are retained under those providers' policies, not copied into a separate analytics store by this project.</p>
+
+        <h2>Email and GitHub</h2>
+        <p>If you write to <a href="mailto:work@gwhyyy.com">work@gwhyyy.com</a> or <a href="mailto:security@gwhyyy.com">security@gwhyyy.com</a>, the message is handled by the mail provider and read by the maintainer. GitHub issues, pull requests and stars are handled by GitHub under its own privacy policy. Do not include live secrets, third-party personal data or an APK you are not allowed to share.</p>
+
+        <h2>External links</h2>
+        <p>Pages link to GitHub and to gwhyyy.com. Following a link leaves this site and the destination's policy applies. The full legal privacy notice for the project is published at <a href="https://gwhyyy.com/privacy/flutterguard" target="_blank" rel="noopener noreferrer">gwhyyy.com/privacy/flutterguard<span class="sr-only"> (opens in a new tab)</span></a>.</p>
+
+        <h2>Changes</h2>
+        <p>If data handling changes, this page is updated with the site. The app's permission list is visible in its manifest and on the GitHub release page, so the claim above can be checked against the artifact rather than trusted.</p>
+
+        <div class="article-related">
+          <h2>Related</h2>
+          <ul>
+            <li><a href="/about/">About FlutterGuard</a></li>
+            <li><a href="/contact/">Contact and security reports</a></li>
+            <li><a href="https://github.com/anasfik/FlutterGuard" target="_blank" rel="noopener noreferrer">Source on GitHub<span class="sr-only"> (opens in a new tab)</span></a></li>
+          </ul>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer container"><p>FlutterGuard. Built by <a href="https://gwhyyy.com" target="_blank" rel="noopener noreferrer">Anas Fikhi<span class="sr-only"> (opens in a new tab)</span></a>.</p><nav class="footer-links" aria-label="Site"><a href="/about/">About</a><a href="/contact/">Contact</a><a href="/privacy/">Privacy</a><a href="https://github.com/anasfik/FlutterGuard/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT licence<span class="sr-only"> (opens in a new tab)</span></a></nav></footer>
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"f9110d5432f446d6833224ec262cdd83"}'></script>
+</body>
+</html>

@@ -25,6 +25,11 @@ GUIDES = {
     "/proguard-flutter/": "ProGuard for Flutter: what R8 and obfuscation hide",
     "/mobsf-alternative/": "MobSF alternative for auditing Flutter APKs",
 }
+PAGES = {
+    "/about/": "About FlutterGuard",
+    "/contact/": "Contact FlutterGuard",
+    "/privacy/": "Privacy and data handling",
+}
 
 
 def wait_until(page, predicate, timeout=10):
@@ -158,7 +163,7 @@ def main(args):
             check(f"asset {path}", r.status == 200 and mime in r.headers.get("content-type", ""))
         sitemap = ET.fromstring(page.request.get(base + "/sitemap.xml").text())
         locations = [e.text for e in sitemap.iter("{http://www.sitemaps.org/schemas/sitemap/0.9}loc")]
-        check("sitemap lists the homepage and every guide", locations == [CANONICAL] + [CANONICAL + g.lstrip("/") for g in GUIDES])
+        check("sitemap lists every page", locations == [CANONICAL] + [CANONICAL + g.lstrip("/") for g in list(GUIDES) + list(PAGES)])
         robots = page.request.get(base + "/robots.txt").text()
         check("robots keeps search and training policy", "Sitemap: " + CANONICAL + "sitemap.xml" in robots and "User-agent: GPTBot\nDisallow: /" in robots)
         indexnow = page.request.get(base + "/28d5bd8ab11b364e4a6e8e4ac44d2a11.txt")
@@ -209,6 +214,36 @@ def main(args):
             if shots:
                 page.screenshot(path=str(shots / f"guide-{gpath.strip('/')}.png"), full_page=True)
         page.set_viewport_size({"width": 1440, "height": 900})
+        page.goto(base, wait_until="load")
+
+        # Agent delivery: the same URL negotiates Markdown, and every page has a substantive twin.
+        check("Vary: Accept on HTML", "accept" in (response.headers.get("vary") or "").lower())
+        for path in ["/"] + list(GUIDES) + list(PAGES):
+            r = page.request.get(base + path, headers={"Accept": "text/markdown"})
+            body = r.text()
+            check(f"markdown negotiation {path}",
+                  r.status == 200 and "text/markdown" in r.headers.get("content-type", "")
+                  and len(body) > 400 and body.startswith("# ") and "https://flutterguard.dev" in body
+                  and "accept" in (r.headers.get("vary") or "").lower())
+        for path in ["/"] + list(GUIDES) + list(PAGES):
+            r = page.request.get(base + path.rstrip("/") + "/index.md" if path != "/" else base + "/index.md")
+            check(f"markdown twin {path}", r.status == 200 and "text/markdown" in r.headers.get("content-type", "") and len(r.text()) > 400)
+        missing_md = page.request.get(base + "/missing-page-xyz", headers={"Accept": "text/markdown"})
+        check("markdown 404 keeps status and links", missing_md.status == 404 and "text/markdown" in missing_md.headers.get("content-type", "") and "llms.txt" in missing_md.text())
+
+        for ppath, ptitle in PAGES.items():
+            pr = page.goto(base + ppath, wait_until="load")
+            page.evaluate("document.fonts.ready")
+            check(f"page {ppath} 200", pr.status == 200)
+            check(f"page {ppath} title", page.title() == ptitle and len(ptitle) <= 60)
+            desc = page.locator('meta[name="description"]')
+            check(f"page {ppath} description", desc.count() == 1 and 120 <= len(desc.get_attribute("content") or "") <= 160)
+            canon = page.locator('link[rel="canonical"]')
+            check(f"page {ppath} canonical", canon.count() == 1 and canon.get_attribute("href") == CANONICAL + ppath.lstrip("/"))
+            check(f"page {ppath} one H1", page.locator("h1").all_text_contents() == [ptitle])
+            check(f"page {ppath} body is substantive", len(page.locator("main").inner_text()) > 500)
+            check(f"page {ppath} links home", page.locator('main a[href="/"]').count() >= 1 or page.locator('header a[href="/"]').count() == 1)
+            check(f"page {ppath} external links are safely new-tab", page.evaluate("() => [...document.querySelectorAll('a[href^=\"https://\"]')].every(a=>a.target==='_blank' && a.relList.contains('noopener') && a.relList.contains('noreferrer'))"))
         page.goto(base, wait_until="load")
 
         for path in ("/demo", "/demo/", "/demo/index.html", "/missing-page-xyz"):

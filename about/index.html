@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>About FlutterGuard</title>
+  <meta name="description" content="FlutterGuard is an offline Android app that audits released Flutter apps. Who builds it, why it exists, and what it deliberately does not do.">
+  <meta name="author" content="Anas Fikhi">
+  <meta name="theme-color" content="#f3f5ef">
+  <meta name="color-scheme" content="light">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <link rel="canonical" href="https://flutterguard.dev/about/">
+  <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM-readable summary">
+  <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="preload" href="/assets/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/site.js" defer></script>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="FlutterGuard">
+  <meta property="og:title" content="About FlutterGuard">
+  <meta property="og:description" content="An offline Android app that reads a released Flutter app or APK and reports what it exposes.">
+  <meta property="og:url" content="https://flutterguard.dev/about/">
+  <meta property="og:image" content="https://flutterguard.dev/og-image.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="FlutterGuard app preview inside a phone frame beside the line: Security audit any released Flutter app.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="About FlutterGuard">
+  <meta name="twitter:description" content="An offline Android app that reads a released Flutter app or APK and reports what it exposes.">
+  <meta name="twitter:image" content="https://flutterguard.dev/og-image.png">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"WebPage","name":"About FlutterGuard","url":"https://flutterguard.dev/about/","description":"FlutterGuard is an offline Android app that audits released Flutter apps. Who builds it, why it exists, and what it deliberately does not do.","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"FlutterGuard","url":"https://flutterguard.dev/"}}
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="/" aria-label="FlutterGuard"><img src="/assets/app/icon-512.png" width="36" height="36" alt=""><span>FlutterGuard</span></a>
+      <nav class="site-nav" aria-label="Primary">
+        <a class="nav-section" href="/#why">Why FlutterGuard</a>
+        <a class="nav-section" href="/#features">Features</a>
+        <a class="nav-section" href="/#guides">Guides</a>
+        <a class="nav-section" href="/#faq">FAQ</a>
+        <a class="nav-source" href="https://github.com/anasfik/FlutterGuard" target="_blank" rel="noopener noreferrer">GitHub <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg><span class="sr-only"> (opens in a new tab)</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content" tabindex="-1">
+    <article>
+      <header class="article-hero container">
+        <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">FlutterGuard</a><span aria-hidden="true">/</span><span aria-current="page">About</span></nav>
+        <h1>About FlutterGuard</h1>
+        <p class="article-lead">An offline Android app for reading the Flutter APK people actually install.</p>
+      </header>
+
+      <div class="article-body container">
+        <p>FlutterGuard is an open-source Android app that inspects a released Flutter application or a single APK on the device. It reads the manifest, the compiled Dart library, the bundled assets and the signing certificate, then reports the libraries, endpoints and exposed strings it finds. The report stays on the phone.</p>
+
+        <h2>Why it exists</h2>
+        <p>Mobile security tooling mostly assumes a workstation. That is reasonable for a full assessment and awkward for the common question a developer asks after a build: what does this release expose? By the time an APK is on a phone or in a review queue, standing up a container, a database and a browser is more work than the first pass deserves. FlutterGuard takes the first pass to the artifact.</p>
+        <p>Flutter also breaks the assumption behind a DEX-shaped scan. The application logic is Dart compiled ahead of time into <code>lib/&lt;abi&gt;/libapp.so</code>, not Java in <code>classes.dex</code>. A tool that only decompiles Java can return a clean report on an app that still ships a staging endpoint. FlutterGuard was built around that layout.</p>
+
+        <h2>How it works</h2>
+        <p>The app asks for no network permission, so nothing leaves the device. It reads a package without executing it and groups the result as artifact facts, library and SDK markers, endpoints and routes, exposed strings, and package policy. Each finding is tied to the file or attribute that produced it. Reports can be saved as JSON or Markdown and revisited later.</p>
+
+        <h2>What it does not do</h2>
+        <p>It does not run the app, intercept traffic, test authentication or confirm that a finding is exploitable. Static inspection shows what shipped and stops there. A finding is a lead that needs verification against a system you own or are authorised to assess. For runtime evidence, use a dynamic analyser such as MobSF; the <a href="/mobsf-alternative/">comparison page</a> states where each tool fits.</p>
+
+        <h2>Who builds it</h2>
+        <p>FlutterGuard is built and maintained by <a href="https://gwhyyy.com" target="_blank" rel="noopener noreferrer">Anas Fikhi<span class="sr-only"> (opens in a new tab)</span></a>. The source is on <a href="https://github.com/anasfik/FlutterGuard" target="_blank" rel="noopener noreferrer">GitHub<span class="sr-only"> (opens in a new tab)</span></a> under the MIT licence. Issues and feature requests go to the repository; security reports follow the policy in <a href="/.well-known/security.txt">security.txt</a>.</p>
+
+        <h2>Status</h2>
+        <p>The APK is available from GitHub releases. The Google Play listing is in review. The website is static, stores no accounts and uses cookieless analytics; see <a href="/privacy/">privacy and data handling</a>.</p>
+
+        <div class="article-related">
+          <h2>Elsewhere</h2>
+          <ul>
+            <li><a href="/contact/">Contact and security reports</a></li>
+            <li><a href="/privacy/">Privacy and data handling</a></li>
+            <li><a href="/">FlutterGuard home</a></li>
+          </ul>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer container"><p>FlutterGuard. Built by <a href="https://gwhyyy.com" target="_blank" rel="noopener noreferrer">Anas Fikhi<span class="sr-only"> (opens in a new tab)</span></a>.</p><nav class="footer-links" aria-label="Site"><a href="/about/">About</a><a href="/contact/">Contact</a><a href="/privacy/">Privacy</a><a href="https://github.com/anasfik/FlutterGuard/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT licence<span class="sr-only"> (opens in a new tab)</span></a></nav></footer>
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"f9110d5432f446d6833224ec262cdd83"}'></script>
+</body>
+</html>

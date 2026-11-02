@@ -132,7 +132,7 @@ h1 .headline-last{color:var(--green)}
 .contact-actions a:hover{color:var(--green)}
 .site-footer{display:flex;align-items:center;justify-content:space-between;gap:var(--s8);padding-block:var(--s8);font-size:.75rem;color:var(--muted)}
 .site-footer p{font-size:inherit}
-.footer-links{display:flex;gap:var(--s6);align-items:center}
+.footer-links{display:flex;flex-wrap:wrap;gap:var(--s6);align-items:center}
 .footer-links a,.site-footer p a{display:inline-flex;align-items:center;min-height:44px}
 .page-404{padding-block:var(--s24);min-height:70dvh}
 .page-404 h1{max-width:18ch}

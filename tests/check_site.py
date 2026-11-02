@@ -95,7 +95,7 @@ def main(args):
         advances = wait_until(page, f"document.querySelector('video').currentTime > {first} + .7")
         check("video decodes and time advances", advances and video.evaluate("v=>v.videoWidth===540 && v.videoHeight===1200 && v.readyState>=2"))
         clip = page.request.get(base + "/assets/app/demo.mp4")
-        check("optimized demo under 5 MB and correct MIME", clip.status == 200 and 0 < len(clip.body()) <= 5_000_000 and "video/mp4" in clip.headers.get("content-type", ""))
+        check("optimized demo under 3.2 MB and correct MIME", clip.status == 200 and 0 < len(clip.body()) <= 3_200_000 and "video/mp4" in clip.headers.get("content-type", ""))
 
         # Responsive geometry includes all visible controls, not just page width.
         for width in (320, 360, 390, 768, 1024, 1280, 1440, 1920):

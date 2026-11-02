@@ -161,17 +161,18 @@ Skip paid directories and any "submit to 100 sites" service.
 
 ## Measurement
 
-Today: Search Console plus nginx access logs. No site analytics tag is installed, so on-site
-behavior is unmeasured.
+Today: Search Console plus Cloudflare Web Analytics (site tag `49f8f2af776247769eac7e60936b697f`,
+beacon installed 2026-11-02; CSP allows only `static.cloudflareinsights.com` and
+`cloudflareinsights.com`, so no other third-party script can load). No cookies, no cross-site
+tracking, no change to the app's no-telemetry claim. Cloudflare exposes page views and referrers,
+not campaign-level breakdowns, so keep UTMs for link review.
 
-Recommended, in order:
+Remaining, in order:
 
-1. Add a privacy-preserving page counter. Cloudflare Web Analytics or a log-based weekly
-   report both avoid cookies and avoid changing the app's no-telemetry claim.
-2. If GA4 is required, create a web stream for `flutterguard.dev`, add the tag, and extend the
+1. If GA4 is required, create a web stream for `flutterguard.dev`, add the tag, and extend the
    CSP to allow `googletagmanager.com` and `google-analytics.com`. Update the privacy notice.
-3. Tag every campaign link with `utm_source`, `utm_medium`, `utm_campaign`.
-4. Weekly: GSC queries with impressions and position 11-30, clicks, and which channel produced
+2. Tag every campaign link with `utm_source`, `utm_medium`, `utm_campaign`.
+3. Weekly: GSC queries with impressions and position 11-30, clicks, and which channel produced
    the install link click.
 
 Baseline to beat: 3 clicks and 77 impressions per 28 days.

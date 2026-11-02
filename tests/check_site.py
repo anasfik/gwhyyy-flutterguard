@@ -53,9 +53,10 @@ def main(args):
         page = context.new_page()
         errors, failed, foreign = [], [], []
         page.on("pageerror", lambda e: errors.append(str(e)))
-        page.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)
+        page.on("console", lambda m: errors.append(f"{m.text} @ {m.location['url']}") if m.type == "error" else None)
         page.on("requestfailed", lambda r: failed.append(r.url))
-        page.on("request", lambda r: foreign.append(r.url) if urlparse(r.url).netloc != urlparse(base).netloc else None)
+        allowed_origins = {urlparse(base).netloc, "static.cloudflareinsights.com", "cloudflareinsights.com"}
+        page.on("request", lambda r: foreign.append(r.url) if urlparse(r.url).netloc not in allowed_origins else None)
         response = page.goto(base, wait_until="load")
         page.evaluate("document.fonts.ready")
         check("homepage 200", response.status == 200)
@@ -160,6 +161,9 @@ def main(args):
         frag = policy.split("#", 1)[1] if "#" in policy else ""
         check("security.txt policy points at a real section", security.status == 200 and bool(frag) and f'id="{frag}"' in page.content())
 
+        beacon = page.locator('script[src="https://static.cloudflareinsights.com/beacon.min.js"]')
+        check("analytics beacon wired", beacon.count() == 1 and "49f8f2af776247769eac7e60936b697f" in (beacon.get_attribute("data-cf-beacon") or ""))
+
         for path in ("/demo", "/demo/", "/demo/index.html", "/missing-page-xyz"):
             r = page.request.get(base + path)
             check(f"removed/missing route {path}", r.status == 404 and (preview or "That page does not exist." in r.text()))
@@ -167,9 +171,13 @@ def main(args):
         check("404 noindex, no canonical and way home", 'content="noindex' in not_found and 'rel="canonical"' not in not_found and 'href="/"' in not_found)
         if not preview:
             csp = response.headers.get("content-security-policy", "")
-            check("strict security headers present", all(x in csp for x in ("default-src 'self'", "script-src 'self'", "style-src 'self'", "connect-src 'self'", "frame-ancestors 'none'")) and response.headers.get("x-content-type-options") == "nosniff" and response.headers.get("x-frame-options") == "DENY")
+            check("strict security headers present", all(x in csp for x in ("default-src 'self'", "script-src 'self' https://static.cloudflareinsights.com", "style-src 'self'", "connect-src 'self' https://cloudflareinsights.com", "frame-ancestors 'none'")) and response.headers.get("x-content-type-options") == "nosniff" and response.headers.get("x-frame-options") == "DENY")
             for path, age in (("/styles.css", "3600"), ("/assets/app/demo.mp4", "604800"), ("/assets/fonts/manrope-latin.woff2", "31536000")):
                 check(f"strict cache {path}", "max-age=" + age in page.request.get(base + path).headers.get("cache-control", ""))
+        if urlparse(base).hostname in {"127.0.0.1", "localhost"}:
+            # Cloudflare's RUM CORS reply drops the preview port, so the beacon cannot post locally.
+            errors = [e for e in errors if "cloudflareinsights.com" not in e]
+            failed = [u for u in failed if "cloudflareinsights.com" not in u]
         check("no runtime errors or failed requests", not errors and not failed, str(errors + failed))
         check("runtime requests same-origin only", not foreign, str(foreign))
         if shots:

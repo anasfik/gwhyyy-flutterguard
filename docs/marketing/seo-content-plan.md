@@ -117,3 +117,18 @@ or removed rather than multiplied.
 - No keyword stuffing, no doorway pages, no invented statistics or volumes.
 - The Play listing is live; link it as the primary install path with the GitHub APK as fallback.
 - Every page keeps the offline, no-account, MIT facts accurate.
+
+## Addendum: 2026-11-18
+
+Three supporting pages shipped with the growth plan: `/flutter-security-checklist/`
+(release-review intent), `/flutter-release-corpus/` (measured evidence from 26 public release
+APKs), and `/changelog/` with `/feed.xml`. `.well-known/ai-catalog.json` lists every page and
+its Markdown twin. The homepage links six cards; sitemap now carries 11 URLs, resubmitted
+2026-11-18 19:44. IndexNow returned 200 for the three new URLs.
+
+Search Console state at publication: the three new URLs are unknown to Google, which is
+expected on day one. Request indexing from the UI; the API cannot do it. The checklist page
+scores 100 accessibility / 100 best practices / 100 SEO in Lighthouse with no failing audits.
+
+Do not add another page until the corpus and checklist have 28 days of impressions. The next
+candidates are a Spanish pillar and a walkthrough on a real open-source APK, in that order.

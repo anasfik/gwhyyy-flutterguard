@@ -132,3 +132,25 @@ scores 100 accessibility / 100 best practices / 100 SEO in Lighthouse with no fa
 
 Do not add another page until the corpus and checklist have 28 days of impressions. The next
 candidates are a Spanish pillar and a walkthrough on a real open-source APK, in that order.
+
+### Measurement, 2026-11-18 (28-day window ending today)
+
+Search Console, `sc-domain:flutterguard.dev`, page dimension: 4 clicks / 181 impressions across
+six pages. Homepage 91 impressions at position 8.8. `/proguard-flutter/` 50 impressions at
+14.9; `/mobsf-alternative/` 11 at 37.3; `/flutter-security/` 10 at 39.3;
+`/flutter-apk-inspection/` 9 at 19.9; `/about/` 10 at 10.3. The three pages published today
+have no impressions yet. Query dimension reports 26 impressions and 1 click, because Search
+Console withholds low-volume queries; use the page dimension for totals.
+
+Indexing: `/changelog/` is "Discovered - currently not indexed"; the checklist and corpus are
+still "URL is unknown to Google". Request indexing for all three from the UI, then leave them
+alone for at least two weeks.
+
+Distribution added the same day: PRs to 8kSec/awesome-mobile-security (#1, Android scanning
+table) and NetKingJ/awesome-android-security (#3, static/dynamic tools), both open with a
+one-line diff. Together with the two merged lists this gives four live entries and two open
+PRs.
+
+Next measurement: 2026-12-02. Success for the new pages is first impressions, then a position
+better than 20 on their mapped queries; a rewrite follows only if there are impressions and no
+movement after 28 days.

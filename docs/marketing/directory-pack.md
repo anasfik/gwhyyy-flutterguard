@@ -51,6 +51,7 @@ Video: https://flutterguard.dev/assets/app/demo.mp4
 | kyawthiha7/Mobile-App-Pentest | Android, Tools | https://github.com/kyawthiha7/Mobile-App-Pentest/pull/3 | open (2026-11-18) |
 | VoltAgent/awesome-agent-skills | Community Skills, Development and Testing | https://github.com/VoltAgent/awesome-agent-skills/pull/1444 | open (2026-11-18) |
 | Solido/awesome-flutter | Open Source Apps, Top | https://github.com/Solido/awesome-flutter/pull/1094 | open (2026-11-18) |
+| enaqx/awesome-pentest | Static Analyzers | https://github.com/enaqx/awesome-pentest/pull/786 | open (2026-11-18) |
 
 The two 2026-11-18 PRs were placed after verifying the section anchor in the upstream README:
 APKLeaks in the 8kSec scanning table, the MobSF bullet in the NetKingJ tool list, and the MobSF
@@ -70,6 +71,12 @@ comes from, so the PR modifies `source.md` and inserts one line at the bottom of
 Top after the FluxDown entry. Its stated minimum is 35 stars; the repository has exactly 35. The
 entry drops the word Flutter from the description as the guidelines require. A maintainer may still
 decide the app is too narrow for an apps showcase.
+
+The enaqx/awesome-pentest PR targets penetration testers and security teams. Its CONTRIBUTING.md
+asks for one addition per PR, title-cased names, and placement at the bottom of the relevant
+category, so the entry sits last in Static Analyzers after Agentic Radar, the section's only other
+artifact-level tool. Verified in the PR diff: one added line, one file, zero deletions. The list is
+large and mature, so a decline on scope is possible.
 
 ## Account-gated listings
 

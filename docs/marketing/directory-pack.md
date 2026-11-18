@@ -36,7 +36,7 @@ Icon: https://flutterguard.dev/icon-512.png
 Gallery: https://flutterguard.dev/og-image.png (replace with device screenshots before Product Hunt)
 Video: https://flutterguard.dev/assets/app/demo.mp4
 
-## Awesome-list PRs (opened 2026-11-02)
+## Awesome-list PRs (opened 2026-11-02; extended 2026-11-18)
 
 | List | Section | PR | State |
 |---|---|---|---|
@@ -46,10 +46,12 @@ Video: https://flutterguard.dev/assets/app/demo.mp4
 | saeidshirazi/awesome-android-security | Tools, Static Analysis | https://github.com/saeidshirazi/awesome-android-security/pull/52 | open |
 | 8kSec/awesome-mobile-security | 1. Tools, Android Scanning & Automated Analysis | https://github.com/8kSec/awesome-mobile-security/pull/1 | open (2026-11-18) |
 | NetKingJ/awesome-android-security | Tools, Static / Dynamic Analysis | https://github.com/NetKingJ/awesome-android-security/pull/3 | open (2026-11-18) |
+| user1342/Awesome-Android-Reverse-Engineering | Tools, Static Analysis Tools | https://github.com/user1342/Awesome-Android-Reverse-Engineering/pull/13 | open (2026-11-18) |
 
 The two 2026-11-18 PRs were placed after verifying the section anchor in the upstream README:
-APKLeaks in the 8kSec scanning table and the MobSF bullet in the NetKingJ tool list. Each PR
-shows one added line and one changed file. Forks live under `anasfik` (the mobile-security and
+APKLeaks in the 8kSec scanning table, the MobSF bullet in the NetKingJ tool list, and the MobSF
+bullet in the user1342 Static Analysis Tools list. Each PR shows one added line and one changed
+file. The app README now links the checklist and corpus next to Guides (commit ecfcf60). Forks live under `anasfik` (the mobile-security and
 android-security names collided with existing forks, so GitHub created
 `awesome-mobile-security-1` and `awesome-android-security-nkj`); delete them
 after a merge or rejection.
@@ -58,12 +60,18 @@ after a merge or rejection.
 
 | Directory | Where | What it needs | State |
 |---|---|---|---|
-| Product Hunt | https://www.producthunt.com/posts/new | Account, gallery images, first comment, launch date | not submitted |
-| AlternativeTo | https://alternativeto.net/manage/add-app/ | Account; list as alternative to MobSF and jadx | not submitted |
-| SaaSHub | https://www.saashub.com/submit | Account, free listing | not submitted |
-| F-Droid | https://f-droid.org/en/docs/Submitting_to_F-Droid_Quick_Start_Guide/ | GitLab account, reproducible build recipe, no proprietary dependencies; the current APK path is a GitHub release | not submitted |
-| IzzyOnDroid | https://gitlab.com/IzzyOnDroid/repo/-/issues | GitLab account, public APK with a stable versionCode | not submitted |
+| Product Hunt | https://www.producthunt.com/posts/new | Account, gallery images, first comment, launch date | blocked: needs your login |
+| Hacker News | https://news.ycombinator.com/submit | Account with commenting history; Show HN copy is in launch-kit.md | blocked: needs your login |
+| Reddit r/FlutterDev | https://www.reddit.com/r/FlutterDev/submit | Account, subreddit rules; copy is in launch-kit.md | blocked: needs your login |
+| dev.to | https://dev.to/new | Account; the corpus summary is the planned post | blocked: needs your login |
+| AlternativeTo | https://alternativeto.net/manage/add-app/ | Account; list as alternative to MobSF and jadx | blocked: needs your login |
+| SaaSHub | https://www.saashub.com/submit | Account, free listing | blocked: needs your login |
+| F-Droid | https://f-droid.org/en/docs/Submitting_to_F-Droid_Quick_Start_Guide/ | GitLab account, reproducible build recipe, no proprietary dependencies; the current APK path is a GitHub release | blocked: needs GitLab login |
+| IzzyOnDroid | https://gitlab.com/IzzyOnDroid/repo/-/issues | GitLab account, public APK with a stable versionCode | blocked: needs GitLab login |
 | Awesome Android Security (other) | see PR table above | GitHub account (available) | done |
+
+No account-creation is attempted from this machine. The copy for each blocked channel is ready
+in `launch-kit.md`; submission is a human login step.
 | Hacker News | https://news.ycombinator.com/submit | Account; Show HN copy is in the launch kit | not submitted |
 | Reddit r/FlutterDev | https://www.reddit.com/r/FlutterDev/ | Account; one follow-up post, APK link | not submitted |
 

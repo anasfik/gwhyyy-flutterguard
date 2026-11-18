@@ -48,11 +48,12 @@ Video: https://flutterguard.dev/assets/app/demo.mp4
 | NetKingJ/awesome-android-security | Tools, Static / Dynamic Analysis | https://github.com/NetKingJ/awesome-android-security/pull/3 | open (2026-11-18) |
 | user1342/Awesome-Android-Reverse-Engineering | Tools, Static Analysis Tools | https://github.com/user1342/Awesome-Android-Reverse-Engineering/pull/13 | open (2026-11-18) |
 | ByteHackr/AwesomeMobilePentest | Android, Reverse Engineering and Static Analysis | https://github.com/ByteHackr/AwesomeMobilePentest/pull/3 | open (2026-11-18) |
+| kyawthiha7/Mobile-App-Pentest | Android, Tools | https://github.com/kyawthiha7/Mobile-App-Pentest/pull/3 | open (2026-11-18) |
 
 The two 2026-11-18 PRs were placed after verifying the section anchor in the upstream README:
 APKLeaks in the 8kSec scanning table, the MobSF bullet in the NetKingJ tool list, and the MobSF
 bullet in the user1342 Static Analysis Tools list, and the Jadx bullet in the ByteHackr Android
-static analysis list. Each PR shows one added line and one changed
+static analysis list, and the modSF bullet in the kyawthiha7 Android tools list. Each PR shows one added line and one changed
 file. The app README now links the checklist and corpus next to Guides (commit ecfcf60). Forks live under `anasfik` (the mobile-security and
 android-security names collided with existing forks, so GitHub created
 `awesome-mobile-security-1` and `awesome-android-security-nkj`); delete them

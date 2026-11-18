@@ -72,13 +72,12 @@ def main(args):
         page.evaluate("document.fonts.ready")
         check("homepage 200", response.status == 200)
         check("one accurate H1", page.locator("h1").all_text_contents() == ["Security audit any released Flutter app."])
-        review_cta = page.locator(".hero .play-cta")
+        play_cta = page.locator(f'.hero a.play-cta[href="{PLAY}"]')
         apk_cta = page.locator(f'.hero a[href="{SOURCE}/releases/latest"]')
-        check("hero states the Play listing is in review",
-              review_cta.count() == 1 and review_cta.get_attribute("href") is None
-              and "in review" in review_cta.inner_text().lower())
+        check("hero has one working Play install action",
+              play_cta.count() == 1 and "google play" in play_cta.inner_text().lower())
         check("hero has one working APK install action", apk_cta.count() == 1 and apk_cta.inner_text().strip().startswith("Download the APK"))
-        check("no dead Play link anywhere", page.locator(f'a[href^="https://play.google.com/"]').count() == 0)
+        check("no in-review copy anywhere", "in review" not in page.locator("main").inner_text().lower())
         check("no navbar install actions", page.locator(f'header a[href="{PLAY}"], header .navbar-cta, header .play-button').count() == 0)
         check("plain GitHub navbar link", page.locator(f'header a[href="{SOURCE}"]').count() == 1 and page.locator(f'header a[href="{SOURCE}"] img').count() == 0)
         check("graphical APK layers explain real files", page.locator(".apk-stack .layer").count() >= 3 and "libapp.so" in page.locator(".apk-stack").inner_text())
@@ -88,7 +87,7 @@ def main(args):
         check("explicit graphics pause control", page.locator('input#pause-motion[type="checkbox"]').count() == 1)
         check("email and issue recovery paths", page.locator('a[href="mailto:work@gwhyyy.com"]').count() >= 1 and page.locator(f'a[href="{SOURCE}/issues"]').count() >= 1)
         body = page.evaluate("() => {const b=document.body.cloneNode(true);b.querySelectorAll('script').forEach(e=>e.remove());return b.textContent.toLowerCase()}")
-        check("removed labels stay removed even when hidden", all(s not in body for s in ("android 8", "android app", "before you install", "screen recording is coming later", "not affiliated", "navbar play button")))
+        check("removed labels stay removed even when hidden", all(s not in body for s in ("android 8", "android app", "before you install", "screen recording is coming later", "not affiliated", "navbar play button", "in review")))
         check("external links are safely new-tab", page.evaluate("() => [...document.querySelectorAll('a[href^=\"https://\"]')].every(a=>a.target==='_blank' && a.relList.contains('noopener') && a.relList.contains('noreferrer'))"))
         check("local anchors resolve", page.evaluate("() => [...document.querySelectorAll('a[href^=\"#\"]')].every(a=>document.getElementById(a.hash.slice(1)))"))
 

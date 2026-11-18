@@ -1,9 +1,9 @@
 # FlutterGuard launch kit
 
-Status: 2026-11-02. Site live at https://flutterguard.dev. App v0.3.3 on GitHub.
-Google Play listing (`com.flutterguard.app`) is in review and returns 404. The hero shows a
-non-clickable "In review on Google Play" chip and a working "Download the APK" action to the
-GitHub release, so no visitor hits a dead store page.
+Status: 2026-11-18. Site live at https://flutterguard.dev. App on Google Play
+(https://play.google.com/store/apps/details?id=com.flutterguard.app) and on GitHub. The hero shows a
+working "Get it on Google Play" action plus a "Download the APK" action to the
+GitHub release.
 
 ## Positioning
 
@@ -60,11 +60,11 @@ indexed and canonical. Sitemap is valid with 1 URL.
 Simple, lovable, complete check:
 
 - Simple: audit one APK, one job. Yes.
-- Lovable: real recorded demo, one-tap install from the GitHub APK, local report. Yes.
+- Lovable: real recorded demo, one-tap install from Google Play or the GitHub APK, local report. Yes.
 - Complete: discovery, inspection, report, FAQ, privacy notice. Yes.
 
-Distribution is handled by the GitHub APK while Play is in review. Announce the Play listing
-once it resolves; the site needs no further change then.
+Distribution is handled by Google Play with the GitHub APK as the fallback. Announce the Play listing
+now that it is live.
 
 ## Channels
 
@@ -117,8 +117,8 @@ Body:
 Title: `FlutterGuard v0.3.3 - inspect a released Flutter APK on the phone itself`
 
 Body: state the problem in two sentences, list what it reads, link the APK and the site, say
-it is MIT and offline, ask which checks are missing. Disclose that you built it. Link the APK,
-not Play, while the listing is in review.
+it is MIT and offline, ask which checks are missing. Disclose that you built it. Link Play,
+with the APK as the fallback.
 
 ### dev.to follow-up
 
@@ -190,6 +190,5 @@ Baseline to beat: 3 clicks and 77 impressions per 28 days.
 ## Claims discipline
 
 - Do not say "finds vulnerabilities". Say "surfaces libraries, endpoints and exposed strings".
-- Do not say "available on Google Play" until the listing resolves.
 - Do not quote star counts in copy that will age; link the repo instead.
 - Do not add testimonials or ratings that do not exist.

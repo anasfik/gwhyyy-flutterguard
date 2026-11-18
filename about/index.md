@@ -24,7 +24,7 @@ FlutterGuard is built and maintained by Anas Fikhi (https://gwhyyy.com). The sou
 
 ## Status
 
-The APK is available from GitHub releases. The Google Play listing is in review. The website is static, stores no accounts and uses cookieless analytics; see https://flutterguard.dev/privacy/
+Install it from Google Play, or grab the APK from GitHub releases. The website is static, stores no accounts and uses cookieless analytics; see https://flutterguard.dev/privacy/
 
 ## Related
 

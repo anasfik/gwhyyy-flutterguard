@@ -115,5 +115,5 @@ or removed rather than multiplied.
 - Keep the claims discipline from `launch-kit.md`: a finding is a lead, not a verdict. Static
   inspection shows what shipped, not what is exploitable.
 - No keyword stuffing, no doorway pages, no invented statistics or volumes.
-- The Play listing is still in review and returns 404; do not point SEO copy at it.
+- The Play listing is live; link it as the primary install path with the GitHub APK as fallback.
 - Every page keeps the offline, no-account, MIT facts accurate.

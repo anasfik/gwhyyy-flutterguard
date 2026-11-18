@@ -33,9 +33,9 @@ Static inspection shows what shipped. It cannot prove an endpoint is unauthentic
 
 ## Install
 
-- Download the APK: https://github.com/anasfik/FlutterGuard/releases/latest
+- [Google Play listing](https://play.google.com/store/apps/details?id=com.flutterguard.app)
+- [Download the APK](https://github.com/anasfik/FlutterGuard/releases/latest)
 - Source (MIT): https://github.com/anasfik/FlutterGuard
-- Google Play listing is in review: https://play.google.com/store/apps/details?id=com.flutterguard.app
 
 ## Guides
 

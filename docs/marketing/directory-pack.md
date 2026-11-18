@@ -63,7 +63,7 @@ after a merge or rejection.
 
 ## Rules for every listing
 
-- Link the GitHub release, not the Play listing. The Play listing is in review and returns 404.
+- Link Google Play as the primary install path, with the GitHub release as fallback.
 - Keep the offline and no-INTERNET claims; they are verifiable from the manifest.
 - Do not claim detection rates, coverage counts or "the only" tool.
 - Do not ask for upvotes or cross-post the same text on the same day.

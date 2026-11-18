@@ -52,6 +52,7 @@ Video: https://flutterguard.dev/assets/app/demo.mp4
 | VoltAgent/awesome-agent-skills | Community Skills, Development and Testing | https://github.com/VoltAgent/awesome-agent-skills/pull/1444 | open (2026-11-18) |
 | Solido/awesome-flutter | Open Source Apps, Top | https://github.com/Solido/awesome-flutter/pull/1094 | open (2026-11-18) |
 | enaqx/awesome-pentest | Static Analyzers | https://github.com/enaqx/awesome-pentest/pull/786 | open (2026-11-18) |
+| sbilly/awesome-security | Endpoint, Mobile / Android / iOS | https://github.com/sbilly/awesome-security/pull/831 | open (2026-11-18) |
 
 The two 2026-11-18 PRs were placed after verifying the section anchor in the upstream README:
 APKLeaks in the 8kSec scanning table, the MobSF bullet in the NetKingJ tool list, and the MobSF
@@ -64,6 +65,12 @@ a decline is possible. The app README now links the checklist and corpus next to
 android-security names collided with existing forks, so GitHub created
 `awesome-mobile-security-1` and `awesome-android-security-nkj`); delete them
 after a merge or rejection.
+
+The sbilly/awesome-security PR sits in Endpoint → Mobile / Android / iOS, directly after the
+`reFlutter` bullet, which is the section's existing evidence that Flutter-specific mobile tooling
+belongs there. `contributing.md` asks for one suggestion per PR, a capitalized title, placement at
+the bottom of the category, no trailing whitespace and a useful PR title; the diff is one added
+line and one changed file. Last upstream push was 2026-01-11, so review may be slow.
 
 The Solido/awesome-flutter PR targets Flutter developers rather than mobile-security readers. That
 list rejects README edits: `contributing.md` says to change `source.md`, which the generated README

@@ -50,6 +50,7 @@ Video: https://flutterguard.dev/assets/app/demo.mp4
 | ByteHackr/AwesomeMobilePentest | Android, Reverse Engineering and Static Analysis | https://github.com/ByteHackr/AwesomeMobilePentest/pull/3 | open (2026-11-18) |
 | kyawthiha7/Mobile-App-Pentest | Android, Tools | https://github.com/kyawthiha7/Mobile-App-Pentest/pull/3 | open (2026-11-18) |
 | VoltAgent/awesome-agent-skills | Community Skills, Development and Testing | https://github.com/VoltAgent/awesome-agent-skills/pull/1444 | open (2026-11-18) |
+| Solido/awesome-flutter | Open Source Apps, Top | https://github.com/Solido/awesome-flutter/pull/1094 | open (2026-11-18) |
 
 The two 2026-11-18 PRs were placed after verifying the section anchor in the upstream README:
 APKLeaks in the 8kSec scanning table, the MobSF bullet in the NetKingJ tool list, and the MobSF
@@ -62,6 +63,13 @@ a decline is possible. The app README now links the checklist and corpus next to
 android-security names collided with existing forks, so GitHub created
 `awesome-mobile-security-1` and `awesome-android-security-nkj`); delete them
 after a merge or rejection.
+
+The Solido/awesome-flutter PR targets Flutter developers rather than mobile-security readers. That
+list rejects README edits: `contributing.md` says to change `source.md`, which the generated README
+comes from, so the PR modifies `source.md` and inserts one line at the bottom of Open Source Apps →
+Top after the FluxDown entry. Its stated minimum is 35 stars; the repository has exactly 35. The
+entry drops the word Flutter from the description as the guidelines require. A maintainer may still
+decide the app is too narrow for an apps showcase.
 
 ## Account-gated listings
 

@@ -69,6 +69,21 @@ If a value cannot be public, it should not be in the client.
 - Storing secrets in assets, JSON or a bundled `.env` file.
 - Auditing only the repository and never the signed artifact users install.
 
+## Can you deobfuscate a release build?
+
+Partly, and only with the files the build produced. Obfuscation is a renaming step, so reversing it needs the rename map.
+
+| Layer | What reverses it | What you get back |
+|---|---|---|
+| R8 / ProGuard | `mapping.txt` from the release build, applied with `retrace` | Original Java and Kotlin class, method and field names in stack traces. |
+| Dart `--obfuscate` | The symbol file written by `--split-debug-info`, read with Flutter's symbolizer | Readable Dart frame names for crash reports. |
+| String literals | Nothing: they were never renamed | Endpoints, header names and key-like values, readable with `strings`. |
+| Dart logic | Nothing practical | Machine code; decompilation gives structure hints, not source. |
+
+The map and the symbol file are build outputs, so they live with whoever built the release. Losing them costs readable crash reports for that version. A third party without them can still read strings and assets, which is the part obfuscation never protected.
+
+Deobfuscating someone else's app is a different question from deobfuscating your own. The technique is the same; the authorisation is not.
+
 ## Related
 
 - [Flutter security: what a release APK exposes](https://flutterguard.dev/flutter-security/)

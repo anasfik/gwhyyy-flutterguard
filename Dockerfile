@@ -1,12 +1,15 @@
 FROM nginx:stable-alpine@sha256:0985e772fb9f729e6fa0980da05fca5d9c468e870eed43071545afa9d2e27d94
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY index.html 404.html styles.css site.js site.webmanifest og-image.png og-flutter-security.png og-flutter-apk-inspection.png og-proguard-flutter.png og-mobsf-alternative.png icon-192.png icon-512.png apple-touch-icon.png robots.txt sitemap.xml llms.txt llms-full.txt humans.txt security.txt 28d5bd8ab11b364e4a6e8e4ac44d2a11.txt index.md 404.md /usr/share/nginx/html/
-COPY .well-known/security.txt /usr/share/nginx/html/.well-known/security.txt
+COPY index.html 404.html styles.css site.js site.webmanifest og-image.png og-flutter-security.png og-flutter-apk-inspection.png og-proguard-flutter.png og-mobsf-alternative.png icon-192.png icon-512.png apple-touch-icon.png robots.txt sitemap.xml llms.txt llms-full.txt humans.txt security.txt 28d5bd8ab11b364e4a6e8e4ac44d2a11.txt index.md 404.md feed.xml /usr/share/nginx/html/
+COPY .well-known/security.txt .well-known/ai-catalog.json /usr/share/nginx/html/.well-known/
 COPY flutter-security/ /usr/share/nginx/html/flutter-security/
 COPY flutter-apk-inspection/ /usr/share/nginx/html/flutter-apk-inspection/
 COPY proguard-flutter/ /usr/share/nginx/html/proguard-flutter/
 COPY mobsf-alternative/ /usr/share/nginx/html/mobsf-alternative/
+COPY flutter-security-checklist/ /usr/share/nginx/html/flutter-security-checklist/
+COPY flutter-release-corpus/ /usr/share/nginx/html/flutter-release-corpus/
+COPY changelog/ /usr/share/nginx/html/changelog/
 COPY about/ /usr/share/nginx/html/about/
 COPY contact/ /usr/share/nginx/html/contact/
 COPY privacy/ /usr/share/nginx/html/privacy/

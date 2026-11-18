@@ -107,6 +107,9 @@ Do not use it for dynamic analysis, traffic interception, authentication testing
 - [Flutter APK inspection: reading a release on Android](https://flutterguard.dev/flutter-apk-inspection/): a phone-first workflow, the desktop commands, and triage rules that avoid false alarms.
 - [ProGuard for Flutter: what R8 and obfuscation hide](https://flutterguard.dev/proguard-flutter/): Android shrinking versus Dart obfuscation, and what remains readable in libapp.so.
 - [MobSF alternative for auditing Flutter APKs](https://flutterguard.dev/mobsf-alternative/): where a desktop scanner ends and a Flutter release begins, and which checks each side performs.
+- [Flutter app security audit checklist](https://flutterguard.dev/flutter-security-checklist/): a per-release checklist for artifact identity, manifest policy, exposed data, dependencies, endpoints, signing and handover.
+- [What 26 released Flutter apps expose](https://flutterguard.dev/flutter-release-corpus/): measured results from public release APKs, with method and limits; 9 of 26 matched an AI provider host.
+- [Changelog](https://flutterguard.dev/changelog/): dated release notes, plus an [Atom feed](https://flutterguard.dev/feed.xml).
 
 ## Support
 

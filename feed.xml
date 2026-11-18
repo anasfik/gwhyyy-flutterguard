@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>FlutterGuard releases</title>
+  <subtitle>Dated release notes for the FlutterGuard Android app.</subtitle>
+  <link href="https://flutterguard.dev/feed.xml" rel="self" type="application/atom+xml"/>
+  <link href="https://flutterguard.dev/changelog/" rel="alternate" type="text/html"/>
+  <id>https://flutterguard.dev/changelog/</id>
+  <updated>2026-11-02T00:00:00Z</updated>
+  <author>
+    <name>Anas Fikhi</name>
+    <uri>https://gwhyyy.com</uri>
+  </author>
+  <entry>
+    <title>0.3.4 — brand pass</title>
+    <link href="https://flutterguard.dev/changelog/#v0-3-4" rel="alternate" type="text/html"/>
+    <id>https://flutterguard.dev/changelog/#v0-3-4</id>
+    <updated>2026-11-02T00:00:00Z</updated>
+    <summary>The app adopts the site's colour and type tokens. New signing key for GitHub builds, so 0.3.3 to 0.3.4 needs an uninstall. Scanning behaviour unchanged.</summary>
+  </entry>
+  <entry>
+    <title>0.3.3 — smaller build with R8 and resource shrinking</title>
+    <link href="https://flutterguard.dev/changelog/#v0-3-3" rel="alternate" type="text/html"/>
+    <id>https://flutterguard.dev/changelog/#v0-3-3</id>
+    <updated>2026-11-01T00:00:00Z</updated>
+    <summary>APK 6.9 MB to 1.4 MB, AAB 3.4 MB, packed DEX reduced to a single 2.4 MB file, 282 unit tests across 38 suites, no INTERNET permission.</summary>
+  </entry>
+  <entry>
+    <title>0.3.2 — consent, settings and legal documents</title>
+    <link href="https://flutterguard.dev/changelog/#v0-3-2" rel="alternate" type="text/html"/>
+    <id>https://flutterguard.dev/changelog/#v0-3-2</id>
+    <updated>2026-11-01T00:00:00Z</updated>
+    <summary>Settings and consent screens, privacy and licence pages in the app. versionCode 7; this is the build Google Play serves.</summary>
+  </entry>
+  <entry>
+    <title>0.3.0 — corpus-driven detectors</title>
+    <link href="https://flutterguard.dev/changelog/#v0-3-0" rel="alternate" type="text/html"/>
+    <id>https://flutterguard.dev/changelog/#v0-3-0</id>
+    <updated>2026-10-30T00:00:00Z</updated>
+    <summary>Detector rules derived from the public release APK corpus rather than from framework documentation alone.</summary>
+  </entry>
+  <entry>
+    <title>0.2.0 — the research workbench</title>
+    <link href="https://flutterguard.dev/changelog/#v0-2-0" rel="alternate" type="text/html"/>
+    <id>https://flutterguard.dev/changelog/#v0-2-0</id>
+    <updated>2026-10-29T00:00:00Z</updated>
+    <summary>Findings grouped by artifact, library, endpoint, string and policy, with JSON and Markdown reports.</summary>
+  </entry>
+  <entry>
+    <title>0.1.0 — first public build</title>
+    <link href="https://flutterguard.dev/changelog/#v0-1-x" rel="alternate" type="text/html"/>
+    <id>https://flutterguard.dev/changelog/#v0-1-x</id>
+    <updated>2026-10-28T00:00:00Z</updated>
+    <summary>Installed-package and single-APK inspection, on-device analysis, no network permission.</summary>
+  </entry>
+</feed>

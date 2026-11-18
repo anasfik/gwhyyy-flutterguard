@@ -26,6 +26,9 @@ GUIDES = {
     "/mobsf-alternative/": "MobSF alternative for auditing Flutter APKs",
 }
 PAGES = {
+    "/flutter-security-checklist/": "Flutter app security audit checklist",
+    "/flutter-release-corpus/": "What 26 released Flutter apps expose",
+    "/changelog/": "FlutterGuard changelog",
     "/about/": "About FlutterGuard",
     "/contact/": "Contact FlutterGuard",
     "/privacy/": "Privacy and data handling",
@@ -82,7 +85,7 @@ def main(args):
         check("plain GitHub navbar link", page.locator(f'header a[href="{SOURCE}"]').count() == 1 and page.locator(f'header a[href="{SOURCE}"] img').count() == 0)
         check("graphical APK layers explain real files", page.locator(".apk-stack .layer").count() >= 3 and "libapp.so" in page.locator(".apk-stack").inner_text())
         check("capabilities cover the audit surface", page.locator(".capability-list > li").count() == 6)
-        check("guides section links the cluster", page.locator('#guides a[href="/flutter-security/"], #guides a[href="/flutter-apk-inspection/"], #guides a[href="/proguard-flutter/"], #guides a[href="/mobsf-alternative/"]').count() == 4)
+        check("guides section links the cluster", page.locator('#guides a[href="/flutter-security/"], #guides a[href="/flutter-apk-inspection/"], #guides a[href="/proguard-flutter/"], #guides a[href="/mobsf-alternative/"], #guides a[href="/flutter-security-checklist/"], #guides a[href="/flutter-release-corpus/"]').count() == 6)
         check("workflow remains ordered, not a marquee", page.locator(".workflow-list > li h3").all_text_contents() == ["Discover", "Inspect", "Report"] and page.locator('[aria-hidden="true"] .workflow-list').count() == 0)
         check("explicit graphics pause control", page.locator('input#pause-motion[type="checkbox"]').count() == 1)
         check("email and issue recovery paths", page.locator('a[href="mailto:work@gwhyyy.com"]').count() >= 1 and page.locator(f'a[href="{SOURCE}/issues"]').count() >= 1)
@@ -167,6 +170,13 @@ def main(args):
         check("robots keeps search and training policy", "Sitemap: " + CANONICAL + "sitemap.xml" in robots and "User-agent: GPTBot\nDisallow: /" in robots)
         indexnow = page.request.get(base + "/28d5bd8ab11b364e4a6e8e4ac44d2a11.txt")
         check("IndexNow key file served verbatim", indexnow.status == 200 and indexnow.text() == "28d5bd8ab11b364e4a6e8e4ac44d2a11")
+        feed = ET.fromstring(page.request.get(base + "/feed.xml").text())
+        atom = "{http://www.w3.org/2005/Atom}"
+        entries = feed.findall(atom + "entry")
+        check("Atom feed lists dated releases", feed.tag == atom + "feed" and len(entries) >= 5 and all(e.findtext(atom + "updated") for e in entries) and any("changelog" in (e.findtext(atom + "id") or "") for e in entries))
+        catalog = page.request.get(base + "/.well-known/ai-catalog.json").json()
+        pages = catalog.get("pages", [])
+        check("AI catalog describes the site", catalog.get("name") == "FlutterGuard" and catalog.get("url") == CANONICAL and len(pages) >= 10 and all(p.get("url", "").startswith(CANONICAL) and p.get("markdown", "").startswith(CANONICAL) for p in pages) and catalog.get("resources", {}).get("llms") == CANONICAL + "llms.txt")
         for path in ("/llms.txt", "/llms-full.txt"):
             r = page.request.get(base + path)
             check(f"agent reference {path}", r.status == 200 and "FlutterGuard" in r.text() and "Discover" in r.text() and "/demo/" not in r.text())

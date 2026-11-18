@@ -1,0 +1,40 @@
+{
+  "name": "FlutterGuard",
+  "url": "https://flutterguard.dev/",
+  "description": "Offline Android app that audits a released Flutter app or APK on the device: manifest policy, compiled Dart library, assets, dependencies, endpoints and signing. No INTERNET permission, no account, MIT licensed.",
+  "contact": "work@gwhyyy.com",
+  "license": "https://github.com/anasfik/FlutterGuard/blob/main/LICENSE",
+  "application": {
+    "category": "SecurityApplication",
+    "operatingSystems": ["Android 8.0+"],
+    "install": {
+      "googlePlay": "https://play.google.com/store/apps/details?id=com.flutterguard.app",
+      "apk": "https://github.com/anasfik/FlutterGuard/releases/latest"
+    }
+  },
+  "resources": {
+    "llms": "https://flutterguard.dev/llms.txt",
+    "llmsFull": "https://flutterguard.dev/llms-full.txt",
+    "sitemap": "https://flutterguard.dev/sitemap.xml",
+    "feed": "https://flutterguard.dev/feed.xml",
+    "markdown": "Send Accept: text/markdown to any page URL for a Markdown rendering, or request its index.md twin."
+  },
+  "pages": [
+    {"url": "https://flutterguard.dev/", "title": "FlutterGuard: security audit any released Flutter app", "markdown": "https://flutterguard.dev/index.md"},
+    {"url": "https://flutterguard.dev/flutter-security/", "title": "Flutter security: what a release APK exposes", "markdown": "https://flutterguard.dev/flutter-security/index.md"},
+    {"url": "https://flutterguard.dev/flutter-apk-inspection/", "title": "Flutter APK inspection: reading a release on Android", "markdown": "https://flutterguard.dev/flutter-apk-inspection/index.md"},
+    {"url": "https://flutterguard.dev/proguard-flutter/", "title": "ProGuard for Flutter: what R8 and obfuscation hide", "markdown": "https://flutterguard.dev/proguard-flutter/index.md"},
+    {"url": "https://flutterguard.dev/mobsf-alternative/", "title": "MobSF alternative for auditing Flutter APKs", "markdown": "https://flutterguard.dev/mobsf-alternative/index.md"},
+    {"url": "https://flutterguard.dev/flutter-security-checklist/", "title": "Flutter app security audit checklist", "markdown": "https://flutterguard.dev/flutter-security-checklist/index.md"},
+    {"url": "https://flutterguard.dev/flutter-release-corpus/", "title": "What 26 released Flutter apps expose", "markdown": "https://flutterguard.dev/flutter-release-corpus/index.md"},
+    {"url": "https://flutterguard.dev/changelog/", "title": "FlutterGuard changelog", "markdown": "https://flutterguard.dev/changelog/index.md"},
+    {"url": "https://flutterguard.dev/about/", "title": "About FlutterGuard", "markdown": "https://flutterguard.dev/about/index.md"},
+    {"url": "https://flutterguard.dev/contact/", "title": "Contact FlutterGuard", "markdown": "https://flutterguard.dev/contact/index.md"},
+    {"url": "https://flutterguard.dev/privacy/", "title": "Privacy and data handling", "markdown": "https://flutterguard.dev/privacy/index.md"}
+  ],
+  "agentSkill": {
+    "name": "flutter-apk-security",
+    "url": "https://github.com/anasfik/FlutterGuard/blob/main/skill/SKILL.md",
+    "description": "Agent workflow for auditing a Flutter APK with FlutterGuard on a connected Android device, including headless scan intents, report paths and manual fallbacks."
+  }
+}

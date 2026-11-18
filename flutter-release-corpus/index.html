@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What 26 released Flutter apps expose</title>
+  <meta name="description" content="A measured corpus of 26 public Flutter release APKs: AI provider endpoints, bundled Android SDKs, pubspec presence, and what a device scan adds.">
+  <meta name="author" content="Anas Fikhi">
+  <meta name="theme-color" content="#f3f5ef">
+  <meta name="color-scheme" content="light">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <link rel="canonical" href="https://flutterguard.dev/flutter-release-corpus/">
+  <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM-readable summary">
+  <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="preload" href="/assets/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/site.js" defer></script>
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="FlutterGuard">
+  <meta property="og:title" content="What 26 released Flutter apps expose">
+  <meta property="og:description" content="Measured results from auditing public Flutter release APKs: provider endpoints, Android SDK markers, pubspec files and device-only findings.">
+  <meta property="og:url" content="https://flutterguard.dev/flutter-release-corpus/">
+  <meta property="og:image" content="https://flutterguard.dev/og-image.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="FlutterGuard app preview inside a phone frame beside the line: Security audit any released Flutter app.">
+  <meta property="og:locale" content="en_US">
+  <meta property="article:published_time" content="2026-11-18">
+  <meta property="article:modified_time" content="2026-11-18">
+  <meta property="article:author" content="Anas Fikhi">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="What 26 released Flutter apps expose">
+  <meta name="twitter:description" content="A reproducible Flutter APK corpus: 9 of 26 ship AI provider endpoints, 22 of 26 carry identifiable native SDKs, 1 of 26 leaves a pubspec.">
+  <meta name="twitter:image" content="https://flutterguard.dev/og-image.png">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"TechArticle","headline":"What 26 released Flutter apps expose","description":"A measured corpus of 26 public Flutter release APKs: AI provider endpoints, bundled Android SDKs, pubspec presence, and what a device scan adds.","url":"https://flutterguard.dev/flutter-release-corpus/","mainEntityOfPage":"https://flutterguard.dev/flutter-release-corpus/","datePublished":"2026-11-18","dateModified":"2026-11-18","inLanguage":"en","image":"https://flutterguard.dev/og-image.png","author":{"@type":"Person","name":"Anas Fikhi","url":"https://gwhyyy.com"},"publisher":{"@type":"Organization","name":"FlutterGuard","url":"https://flutterguard.dev/","logo":{"@type":"ImageObject","url":"https://flutterguard.dev/icon-512.png"}},"about":{"@type":"SoftwareApplication","name":"FlutterGuard","url":"https://flutterguard.dev/","applicationCategory":"SecurityApplication","operatingSystem":"Android 8.0+"},"citation":"https://github.com/anasfik/FlutterGuard/blob/main/CORPUS.md"}
+  </script>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"FlutterGuard","item":"https://flutterguard.dev/"},{"@type":"ListItem","position":2,"name":"Flutter release corpus","item":"https://flutterguard.dev/flutter-release-corpus/"}]}
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="/" aria-label="FlutterGuard"><img src="/assets/app/icon-512.png" width="36" height="36" alt=""><span>FlutterGuard</span></a>
+      <nav class="site-nav" aria-label="Primary">
+        <a class="nav-section" href="/#why">Why FlutterGuard</a>
+        <a class="nav-section" href="/#features">Features</a>
+        <a class="nav-section" href="/#guides">Guides</a>
+        <a class="nav-section" href="/#faq">FAQ</a>
+        <a class="nav-source" href="https://github.com/anasfik/FlutterGuard" target="_blank" rel="noopener noreferrer">GitHub <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg><span class="sr-only"> (opens in a new tab)</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content" tabindex="-1">
+    <article>
+      <header class="article-hero container">
+        <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">FlutterGuard</a><span aria-hidden="true">/</span><span aria-current="page">Release corpus</span></nav>
+        <h1>What 26 released Flutter apps expose</h1>
+        <p class="article-lead">Public release APKs, read twice: once on a workstation and once on a phone. These are the counts, the method and the limits of what static inspection can say.</p>
+        <p class="article-meta">By Anas Fikhi · <time datetime="2026-11-18">18 November 2026</time> · 10 minute read</p>
+      </header>
+
+      <div class="article-body container">
+        <p>Most Flutter security advice is written about source code. This corpus is about what ships. Every figure below comes from a public release artifact, inspected without executing it. The numbers describe a sample, not the Flutter ecosystem: 26 APKs collected from projects' own release pages, plus a device pass on one app to test what a host-only scan misses.</p>
+
+        <div class="article-note"><p><strong>What a match means.</strong> A provider host or SDK marker in an APK proves the string is present in the artifact. It does not prove the code path runs, that a key is valid, or that the app is insecure. No live secrets, app rankings or accusations are published here.</p></div>
+
+        <h2>How the corpus was built</h2>
+        <ul>
+          <li><strong>Two collections.</strong> An initial set of 11 Flutter apps plus one non-Flutter control, each audited with host tools and with the FlutterGuard app on a device. A second set of 22 production APKs downloaded from the projects' own GitHub release pages.</li>
+          <li><strong>One gap study of 26 release APKs</strong> combines both collections where the questions overlap.</li>
+          <li><strong>Classification check.</strong> 33 Flutter apps of 306 installed apps were identified from package contents, with no misses recorded in that pass.</li>
+          <li><strong>Host tooling.</strong> <code>aapt2</code> for the manifest, <code>unzip</code> for assets, <code>strings</code> for the compiled Dart library, plus the app's own parsers for the same artifact.</li>
+          <li><strong>Measured 2026-10-30.</strong> Detector rules changed after these counts; re-running the corpus produces different totals.</li>
+        </ul>
+
+        <h2>AI provider endpoints</h2>
+        <p>FlutterGuard carries 109 literal provider hosts, covering the common inference APIs and local runtimes. <strong>9 of 26 apps matched at least one host.</strong></p>
+        <table>
+          <thead><tr><th scope="col">App</th><th scope="col">Matching provider hosts</th><th scope="col">Examples</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Conduit</th><td>22</td><td>OpenAI, Anthropic, Gemini, Groq, Mistral, OpenRouter</td></tr>
+            <tr><th scope="row">Anx Reader</th><td>5</td><td>Multiple hosted inference providers</td></tr>
+            <tr><th scope="row">OpenNutriTracker</th><td>3</td><td>Hosted inference providers</td></tr>
+            <tr><th scope="row">AppFlowy</th><td>2</td><td><code>localhost:11434</code>, <code>localhost:1234</code></td></tr>
+            <tr><th scope="row">Others</th><td>1–3 each</td><td>Supabase, Elastic, PostHog, Iterable and provider hosts</td></tr>
+          </tbody>
+        </table>
+        <p>The AppFlowy result is the useful kind of surprise: both hosts are local model runtimes, which a generic scanner has no reason to flag. The other matches show that a Flutter app can carry a broad provider surface without any of it being visible in the Dart source structure a reviewer would search.</p>
+        <p>An early version of the host detector only collected strings containing <code>://</code>. That missed hostnames stored without a scheme and produced a partial result on the same app. Fixing it changed one device result from 4 provider hosts to 23.</p>
+
+        <h2>Native SDK markers in the DEX</h2>
+        <p>Flutter moves application logic into <code>libapp.so</code>, but plugins and the Android embedding still land in <code>classes.dex</code>. A sweep of 82 known prefixes matched <strong>22 of 26 apps</strong>.</p>
+        <table>
+          <thead><tr><th scope="col">Marker</th><th scope="col">Apps with a match</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Google Mobile Services</th><td>11</td></tr>
+            <tr><th scope="row"><code>flutter_inappwebview</code></th><td>10</td></tr>
+            <tr><th scope="row">AndroidX Media3</th><td>10</td></tr>
+            <tr><th scope="row">AndroidX WorkManager</th><td>8</td></tr>
+            <tr><th scope="row">Firebase</th><td>5</td></tr>
+            <tr><th scope="row">Flutter Firebase plugins</th><td>4</td></tr>
+            <tr><th scope="row">Google Play Billing</th><td>4</td></tr>
+            <tr><th scope="row">Biometric libraries</th><td>3</td></tr>
+            <tr><th scope="row">ML Kit</th><td>2</td></tr>
+            <tr><th scope="row">Sentry, gRPC, RevenueCat, PostHog, Play Integrity, ExoPlayer2</th><td>1 each</td></tr>
+          </tbody>
+        </table>
+        <p>WebView bridges and billing code are the entries worth attention in a review: one crosses a JavaScript boundary, the other touches money. Presence is not proof of a vulnerable version. It is a queue for the next question.</p>
+
+        <h2>What is usually absent</h2>
+        <p>A bundled <code>assets/flutter_assets/pubspec.yaml</code> appeared in <strong>1 of 26</strong> apps: Anx Reader 1.14.0+6321, with 92 declared dependencies. Root <code>.properties</code> files with Flutter and SDK markers were more common and are enough to identify a release build. The practical lesson is that dependency inventory usually has to be reconstructed from notices, <code>package:</code> strings and readable symbols rather than read from a manifest.</p>
+
+        <h2>Workstation pass versus device pass</h2>
+        <p>One app, Conduit, was scanned on a Redmi Note 9 Pro running API 35. The device pass reads the installed package the same way the host pass reads a downloaded APK, and the two results differed because of what each file set contains.</p>
+        <table>
+          <thead><tr><th scope="col">Signal</th><th scope="col">Host scan</th><th scope="col">Device scan</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Third-party services</th><td>15</td><td>28</td></tr>
+            <tr><th scope="row">AI providers</th><td>4</td><td>17</td></tr>
+            <tr><th scope="row">Provider hosts</th><td>4</td><td>23</td></tr>
+          </tbody>
+        </table>
+        <p>The 17 providers on the device were OpenAI, Anthropic, Gemini, OpenRouter, DeepSeek, Groq, Mistral, Cohere, Together, Fireworks, Perplexity, xAI, HuggingFace, Alibaba Qwen/DashScope, Moonshot, Zhipu GLM, and the Ollama/LM Studio local runtime pair. The gap came from the scheme-dependent host detector described above, not from the device exposing a different application.</p>
+
+        <h2>What this changes in practice</h2>
+        <ul>
+          <li><strong>A DEX-only review under-reports a Flutter app.</strong> The interesting strings sit in <code>libapp.so</code> and in assets.</li>
+          <li><strong>A source review under-reports a release.</strong> Provider hosts, bundled assets and manifest policy survive the build and are only visible in the artifact.</li>
+          <li><strong>Obfuscation does not remove literals.</strong> The corpus relies on string data that survives <code>--obfuscate</code>.</li>
+          <li><strong>Device and host passes are complementary.</strong> Run the pass on the artifact users install.</li>
+        </ul>
+
+        <h2>Limits</h2>
+        <ul>
+          <li>26 APKs is a sample. It supports statements about these artifacts, not a prevalence rate for Flutter apps.</li>
+          <li>Counts depend on the detector version. Provider rules grew from 35 to roughly 135 services during this work.</li>
+          <li>A string match is evidence of presence. Behaviour, key validity and exploitability need a dynamic test.</li>
+          <li>Only public release artifacts were used. The corpus publishes counts and a few illustrative hosts, never credentials.</li>
+          <li>Artifacts rotate. Re-downloading a project's current release can produce a different result from the one recorded here.</li>
+        </ul>
+        <p>The full method and per-app notes live in the app repository: <a href="https://github.com/anasfik/FlutterGuard/blob/main/CORPUS.md" target="_blank" rel="noopener noreferrer">CORPUS.md<span class="sr-only"> (opens in a new tab)</span></a>. If you repeat the study, start from the same public release pages and record the artifact hash. The <a href="/flutter-security-checklist/">release checklist</a> turns these signals into a review process, and the <a href="/flutter-apk-inspection/">inspection guide</a> covers the commands.</p>
+
+        <div class="article-cta">
+          <h2>Reproduce it on your own artifact.</h2>
+          <p>FlutterGuard reads the manifest, compiled library, assets and signing material on Android, with no network permission. Counts stay on the device.</p>
+          <a class="button" href="https://play.google.com/store/apps/details?id=com.flutterguard.app" target="_blank" rel="noopener noreferrer">Get it on Google Play<span class="sr-only"> (opens in a new tab)</span></a>
+          <a class="quiet" href="https://github.com/anasfik/FlutterGuard/releases/latest" target="_blank" rel="noopener noreferrer">Download the APK<span class="sr-only"> (opens in a new tab)</span></a>
+        </div>
+
+        <nav class="article-related" aria-label="Related pages">
+          <h2>Continue reading</h2>
+          <ul>
+            <li><a href="/flutter-security-checklist/">Flutter app security audit checklist</a></li>
+            <li><a href="/flutter-security/">Flutter security: what a release APK exposes</a></li>
+            <li><a href="/flutter-apk-inspection/">Flutter APK inspection: reading a release on Android</a></li>
+            <li><a href="/changelog/">FlutterGuard changelog</a></li>
+          </ul>
+        </nav>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer container"><p>FlutterGuard. Built by <a href="https://gwhyyy.com" target="_blank" rel="noopener noreferrer">Anas Fikhi<span class="sr-only"> (opens in a new tab)</span></a>.</p><nav class="footer-links" aria-label="Site"><a href="/about/">About</a><a href="/contact/">Contact</a><a href="/privacy/">Privacy</a><a href="/changelog/">Changelog</a><a href="https://github.com/anasfik/FlutterGuard/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT licence<span class="sr-only"> (opens in a new tab)</span></a></nav></footer>
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"f9110d5432f446d6833224ec262cdd83"}'></script>
+</body>
+</html>

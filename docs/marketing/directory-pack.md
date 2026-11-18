@@ -44,8 +44,14 @@ Video: https://flutterguard.dev/assets/app/demo.mp4
 | ashishb/android-security-awesome | App Vulnerability Scanners | https://github.com/ashishb/android-security-awesome/pull/333 | open |
 | vaib25vicky/awesome-mobile-security | Android, Static Analysis | https://github.com/vaib25vicky/awesome-mobile-security/pull/41 | open |
 | saeidshirazi/awesome-android-security | Tools, Static Analysis | https://github.com/saeidshirazi/awesome-android-security/pull/52 | open |
+| 8kSec/awesome-mobile-security | 1. Tools, Android Scanning & Automated Analysis | https://github.com/8kSec/awesome-mobile-security/pull/1 | open (2026-11-18) |
+| NetKingJ/awesome-android-security | Tools, Static / Dynamic Analysis | https://github.com/NetKingJ/awesome-android-security/pull/3 | open (2026-11-18) |
 
-Each PR adds one line and one paragraph of context. Forks live under `anasfik`; delete them
+The two 2026-11-18 PRs were placed after verifying the section anchor in the upstream README:
+APKLeaks in the 8kSec scanning table and the MobSF bullet in the NetKingJ tool list. Each PR
+shows one added line and one changed file. Forks live under `anasfik` (the mobile-security and
+android-security names collided with existing forks, so GitHub created
+`awesome-mobile-security-1` and `awesome-android-security-nkj`); delete them
 after a merge or rejection.
 
 ## Account-gated listings

@@ -76,10 +76,9 @@ def main(args):
         check("homepage 200", response.status == 200)
         check("one accurate H1", page.locator("h1").all_text_contents() == ["Security audit any released Flutter app."])
         play_cta = page.locator(f'.hero a.play-cta[href="{PLAY}"]')
-        apk_cta = page.locator(f'.hero a[href="{SOURCE}/releases/latest"]')
         check("hero has one working Play install action",
               play_cta.count() == 1 and "google play" in play_cta.inner_text().lower())
-        check("hero has one working APK install action", apk_cta.count() == 1 and apk_cta.inner_text().strip().startswith("Download the APK"))
+        check("hero offers a single install action", page.locator(".hero-actions a").count() == 1 and play_cta.count() == 1)
         check("no in-review copy anywhere", "in review" not in page.locator("main").inner_text().lower())
         check("no navbar install actions", page.locator(f'header a[href="{PLAY}"], header .navbar-cta, header .play-button').count() == 0)
         check("plain GitHub navbar link", page.locator(f'header a[href="{SOURCE}"]').count() == 1 and page.locator(f'header a[href="{SOURCE}"] img').count() == 0)
@@ -138,8 +137,8 @@ def main(args):
         media_paused = wait_until(page, "document.querySelector('video').paused")
         check("reduced motion stops graphics and autoplay", media_paused and page.evaluate("() => document.getAnimations().every(a=>a.playState!=='running' || a.effect.getTiming().duration<=1)"))
         page.emulate_media(forced_colors="active")
-        page.locator(".hero .button").focus()
-        check("forced-colors CTA and focus remain defined", page.locator(".hero .button").evaluate("e=>{const s=getComputedStyle(e);return parseFloat(s.outlineWidth)>=2 && parseFloat(s.borderTopWidth)>=1}"))
+        page.locator(".hero .play-cta").focus()
+        check("forced-colors CTA and focus remain defined", page.locator(".hero .play-cta").evaluate("e=>{const s=getComputedStyle(e);return parseFloat(s.outlineWidth)>=2 && parseFloat(s.borderTopWidth)>=1}"))
         page.emulate_media(forced_colors="none", reduced_motion="no-preference")
 
         # Head/schema retain the actual searchable page and truthful app facts.
@@ -281,7 +280,7 @@ def main(args):
         nojs = browser.new_context(java_script_enabled=False, viewport={"width": 390, "height": 844})
         np = nojs.new_page()
         np.goto(base, wait_until="load")
-        check("no-JS real content and install path", np.locator("h1").is_visible() and np.locator(".play-cta").is_visible() and np.locator(f'.hero a[href="{SOURCE}/releases/latest"]').is_visible() and np.locator("#faq summary").first.is_visible() and np.locator("video").is_visible())
+        check("no-JS real content and install path", np.locator("h1").is_visible() and np.locator(".play-cta").is_visible() and np.locator("#faq summary").first.is_visible() and np.locator("video").is_visible())
         nojs.close()
         broken = browser.new_context(viewport={"width": 390, "height": 844})
         broken.route("**/assets/app/demo.mp4", lambda r: r.fulfill(status=503, content_type="text/plain", body="Demo unavailable"))

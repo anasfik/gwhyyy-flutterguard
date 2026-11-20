@@ -32,6 +32,7 @@ PAGES = {
     "/about/": "About FlutterGuard",
     "/contact/": "Contact FlutterGuard",
     "/privacy/": "Privacy and data handling",
+    "/cli/": "FlutterGuard CLI: scan Flutter APKs in CI",
 }
 
 
@@ -74,22 +75,34 @@ def main(args):
         response = page.goto(base, wait_until="load")
         page.evaluate("document.fonts.ready")
         check("homepage 200", response.status == 200)
-        check("one accurate H1", page.locator("h1").all_text_contents() == ["Security audit any released Flutter app."])
-        play_cta = page.locator(f'.hero a.play-cta[href="{PLAY}"]')
-        check("hero has one working Play install action",
-              play_cta.count() == 1 and "google play" in play_cta.inner_text().lower())
-        check("hero offers a single install action", page.locator(".hero-actions a").count() == 1 and play_cta.count() == 1)
-        check("no in-review copy anywhere", "in review" not in page.locator("main").inner_text().lower())
+        check("one accurate H1", page.locator("h1").all_text_contents() == ["See what ships in your Flutter app."])
+        get_cta = page.locator('.hero a.get-cta[href="#get-started"]')
+        check("hero offers Android and terminal entry paths",
+              get_cta.count() == 1 and page.locator('.hero-actions a[href="#cli"]').count() == 1)
+        check("Android has Play and current GitHub install paths",
+              page.locator(f'#get-started a.play-cta[href="{PLAY}"]').count() == 1
+              and page.locator(f'#get-started a[href="{SOURCE}/releases/latest"]').count() == 1)
+        check("source-built CLI and engine have clear destinations",
+              page.locator('#cli a[href="/cli/"]').count() >= 1
+              and page.locator(f'#engine a[href="{SOURCE}/tree/main/engine"]').count() == 1)
         check("no navbar install actions", page.locator(f'header a[href="{PLAY}"], header .navbar-cta, header .play-button').count() == 0)
         check("plain GitHub navbar link", page.locator(f'header a[href="{SOURCE}"]').count() == 1 and page.locator(f'header a[href="{SOURCE}"] img').count() == 0)
         check("graphical APK layers explain real files", page.locator(".apk-stack .layer").count() >= 3 and "libapp.so" in page.locator(".apk-stack").inner_text())
         check("capabilities cover the audit surface", page.locator(".capability-list > li").count() == 6)
         check("guides section links the cluster", page.locator('#guides a[href="/flutter-security/"], #guides a[href="/flutter-apk-inspection/"], #guides a[href="/proguard-flutter/"], #guides a[href="/mobsf-alternative/"], #guides a[href="/flutter-security-checklist/"], #guides a[href="/flutter-release-corpus/"]').count() == 6)
-        check("workflow remains ordered, not a marquee", page.locator(".workflow-list > li h3").all_text_contents() == ["Discover", "Inspect", "Report"] and page.locator('[aria-hidden="true"] .workflow-list').count() == 0)
+        main_text = page.locator("main").inner_text().lower()
+        check("confidence distinguishes facts, leads and inventory",
+              all(s in main_text for s in ("confirmed artifact facts", "leads worth checking", "inventory", "only confirmed")))
+        check("comparison and source-build limits are visible",
+              page.locator("#compare").count() == 1 and "same app" in main_text
+              and "build from source" in main_text and "0.4.0" in main_text)
+        check("existing recording is dated, not passed off as new UI",
+              "recorded before 0.4.0" in main_text)
         check("explicit graphics pause control", page.locator('input#pause-motion[type="checkbox"]').count() == 1)
         check("email and issue recovery paths", page.locator('a[href="mailto:work@gwhyyy.com"]').count() >= 1 and page.locator(f'a[href="{SOURCE}/issues"]').count() >= 1)
         body = page.evaluate("() => {const b=document.body.cloneNode(true);b.querySelectorAll('script').forEach(e=>e.remove());return b.textContent.toLowerCase()}")
-        check("removed labels stay removed even when hidden", all(s not in body for s in ("android 8", "android app", "before you install", "screen recording is coming later", "not affiliated", "navbar play button", "in review")))
+        check("no unsupported distribution or exploit promises",
+              all(s not in body for s in ("100% accurate", "zero false positives", "decompile dart", "download the cli", "maven central")))
         check("external links are safely new-tab", page.evaluate("() => [...document.querySelectorAll('a[href^=\"https://\"]')].every(a=>a.target==='_blank' && a.relList.contains('noopener') && a.relList.contains('noreferrer'))"))
         check("local anchors resolve", page.evaluate("() => [...document.querySelectorAll('a[href^=\"#\"]')].every(a=>document.getElementById(a.hash.slice(1)))"))
 
@@ -101,6 +114,7 @@ def main(args):
         first = video.evaluate("v=>v.currentTime")
         advances = wait_until(page, f"document.querySelector('video').currentTime > {first} + .7")
         check("video decodes and time advances", advances and video.evaluate("v=>v.videoWidth===540 && v.videoHeight===1200 && v.readyState>=2"))
+        check("healthy video does not show the failure overlay", not page.locator(".video-fallback").is_visible())
         clip = page.request.get(base + "/assets/app/demo.mp4")
         check("optimized demo under 3.2 MB and correct MIME", clip.status == 200 and 0 < len(clip.body()) <= 3_200_000 and "video/mp4" in clip.headers.get("content-type", ""))
 
@@ -113,11 +127,21 @@ def main(args):
         for width, height in ((1280, 720), (1440, 900)):
             page.set_viewport_size({"width": width, "height": height})
             page.evaluate("scrollTo(0,0)")
-            check(f"hero Play action in fold {width}", page.locator(".play-cta").evaluate("e=>e.getBoundingClientRect().bottom <= innerHeight"))
+            check(f"hero workflow action in fold {width}", get_cta.count() == 1 and get_cta.evaluate("e=>e.getBoundingClientRect().bottom <= innerHeight"))
         page.set_viewport_size({"width": 390, "height": 844})
         page.evaluate("document.documentElement.style.fontSize='200%'")
-        check("200% text reflows without clipping", page.evaluate("document.documentElement.scrollWidth <= innerWidth + 1") and page.locator(".play-cta").evaluate("e=>e.scrollWidth<=e.clientWidth+1"))
+        check("200% text reflows without clipping", page.evaluate("document.documentElement.scrollWidth <= innerWidth + 1") and (get_cta.count() == 0 or get_cta.evaluate("e=>e.scrollWidth<=e.clientWidth+1")))
         page.evaluate("document.documentElement.style.fontSize=''")
+        page.emulate_media(reduced_motion="reduce")
+        # Isolate navigation from the browser's scroll anchoring after text resizing.
+        page.goto(base, wait_until="networkidle")
+        page.evaluate("document.fonts.ready")
+        for target in ("get-started", "cli", "engine", "why"):
+            page.evaluate("(id) => {location.hash=''; location.hash=id}", target)
+            check(f"mobile anchor clears sticky header {target}",
+                  page.locator("#" + target).evaluate("e=>e.getBoundingClientRect().top >= document.querySelector('header').getBoundingClientRect().bottom"))
+        page.evaluate("location.hash=''")
+        page.emulate_media(reduced_motion="no-preference")
 
         # Native keyboard flow and pause behavior.
         page.locator(".skip-link").focus()
@@ -137,8 +161,9 @@ def main(args):
         media_paused = wait_until(page, "document.querySelector('video').paused")
         check("reduced motion stops graphics and autoplay", media_paused and page.evaluate("() => document.getAnimations().every(a=>a.playState!=='running' || a.effect.getTiming().duration<=1)"))
         page.emulate_media(forced_colors="active")
-        page.locator(".hero .play-cta").focus()
-        check("forced-colors CTA and focus remain defined", page.locator(".hero .play-cta").evaluate("e=>{const s=getComputedStyle(e);return parseFloat(s.outlineWidth)>=2 && parseFloat(s.borderTopWidth)>=1}"))
+        focus_cta = get_cta if get_cta.count() else page.locator(".play-cta")
+        focus_cta.focus()
+        check("forced-colors CTA and focus remain defined", focus_cta.evaluate("e=>{const s=getComputedStyle(e);return parseFloat(s.outlineWidth)>=2 && parseFloat(s.borderTopWidth)>=1}"))
         page.emulate_media(forced_colors="none", reduced_motion="no-preference")
 
         # Head/schema retain the actual searchable page and truthful app facts.
@@ -155,7 +180,7 @@ def main(args):
         check("truthful SoftwareApplication schema", app.get("name") == "FlutterGuard" and str(app.get("offers", {}).get("price")) == "0" and app.get("license") == SOURCE + "/blob/main/LICENSE")
         pairs = page.locator("#faq details").evaluate_all("es=>es.map(e=>[e.querySelector('summary').textContent.trim(),e.querySelector('p').textContent.trim()])")
         schema_pairs = [[e.get("name"), e.get("acceptedAnswer", {}).get("text")] for e in faq.get("mainEntity", [])]
-        check("all five FAQ answers match schema verbatim", len(pairs) == 5 and pairs == schema_pairs)
+        check("all seven FAQ answers match schema verbatim", len(pairs) == 7 and pairs == schema_pairs)
         check("no invented rating/review/version schema", not re.search(r'"(?:aggregateRating|ratingValue|review|softwareVersion)"', json.dumps(ld)))
         png = page.request.get(base + "/og-image.png").body()
         check("OG is a real 1200x630 PNG", png[:8] == b"\x89PNG\r\n\x1a\n" and struct.unpack(">II", png[16:24]) == (1200, 630))
@@ -178,7 +203,7 @@ def main(args):
         check("AI catalog describes the site", catalog.get("name") == "FlutterGuard" and catalog.get("url") == CANONICAL and len(pages) >= 10 and all(p.get("url", "").startswith(CANONICAL) and p.get("markdown", "").startswith(CANONICAL) for p in pages) and catalog.get("resources", {}).get("llms") == CANONICAL + "llms.txt")
         for path in ("/llms.txt", "/llms-full.txt"):
             r = page.request.get(base + path)
-            check(f"agent reference {path}", r.status == 200 and "FlutterGuard" in r.text() and "Discover" in r.text() and "/demo/" not in r.text())
+            check(f"agent reference {path}", r.status == 200 and all(s in r.text() for s in ("FlutterGuard", "CLI", "engine", "/cli/")) and "/demo/" not in r.text())
         manifest = page.request.get(base + "/site.webmanifest").json()
         check("manifest and theme match", manifest.get("theme_color") == page.locator('meta[name="theme-color"]').get_attribute("content"))
         for icon in manifest.get("icons", []):
@@ -248,10 +273,46 @@ def main(args):
             check(f"page {ppath} description", desc.count() == 1 and 120 <= len(desc.get_attribute("content") or "") <= 160)
             canon = page.locator('link[rel="canonical"]')
             check(f"page {ppath} canonical", canon.count() == 1 and canon.get_attribute("href") == CANONICAL + ppath.lstrip("/"))
+            check(f"page {ppath} shared OG description matches the cover",
+                  page.locator('meta[property="og:image:alt"]').count() == 1 and
+                  page.locator('meta[property="og:image:alt"]').get_attribute("content") ==
+                  "FlutterGuard: see what ships in your Flutter app. Android, CLI and shared engine.")
             check(f"page {ppath} one H1", page.locator("h1").all_text_contents() == [ptitle])
             check(f"page {ppath} body is substantive", len(page.locator("main").inner_text()) > 500)
             check(f"page {ppath} links home", page.locator('main a[href="/"]').count() >= 1 or page.locator('header a[href="/"]').count() == 1)
             check(f"page {ppath} external links are safely new-tab", page.evaluate("() => [...document.querySelectorAll('a[href^=\"https://\"]')].every(a=>a.target==='_blank' && a.relList.contains('noopener') && a.relList.contains('noreferrer'))"))
+            if ppath in ("/cli/", "/about/"):
+                check(f"{ppath} distinguishes artifact facts from leads",
+                      "artifact fact" in page.locator("main").inner_text().lower())
+            if '"@type":"SoftwareApplication"' in page.content():
+                check(f"page {ppath} schema names both platforms",
+                      '"operatingSystem":"Android 8.0+; source-built CLI requires JDK 17+"' in page.content()
+                      and '"operatingSystem":"Android 8.0+"' not in page.content())
+            if ppath == "/cli/":
+                cli_text = page.locator("main").inner_text()
+                check("CLI guide exposes the real source-build contract",
+                      all(s in cli_text for s in ("JDK 17", "./gradlew :cli:installDist",
+                          "cli/build/install/flutterguard/bin/flutterguard", "--json", "--sarif", "--fail-on confirmed",
+                          "Android SDK", "ANDROID_HOME")))
+                check("CLI guide explains fresh outputs, gate semantics and limits",
+                      all(s in cli_text for s in ("must not already exist", "parent",
+                          "Scan completed; the gate was not requested",
+                          "found at least one confirmed finding", "Invalid arguments",
+                          "artifact", "exploit", "redact", "compare")))
+                for width in (320, 390, 1280):
+                    page.set_viewport_size({"width": width, "height": 900})
+                    check(f"CLI guide no overflow {width}", page.evaluate("document.documentElement.scrollWidth <= innerWidth + 1"))
+                    check(f"CLI command blocks fit {width}", page.evaluate(
+                        "() => [...document.querySelectorAll('.article-body pre')].every(p => p.scrollWidth <= p.clientWidth + 1)"))
+                check("CLI call-to-action focus ring overrides the dark panel",
+                      ".article-cta :focus-visible{outline-color:var(--accent)}" in
+                      page.request.get(base + "/styles.css").text())
+        # A code block wide enough to scroll must also be reachable by keyboard
+        # (axe-core scrollable-region-focusable, WCAG 2.1.1).
+        for path in ["/"] + list(GUIDES) + list(PAGES):
+            body = page.request.get(base + path).text()
+            check(f"code blocks are keyboard-scrollable {path}", not re.search(r"<pre(?![^>]*\btabindex)", body))
+
         page.goto(base, wait_until="load")
 
         for path in ("/demo", "/demo/", "/demo/index.html", "/missing-page-xyz"):
@@ -280,7 +341,11 @@ def main(args):
         nojs = browser.new_context(java_script_enabled=False, viewport={"width": 390, "height": 844})
         np = nojs.new_page()
         np.goto(base, wait_until="load")
-        check("no-JS real content and install path", np.locator("h1").is_visible() and np.locator(".play-cta").is_visible() and np.locator("#faq summary").first.is_visible() and np.locator("video").is_visible())
+        check("no-JS content and both workflow paths", np.locator("h1").is_visible()
+              and np.locator('.hero a[href="#get-started"]').count() == 1
+              and np.locator('#cli a[href="/cli/"]').count() >= 1
+              and np.locator(".play-cta").is_visible() and np.locator("#faq summary").first.is_visible()
+              and np.locator("video").is_visible())
         nojs.close()
         broken = browser.new_context(viewport={"width": 390, "height": 844})
         broken.route("**/assets/app/demo.mp4", lambda r: r.fulfill(status=503, content_type="text/plain", body="Demo unavailable"))

@@ -1,5 +1,12 @@
 # FlutterGuard SEO content plan
 
+> Historical research and publication log below. For current positioning,
+> the 2026-11-20 GSC window, route inventory and follow-up priorities, use
+> `2026-11-20-site-audit.md` and `growth-plan.md`. Indexing and ranking states
+> in this log are observations on their stated dates, not current guarantees.
+> The new `/cli/` page documents a shipped setup path. FAQ markup describes
+> visible answers; it is not a promise of Google FAQ rich results.
+
 Status: 2026-11-02, after the MobSF page. Companion to `launch-kit.md`, which holds positioning, channel copy and
 directory work. This file covers search: what the site targets, why, and how it will be judged.
 

@@ -1,5 +1,9 @@
 # FlutterGuard status report
 
+> Historical snapshot, not the status of the 0.4.0 website rework.
+> See `2026-11-20-site-audit.md` for current evidence and explicit limits.
+> Prior Lighthouse and distribution results below were not re-run in this task.
+
 Date: 2026-11-18. Scope: discoverability and reach for developers, agencies and researchers.
 Every figure below was observed, not estimated.
 

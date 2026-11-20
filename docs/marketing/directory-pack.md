@@ -1,40 +1,41 @@
 # FlutterGuard directory pack
 
-Status: 2026-11-02. Copy-paste fields for listings, with the state of each submission.
-Claims here match the site: offline, no INTERNET permission, no account, MIT, Android 8.0+.
-Do not describe a finding as proof of exploitability.
+Copy updated: 2026-11-20. Submission history below retains its original dates;
+PR states have not been re-verified in this task. No new submission is authorized
+by this document. Confirmed artifact facts do not prove exploitability.
 
 ## Shared fields
 
 Name: FlutterGuard
 
-Tagline (52 characters):
-`Audit a released Flutter APK on your phone, offline.`
+Tagline:
+`Inspect Flutter APKs on Android or in your build workflow.`
 
-Short description (154 characters):
-`FlutterGuard reads an installed Flutter app or a single APK on Android: permissions, SDKs, endpoints and exposed strings. Offline, no account, MIT.`
+Short description:
+`FlutterGuard inspects Flutter APKs locally on Android or through a source-built CLI. Review artifact facts, leads and inventory. Free and MIT-licensed.`
 
 Long description:
-`FlutterGuard is an Android app for inspecting a released Flutter app. It reads the installed package or a single APK on the device: the manifest and its policy, the AOT-compiled Dart library, bundled assets, dependency clues and the signing certificate. Findings stay in a local report; the app requests no INTERNET permission and has no account system.
+`FlutterGuard inspects what ships inside a Flutter APK: package policy, native libraries, dependencies, endpoints, readable strings and signing evidence. Use the Android app or build the CLI from source for JSON and optional SARIF output. Both use the shared JVM engine.
 
-It is built for the artifact users install rather than the repository. Flutter's release pipeline runs R8, resource shrinking, AOT compilation and signing, and the result can differ from source. FlutterGuard shows what survived that pipeline: readable endpoints, exposed strings, exported components, bundled configuration and the shape of the build.
+Reports separate confirmed artifact facts, leads worth checking and inventory. Only confirmed facts affect the grade. The Android app can compare saved scans of the same app across releases. There is no CLI compare command.
 
-A finding is a lead, not a verdict. Static inspection cannot prove an endpoint is unauthenticated or a component is exploitable. Use it on apps you own or have permission to test.
+Scanning is local. The Android app has no INTERNET permission, account system or telemetry. CI uploads are controlled by the user's workflow. Static evidence does not prove exploitability, runtime behavior or credential validity. Use APKs you own or have permission to assess.
 
-MIT licensed. Android 8.0 and newer. Source and APK: https://github.com/anasfik/FlutterGuard`
+MIT licensed. Android 8.0+ for the app; JDK 17+ for CLI runtime. CLI and engine require a source build and are not published binary packages. Source and Android APK: https://github.com/anasfik/FlutterGuard`
 
 Categories: Developer Tools, Security, Android, Open Source.
 Pricing: Free, open source.
-Platform: Android.
+Platform: Android; source-built JVM CLI and engine.
 Licence: MIT.
 Website: https://flutterguard.dev/
 Source: https://github.com/anasfik/FlutterGuard
 Download: https://github.com/anasfik/FlutterGuard/releases/latest
 Contact: work@gwhyyy.com
-Privacy: https://gwhyyy.com/privacy/flutterguard
+Privacy: https://flutterguard.dev/privacy/
+CLI setup: https://flutterguard.dev/cli/
 Icon: https://flutterguard.dev/icon-512.png
 Gallery: https://flutterguard.dev/og-image.png (replace with device screenshots before Product Hunt)
-Video: https://flutterguard.dev/assets/app/demo.mp4
+Video: https://flutterguard.dev/assets/app/demo.mp4 (recorded before 0.4.0)
 
 ## Awesome-list PRs (opened 2026-11-02; extended 2026-11-18)
 
@@ -106,7 +107,9 @@ in `launch-kit.md`; submission is a human login step.
 
 ## Rules for every listing
 
-- Link Google Play as the primary install path, with the GitHub release as fallback.
+- Link the site workflow chooser, the GitHub Android release and the CLI guide
+  according to the listing audience. Public Play was last observed at 0.3.2;
+  do not claim it distributes 0.4.0 until verified.
 - Keep the offline and no-INTERNET claims; they are verifiable from the manifest.
 - Do not claim detection rates, coverage counts or "the only" tool.
 - Do not ask for upvotes or cross-post the same text on the same day.

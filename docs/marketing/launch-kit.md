@@ -1,194 +1,96 @@
-# FlutterGuard launch kit
+# FlutterGuard 0.4.0 launch kit
 
-Status: 2026-11-18. Site live at https://flutterguard.dev. App on Google Play
-(https://play.google.com/store/apps/details?id=com.flutterguard.app) and on GitHub. The hero shows a
-working "Get it on Google Play" action plus a "Download the APK" action to the
-GitHub release.
+Updated: 2026-11-20. Prepared copy, not permission to publish.
+Product truth: `.agents/product-marketing.md`. Search evidence and delivery gaps:
+[`2026-11-20-site-audit.md`](2026-11-20-site-audit.md).
 
 ## Positioning
 
-For Flutter developers and mobile-security reviewers who need to inspect an app they did not
-build, FlutterGuard reads a released APK on the Android device itself: libraries, endpoints,
-exposed strings, manifest and package policy, with a local report. No root, no account, no
-network permission, MIT licensed.
+FlutterGuard inspects what ships in a Flutter APK. Use the Android app for local
+review, build the CLI for terminal or CI scans, or work with the shared JVM engine
+in the source repository. Reports separate confirmed artifact facts, leads worth
+checking and inventory.
 
-Against the alternatives:
+The product is free and MIT-licensed. Scanning runs locally. The Android app has
+no INTERNET permission, account system or telemetry. Website analytics and any CI
+artifact uploads are separate from that app privacy claim.
 
-- Enterprise SAST (Black Duck, Ostorlab, Appknox) audits source in CI, priced and sold to
-  security teams.
-- Desktop CLI tooling needs a workstation, a JDK and setup time.
-- FlutterGuard is the only option that runs on the phone, offline, against the shipped
-  artifact a user actually installs.
+## Who it serves
 
-Do not claim it proves an app is exploitable. The site FAQ already says a finding is a lead,
-not a verdict. Keep that line in every channel.
+- Flutter developers checking a release before publishing.
+- Security reviewers inspecting an APK they own or have permission to assess.
+- Teams that want redacted JSON or SARIF from an existing build workflow.
+- JVM developers willing to build and integrate the engine from source.
 
-## Audience
+Do not describe the engine as a published SDK or the CLI as an available binary.
+The current GitHub release contains the Android APK.
 
-1. Flutter developers shipping to Play who want a pre-release check without CI wiring.
-2. Security reviewers and bug-bounty hunters triaging APKs on a phone.
-3. Privacy-conscious users checking what an app bundles.
+## What changed
 
-## Proof points (verified 2026-11-02)
+- Confirmed artifact facts are separate from suspected matches and inventory.
+  Only confirmed facts contribute to the grade.
+- The Android app compares saved scans of the same app across releases.
+- The source-built CLI writes JSON and optional SARIF, with an optional
+  confirmed-finding exit-code gate.
+- Android and CLI scans use the shared pure-JVM engine.
+- Recognized Dart snapshot metadata adds artifact evidence. It does not
+  decompile Dart or establish obfuscation, ownership or exploitability.
 
-- v0.3.3 APK published 2026-11-01; earlier v0.3.0 and v0.3.1 also have APKs.
-- 31 GitHub stars.
-- MIT licence, source public.
-- Offline; the app does not request the INTERNET permission.
-- Existing coverage: one dev.to post and one r/FlutterDev beta thread, both already sending
-  referral traffic (Search Console).
+## Proof and distribution
 
-## Search baseline (Search Console, 28 days ending 2026-11-02)
+| Claim | Evidence and boundary |
+|---|---|
+| GitHub 0.4.0 | `https://github.com/anasfik/FlutterGuard/releases/tag/v0.4.0`; Android APK |
+| Public Play channel | Last observed 0.3.2 on 2026-11-20; do not announce 0.4.0 as public on Play |
+| Local Android scanning | App manifest has no INTERNET permission |
+| CLI contract | Repository `docs/cli.md`; JDK 17+, build from source |
+| Detection method | Repository `docs/METHODOLOGY.md`, corpus and synthetic benchmark |
+| Release comparison | Android feature; there is no CLI compare command |
 
-6 queries, 3 clicks, 77 impressions, homepage average position ~15.
+The benchmark is a scoped synthetic regression check, not a global precision
+score. The existing Android recording predates 0.4.0; it is not visual proof of
+the new confidence grouping or comparison UI.
 
-| Query | Clicks | Impressions | Position |
-|---|---|---|---|
-| flutter guard | 2 | 5 | 3 |
-| flutter security | 0 | 4 | 51.5 |
-| flutter vulnerabilities | 0 | 1 | 20 |
-| how do i find security vulnerabilities in flutter and react native applications? | 0 | 1 | 6 |
-| proguard flutter | 0 | 1 | 45 |
-| seguridad flutter | 0 | 2 | 44 |
+## Channels and sequence
 
-Read: brand demand exists at position 3. Non-brand queries sit at positions 20-51 with almost
-no impressions, so the site has no informational page competing for them. The single URL is
-indexed and canonical. Sitemap is valid with 1 URL.
+1. **Owned:** deploy the revised site, then verify homepage, `/cli/`, changelog,
+   Markdown negotiation and machine-readable references. Link the versioned
+   release and source documentation.
+2. **Rented:** choose one relevant community thread or technical article. Check
+   current community rules, disclose authorship, and stay available for questions.
+3. **Borrowed:** prepare a focused Flutter newsletter pitch about inspecting the
+   shipped artifact. Avoid unsupported competitor or exclusivity claims.
 
-## Launch gate
+Publication, directory submissions, outreach and indexing requests need approval.
+Existing PR history is in `directory-pack.md`; those statuses are historical
+unless checked again.
 
-Simple, lovable, complete check:
+## Announcement
 
-- Simple: audit one APK, one job. Yes.
-- Lovable: real recorded demo, one-tap install from Google Play or the GitHub APK, local report. Yes.
-- Complete: discovery, inspection, report, FAQ, privacy notice. Yes.
+**Headline:** FlutterGuard 0.4.0 brings APK inspection to the terminal
 
-Distribution is handled by Google Play with the GitHub APK as the fallback. Announce the Play listing
-now that it is live.
-
-## Channels
-
-### Owned
-
-- Site: https://flutterguard.dev (single page, demo video, FAQ, contact).
-- GitHub: https://github.com/anasfik/FlutterGuard (releases, issues, source).
-- No email list. Do not fake one; a release-watch issue or GitHub "Watch > Releases" is the
-  honest substitute.
-
-### Rented
-
-- r/FlutterDev: the beta thread already exists. Post again only with a real release and
-  disclose authorship. Follow the subreddit self-promotion rule.
-- Hacker News: Show HN, once, when the install path works.
-- dev.to: the existing post ranks as a referring URL. Publish one technical follow-up.
-- X and LinkedIn: short announcements, link to the site, no engagement bait.
-
-### Borrowed
-
-- Flutter newsletters and podcasts (Flutter Weekly, It's All Widgets, Flutter Dev Podcast).
-  Pitch the "audit the shipped artifact, not the repo" angle.
-- Mobile-security communities (OWASP MAS, r/androiddev) only with a technical write-up, not a
-  product drop.
-
-## Announcement copy
-
-### Show HN
-
-Title: `Show HN: FlutterGuard - audit a released Flutter APK on your phone`
-
-Body:
-
-> I kept wanting to check what a published Flutter app actually ships: which libraries, which
-> endpoints, which strings are sitting in the binary. Desktop tooling means a JDK, a decompiler
-> and setup time, so I built the check into an Android app instead.
+> I built FlutterGuard to see what survives inside a released Flutter APK:
+> bundled libraries, endpoints, readable strings and package policy.
 >
-> FlutterGuard opens an APK on the device, reads the manifest and package policy, the bundled
-> libraries, endpoints and exposed strings, then writes a local report. It has no internet
-> permission, no account and no telemetry. MIT licensed.
+> Version 0.4.0 adds a source-built CLI with JSON and SARIF output. It uses the
+> same JVM scan engine as the Android app. Reports now separate confirmed
+> artifact facts from leads and inventory; only confirmed facts affect the grade.
+> The Android app also compares saved scans of the same app across releases.
 >
-> APK: https://github.com/anasfik/FlutterGuard/releases/latest
-> Site and demo: https://flutterguard.dev
+> Scanning stays local. The code is MIT-licensed. A confirmed fact says what is
+> present in the artifact, not whether it is exploitable or whether a credential
+> works.
 >
-> A finding is a lead, not proof of exploitability. I would like feedback on the report format
-> and on which Flutter-specific checks matter most.
+> Android APK: https://github.com/anasfik/FlutterGuard/releases/tag/v0.4.0
+> CLI setup and limits: https://flutterguard.dev/cli/
+> Site: https://flutterguard.dev/
 
-### r/FlutterDev
+## Success measures
 
-Title: `FlutterGuard v0.3.3 - inspect a released Flutter APK on the phone itself`
+Use GSC impressions, clicks and positions over comparable, closed 28-day windows.
+The current page rows show 4 clicks and 180 impressions for 2026-10-21 through
+2026-11-17. Query rows are privacy-filtered and are not a complete total.
 
-Body: state the problem in two sentences, list what it reads, link the APK and the site, say
-it is MIT and offline, ask which checks are missing. Disclose that you built it. Link Play,
-with the APK as the fallback.
-
-### dev.to follow-up
-
-Title: `What a released Flutter APK exposes (and what it does not)`
-
-Outline: what ships inside a release APK; what `libapp.so` and the asset bundle reveal; why
-strings and endpoints are leads rather than findings; a short walkthrough of a report; the
-limits of static inspection. Link the app once, at the end.
-
-### X thread
-
-1. A released Flutter APK carries more than your Dart code: libraries, endpoints, strings,
-   manifest policy.
-2. Desktop tooling needs a JDK and setup. I wanted the check on the phone.
-3. FlutterGuard opens the APK on-device and writes a local report. Offline, no account, MIT.
-4. It reads libraries, connections, exposed strings, package policy and app structure.
-5. A finding is a lead, not proof. The report says so.
-6. APK and demo: https://flutterguard.dev
-
-### LinkedIn
-
-One paragraph: the problem, what the app does, offline and MIT, link. No hashtag wall.
-
-## Directories and listings
-
-Submit now: the GitHub APK path is live and confirmed. Revisit Play wording once the listing
-resolves. Track status in this table.
-
-| Directory | URL | Notes |
-|---|---|---|
-| Product Hunt | https://www.producthunt.com/posts/new | Needs gallery, tagline, first comment |
-| AlternativeTo | https://alternativeto.net/manage/add-app/ | List as alternative to MobSF |
-| SaaSHub | https://www.saashub.com/submit | Free listing |
-| Awesome Flutter Security | https://github.com/search?q=awesome+flutter+security | PR to the list, follow its format |
-| Awesome Android Security | https://github.com/search?q=awesome+android+security | PR, same |
-| F-Droid | https://f-droid.org/en/docs/Submitting_to_F-Droid_Quick_Start_Guide/ | Only if the build is reproducible and free of proprietary deps |
-| IzzyOnDroid | https://gitlab.com/IzzyOnDroid/repo | Needs a public reproducible APK |
-| Hacker News | https://news.ycombinator.com/submit | Show HN, once |
-
-Skip paid directories and any "submit to 100 sites" service.
-
-## Measurement
-
-Today: Search Console plus Cloudflare Web Analytics (site token `f9110d5432f446d6833224ec262cdd83`,
-beacon installed 2026-11-02; CSP allows only `static.cloudflareinsights.com` and
-`cloudflareinsights.com`, so no other third-party script can load). No cookies, no cross-site
-tracking, no change to the app's no-telemetry claim. Cloudflare exposes page views and referrers,
-not campaign-level breakdowns, so keep UTMs for link review.
-
-Remaining, in order:
-
-1. If GA4 is required, create a web stream for `flutterguard.dev`, add the tag, and extend the
-   CSP to allow `googletagmanager.com` and `google-analytics.com`. Update the privacy notice.
-2. Tag every campaign link with `utm_source`, `utm_medium`, `utm_campaign`.
-3. Weekly: GSC queries with impressions and position 11-30, clicks, and which channel produced
-   the install link click.
-
-Baseline to beat: 3 clicks and 77 impressions per 28 days.
-
-## 30-day cadence
-
-- Week 1: confirm install path, apply host header fix, re-run the 76-check gate, add page
-  measurement.
-- Week 2: publish the dev.to technical follow-up; pitch two Flutter newsletters.
-- Week 3: Show HN and r/FlutterDev release post, same day, respond all day.
-- Week 4: review GSC queries, write one page for the strongest informational query, submit
-  directory listings.
-
-## Claims discipline
-
-- Do not say "finds vulnerabilities". Say "surfaces libraries, endpoints and exposed strings".
-- Do not quote star counts in copy that will age; link the repo instead.
-- Do not add testimonials or ratings that do not exist.
+Website visits are not installs. Install-link clicks are not measured by the
+existing page-view beacon, and CLI adoption is not measured. Do not claim a
+conversion improvement without that evidence. Keep app telemetry out of scope.

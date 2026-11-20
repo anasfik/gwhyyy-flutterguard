@@ -2,7 +2,7 @@
 
 Canonical: https://flutterguard.dev/flutter-apk-inspection/
 
-A Flutter package can be read on the phone that runs it. No root, no workstation, no upload. The useful checks fit in one careful pass over the manifest, the compiled library and the assets.
+A Flutter package can be read on the phone that runs it, or from a source-built CLI in a terminal. No root, no upload. The useful checks fit in one careful pass over the manifest, the compiled library and the assets.
 
 Inspect only an app you own or have written permission to test. The techniques are read-only, but authorisation is the boundary between an audit and an intrusion.
 
@@ -17,7 +17,7 @@ An AAB is a publishing format, not an installable package. Convert it with `bund
 ## Read it in five passes
 
 1. Manifest and policy: package identity, permissions, exported components, intent filters, backup, debuggable, cleartext traffic, network security configuration.
-2. Compiled Dart: `lib/<abi>/libapp.so` holds the AOT snapshot. It keeps string literals and symbol metadata; symbol readability shows whether `--obfuscate` was used.
+2. Compiled Dart: `lib/<abi>/libapp.so` holds the AOT snapshot. It keeps string literals and symbol metadata; symbol readability is a heuristic about `--obfuscate`, not a definitive verdict.
 3. Assets: `flutter_assets/` is a file tree. Bundled configuration is public configuration.
 4. Dependencies: `NOTICES.Z`, `package:` URIs and readable symbols. Record confidence with each entry.
 5. Signing: certificate and signature schemes. A debug certificate on a distributed release is a process failure.
@@ -33,6 +33,8 @@ An AAB is a publishing format, not an installable package. Convert it with `bund
 The app has no INTERNET permission, so nothing leaves the device. There are no cloud lookups, reputation services or automatic CVE matching.
 
 ## On a desktop
+
+For a Flutter-aware pass, build the [FlutterGuard CLI from source](https://flutterguard.dev/cli/) and scan the APK to redacted JSON or SARIF. When you want the individual commands:
 
 ```sh
 unzip -l app-release.apk
@@ -57,4 +59,5 @@ Static evidence has a ceiling. Report what you saw, where it lives, and what wou
 - [Flutter security: what a release APK exposes](https://flutterguard.dev/flutter-security/)
 - [ProGuard for Flutter: what R8 and obfuscation hide](https://flutterguard.dev/proguard-flutter/)
 - [MobSF alternative for auditing Flutter APKs](https://flutterguard.dev/mobsf-alternative/)
+- [FlutterGuard CLI: scan Flutter APKs in CI](https://flutterguard.dev/cli/)
 - [FlutterGuard](https://flutterguard.dev/)

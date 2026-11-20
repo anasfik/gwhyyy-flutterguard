@@ -37,7 +37,7 @@
   <meta name="twitter:image" content="https://flutterguard.dev/og-proguard-flutter.png">
   <meta name="twitter:image:alt" content="Explainer cover: ProGuard and R8 in Flutter and what they hide, beside the FlutterGuard app.">
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"TechArticle","headline":"ProGuard for Flutter: what R8 and obfuscation hide","description":"R8 and ProGuard shrink Android code, while Dart uses --obfuscate. See what each hides, what remains in libapp.so, and what never to ship.","url":"https://flutterguard.dev/proguard-flutter/","mainEntityOfPage":"https://flutterguard.dev/proguard-flutter/","datePublished":"2026-11-02","dateModified":"2026-11-02","inLanguage":"en","image":"https://flutterguard.dev/og-proguard-flutter.png","author":{"@type":"Person","name":"Anas Fikhi","url":"https://gwhyyy.com"},"publisher":{"@type":"Organization","name":"FlutterGuard","url":"https://flutterguard.dev/","logo":{"@type":"ImageObject","url":"https://flutterguard.dev/icon-512.png"}},"about":{"@type":"SoftwareApplication","name":"FlutterGuard","url":"https://flutterguard.dev/","applicationCategory":"SecurityApplication","operatingSystem":"Android 8.0+"}}
+  {"@context":"https://schema.org","@type":"TechArticle","headline":"ProGuard for Flutter: what R8 and obfuscation hide","description":"R8 and ProGuard shrink Android code, while Dart uses --obfuscate. See what each hides, what remains in libapp.so, and what never to ship.","url":"https://flutterguard.dev/proguard-flutter/","mainEntityOfPage":"https://flutterguard.dev/proguard-flutter/","datePublished":"2026-11-02","dateModified":"2026-11-02","inLanguage":"en","image":"https://flutterguard.dev/og-proguard-flutter.png","author":{"@type":"Person","name":"Anas Fikhi","url":"https://gwhyyy.com"},"publisher":{"@type":"Organization","name":"FlutterGuard","url":"https://flutterguard.dev/","logo":{"@type":"ImageObject","url":"https://flutterguard.dev/icon-512.png"}},"about":{"@type":"SoftwareApplication","name":"FlutterGuard","url":"https://flutterguard.dev/","applicationCategory":"SecurityApplication","operatingSystem":"Android 8.0+; source-built CLI requires JDK 17+"}}
   </script>
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"FlutterGuard","item":"https://flutterguard.dev/"},{"@type":"ListItem","position":2,"name":"ProGuard for Flutter","item":"https://flutterguard.dev/proguard-flutter/"}]}
@@ -89,7 +89,7 @@
         <h2>What R8 and ProGuard do</h2>
         <p>ProGuard was the original shrinker, optimiser and obfuscator for Android bytecode. R8 replaced it in the Android build pipeline and reads the same keep rules. When shrinking is enabled, R8 removes unused classes and members, rewrites what remains, and renames surviving symbols to short names. Resource shrinking can remove unused resources alongside it.</p>
         <p>The lifecycle matters: R8 runs before the DEX is written, and it must preserve entry points that Android, reflection or a plugin look up by name. That is why projects carry keep rules. A missing rule can break a feature at runtime while the build still succeeds. Adding rules to fix that can also make more names readable again.</p>
-        <pre><code>android {
+        <pre tabindex="0"><code>android {
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -105,7 +105,7 @@
 
         <h2>What Dart obfuscation does</h2>
         <p>Flutter's <code>--obfuscate</code> flag renames Dart symbols in the compiled application. Pair it with <code>--split-debug-info</code> so you keep the symbol file needed to read crash reports:</p>
-        <pre><code>flutter build apk --release \
+        <pre tabindex="0"><code>flutter build apk --release \
   --obfuscate \
   --split-debug-info=build/symbols</code></pre>
         <p>The Flutter documentation is direct about the limits: obfuscation makes symbols harder to read and is not a security measure. String literals are not encrypted. Asset names are not changed. URLs, header names and key-like values can still be recovered from <code>libapp.so</code> with <code>strings</code>.</p>

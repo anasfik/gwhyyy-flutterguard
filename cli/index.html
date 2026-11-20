@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FlutterGuard CLI: scan Flutter APKs in CI</title>
+  <meta name="description" content="Build the FlutterGuard CLI from source, scan one APK to redacted JSON or SARIF 2.1.0, and gate a CI pipeline on confirmed findings.">
+  <meta name="author" content="Anas Fikhi">
+  <meta name="theme-color" content="#f3f5ef">
+  <meta name="color-scheme" content="light">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <link rel="canonical" href="https://flutterguard.dev/cli/">
+  <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM-readable summary">
+  <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="preload" href="/assets/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/site.js" defer></script>
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="FlutterGuard">
+  <meta property="og:title" content="FlutterGuard CLI: scan Flutter APKs in CI">
+  <meta property="og:description" content="Build the launcher from source, scan one APK to redacted JSON or SARIF 2.1.0, and gate CI on confirmed findings.">
+  <meta property="og:url" content="https://flutterguard.dev/cli/">
+  <meta property="og:image" content="https://flutterguard.dev/og-image.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="FlutterGuard: see what ships in your Flutter app. Android, CLI and shared engine.">
+  <meta property="og:locale" content="en_US">
+  <meta property="article:published_time" content="2026-11-20">
+  <meta property="article:modified_time" content="2026-11-20">
+  <meta property="article:author" content="Anas Fikhi">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="FlutterGuard CLI: scan Flutter APKs in CI">
+  <meta name="twitter:description" content="The source-built CLI runs the same engine as the Android app and writes redacted JSON and SARIF for a terminal or pipeline.">
+  <meta name="twitter:image" content="https://flutterguard.dev/og-image.png">
+  <meta name="twitter:image:alt" content="FlutterGuard: see what ships in your Flutter app. Android, CLI and shared engine.">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"TechArticle","headline":"FlutterGuard CLI: scan Flutter APKs in CI","description":"Build the FlutterGuard CLI from source, scan one APK to redacted JSON or SARIF 2.1.0, and gate a CI pipeline on confirmed findings.","url":"https://flutterguard.dev/cli/","mainEntityOfPage":"https://flutterguard.dev/cli/","datePublished":"2026-11-20","dateModified":"2026-11-20","inLanguage":"en","image":"https://flutterguard.dev/og-image.png","author":{"@type":"Person","name":"Anas Fikhi","url":"https://gwhyyy.com"},"publisher":{"@type":"Organization","name":"FlutterGuard","url":"https://flutterguard.dev/","logo":{"@type":"ImageObject","url":"https://flutterguard.dev/icon-512.png"}},"about":{"@type":"SoftwareApplication","name":"FlutterGuard","url":"https://flutterguard.dev/","applicationCategory":"SecurityApplication","operatingSystem":"Android 8.0+; source-built CLI requires JDK 17+"}}
+  </script>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"FlutterGuard","item":"https://flutterguard.dev/"},{"@type":"ListItem","position":2,"name":"CLI","item":"https://flutterguard.dev/cli/"}]}
+  </script>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can I download the FlutterGuard CLI?","acceptedAnswer":{"@type":"Answer","text":"No published CLI distribution is established. Build the launcher from the repository. The GitHub release provides the Android app, and there is no Maven or JitPack package for the engine."}},{"@type":"Question","name":"Does the CLI need a device or Android Studio?","acceptedAnswer":{"@type":"Answer","text":"The launcher runs on a JVM with JDK 17 or newer and needs no Android device or emulator. The repository build also configures the Android app module, so use the Android SDK setup described in the project README."}},{"@type":"Question","name":"Is a CLI scan offline?","acceptedAnswer":{"@type":"Answer","text":"The scan itself is local and the report is written where you point it. Building the project may download Gradle dependencies, and a CI job uploads artifacts only if its own workflow says so."}},{"@type":"Question","name":"Can the CLI compare two releases?","acceptedAnswer":{"@type":"Answer","text":"No CLI comparison command exists. Release comparisons happen in the Android app, for compatible scans of the same package."}},{"@type":"Question","name":"Does a SARIF file prove GitHub code scanning works?","acceptedAnswer":{"@type":"Answer","text":"No. The CLI validates the SARIF document before writing it, but GitHub security-tab ingestion, alert display and fingerprint deduplication are unverified until the workflow runs on GitHub with the required permissions."}},{"@type":"Question","name":"Does a confirmed finding prove the app is exploitable?","acceptedAnswer":{"@type":"Answer","text":"No. Confirmed means the artifact proves the configuration. It is not an exploitability verdict, and only confirmed findings affect the grade."}}]}
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="/" aria-label="FlutterGuard"><img src="/assets/app/icon-512.png" width="36" height="36" alt=""><span>FlutterGuard</span></a>
+      <nav class="site-nav" aria-label="Primary">
+        <a class="nav-section" href="/#why">Why FlutterGuard</a>
+        <a class="nav-section" href="/#features">Features</a>
+        <a class="nav-section" href="/#guides">Guides</a>
+        <a class="nav-section" href="/#faq">FAQ</a>
+        <a class="nav-source" href="https://github.com/anasfik/FlutterGuard" target="_blank" rel="noopener noreferrer">GitHub <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg><span class="sr-only"> (opens in a new tab)</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content" tabindex="-1">
+    <article>
+      <header class="article-hero container">
+        <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">FlutterGuard</a><span aria-hidden="true">/</span><span aria-current="page">CLI</span></nav>
+        <h1>FlutterGuard CLI: scan Flutter APKs in CI</h1>
+        <p class="article-lead">The same detection engine as the Android app, running on a plain JVM. Point it at one APK, get redacted JSON and SARIF, and decide whether a pipeline should stop.</p>
+        <p class="article-meta">By Anas Fikhi · <time datetime="2026-11-20">20 November 2026</time> · 8 minute read</p>
+      </header>
+
+      <div class="article-body container">
+        <p>The CLI is a thin terminal entry point over the engine that powers the app. It reads a package without executing it, reports the manifest, the compiled Dart library, the assets and the signing material, and writes the result where a build can collect it. It does not need a phone, an emulator or an Android device.</p>
+
+        <div class="article-note"><p><strong>In short.</strong> Build the launcher from source with JDK 17 or newer, run <code>flutterguard scan INPUT.apk --json OUTPUT.json</code>, and add <code>--sarif</code> or <code>--fail-on confirmed</code> when a pipeline needs them. Output parents must already exist, and output files must not already exist. Exit 0 is success, 1 is the confirmed gate, 2 is an error.</p></div>
+
+        <h2>Build it from source</h2>
+        <p>There is no published CLI download and no Maven or JitPack dependency to add. Build the launcher from the repository at the tag or commit you intend to run:</p>
+        <pre tabindex="0"><code>git clone https://github.com/anasfik/FlutterGuard.git
+cd FlutterGuard
+echo "sdk.dir=$ANDROID_HOME" &gt; local.properties
+./gradlew :cli:installDist
+cli/build/install/flutterguard/bin/flutterguard --help</code></pre>
+        <p>You need JDK 17 or newer, plus an Android SDK with a platform and build-tools installed and <code>ANDROID_HOME</code> pointing at it. The repository build also configures the Android app module, so without that SDK the build fails during configuration; the SDK setup is described in the project <a href="https://github.com/anasfik/FlutterGuard#built-for-developers" target="_blank" rel="noopener noreferrer">README<span class="sr-only"> (opens in a new tab)</span></a>. The resulting launcher runs the engine, <code>org.json</code> and <code>kotlinx-coroutines-core</code> from the distribution; the scanning machine does not need the Android SDK.</p>
+        <p><code>--help</code> prints the usage line and exits 2. That is the argument-error convention, not a failed build.</p>
+
+        <h2>Scan one APK</h2>
+        <p>The contract is one input APK and explicit output paths:</p>
+        <pre tabindex="0"><code>flutterguard scan INPUT.apk --json OUTPUT.json [--sarif OUTPUT.sarif] [--fail-on confirmed]</code></pre>
+        <p>A runnable example creates its output directory and uses fresh filenames. The parent directory must exist, and neither destination may already exist: the CLI refuses to overwrite a file and exits 2 instead.</p>
+        <pre tabindex="0"><code>mkdir -p ci-out
+stamp="$(date -u +%Y%m%dT%H%M%SZ)"
+
+cli/build/install/flutterguard/bin/flutterguard scan app-release.apk \
+  --json "ci-out/report-$stamp.json" \
+  --sarif "ci-out/report-$stamp.sarif" \
+  --fail-on confirmed</code></pre>
+        <p>The timestamp keeps each run's names new. If you prefer fixed names, delete the previous files or write to a fresh directory first; the same paths cannot be reused in place. Output is staged as sibling temporary files, flushed, then published with atomic moves. A destination that appears during the scan is refused rather than replaced, and a failed publication rolls back what was already written.</p>
+
+        <h2>What the reports contain</h2>
+        <p><code>--json</code> writes the engine's redacted report, schema <code>flutterguard/report/2</code>. Values detected as secrets are masked and are never written to disk by the CLI. The file uses the same report model as the app, so a saved Android report and a CLI report are the same shape.</p>
+        <p><code>--sarif</code> writes one run of SARIF 2.1.0 in the GitHub code-scanning shape. There is one rule per distinct finding id, with a title, remediation text and severity level. Results carry a rule id, a level, a scrubbed message, a partial fingerprint and one location.</p>
+        <ul>
+          <li><strong>Locations point at the APK</strong> as a <code>file:</code> URI. They carry no region or line data: the artifact is a binary, and inventing source positions would be false precision.</li>
+          <li><strong>Fingerprints identify a finding</strong> as <code>findingId|evidence.source</code>. They contain no secret value, snippet or hash of one.</li>
+          <li><strong>Levels follow confidence.</strong> Confirmed critical and high findings are errors; confirmed medium and low are warnings; confirmed informational findings and every suspected finding are notes. Inventory is omitted by default.</li>
+        </ul>
+        <p>The SARIF document is parsed and structurally checked before it is written. Progress and errors go to stderr, so redirecting stdout loses no diagnostics; stdout itself stays empty.</p>
+
+        <h2>Exit codes and the CI gate</h2>
+        <table>
+          <thead><tr><th>Exit</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>0</code></td><td>Scan completed; the gate was not requested or was not hit.</td></tr>
+            <tr><td><code>1</code></td><td>Scan completed and <code>--fail-on confirmed</code> found at least one confirmed finding.</td></tr>
+            <tr><td><code>2</code></td><td>Invalid arguments, unreadable or unsupported input, scan failure, cancellation or output failure.</td></tr>
+          </tbody>
+        </table>
+        <p>The gate is evaluated only after both outputs are published, so exit 1 cannot hide a scan or write error. A confirmed finding means the artifact proves the configuration; it is not proof that the app is exploitable, and only confirmed findings affect the grade.</p>
+
+        <h2>Use it in CI</h2>
+        <p>The repository includes <code>.github/workflows/apk-scan.yml</code>. It sets up JDK 17, runs the CLI tests, builds the distribution, builds FlutterGuard's own debug APK as an owned fixture, scans it to JSON and SARIF, and keeps both as workflow artifacts for 14 days. A separate job uploads the SARIF to code scanning and is the only one granted <code>security-events: write</code>; fork pull requests skip that job.</p>
+        <p>The workflow does not use <code>--fail-on</code> on its own fixture. A debug build legitimately contains confirmed findings such as a debuggable manifest and a debug certificate, so the gate would reject the repository itself. Gate usage belongs to the project being scanned, where a confirmed policy failure should stop the build.</p>
+        <p>CI artifact retention, upload permissions and any code-scanning ingestion are properties of the workflow you run, not of the CLI. Local SARIF validation is not GitHub acceptance: alert display and fingerprint deduplication remain unverified until the workflow actually runs on GitHub with those permissions.</p>
+
+        <h2>Limits and honest edges</h2>
+        <ul>
+          <li><strong>One APK per invocation.</strong> The CLI does not assemble split APK sets. Convert an AAB to APKs with <code>bundletool</code> first.</li>
+          <li><strong>No comparison command.</strong> Comparing releases is an Android app feature, for compatible scans of the same package. The CLI has no diff mode.</li>
+          <li><strong>No decompilation.</strong> The compiled library is AOT machine code. Snapshot metadata describes how it was built; it is not decompiled Dart and does not definitively prove obfuscation.</li>
+          <li><strong>No standalone SDK.</strong> The engine lives at <a href="https://github.com/anasfik/FlutterGuard/tree/main/engine" target="_blank" rel="noopener noreferrer">engine/ in the repository<span class="sr-only"> (opens in a new tab)</span></a> and is not a separately published package.</li>
+          <li><strong>Static evidence only.</strong> The scan does not run the target, test a backend or observe traffic. Confirmed findings are artifact facts; a lead still needs verification against a system you own or are authorised to test.</li>
+          <li><strong>Build-time network is not scan-time network.</strong> The scan stays local. Building may fetch Gradle dependencies, and a CI job may upload artifacts according to its own policy.</li>
+        </ul>
+
+        <h2>Questions people ask</h2>
+        <div class="faq-list">
+          <details><summary>Can I download the FlutterGuard CLI?</summary><p>No published CLI distribution is established. Build the launcher from the repository. The GitHub release provides the Android app, and there is no Maven or JitPack package for the engine.</p></details>
+          <details><summary>Does the CLI need a device or Android Studio?</summary><p>The launcher runs on a JVM with JDK 17 or newer and needs no Android device or emulator. The repository build also configures the Android app module, so use the Android SDK setup described in the project README.</p></details>
+          <details><summary>Is a CLI scan offline?</summary><p>The scan itself is local and the report is written where you point it. Building the project may download Gradle dependencies, and a CI job uploads artifacts only if its own workflow says so.</p></details>
+          <details><summary>Can the CLI compare two releases?</summary><p>No CLI comparison command exists. Release comparisons happen in the Android app, for compatible scans of the same package.</p></details>
+          <details><summary>Does a SARIF file prove GitHub code scanning works?</summary><p>No. The CLI validates the SARIF document before writing it, but GitHub security-tab ingestion, alert display and fingerprint deduplication are unverified until the workflow runs on GitHub with the required permissions.</p></details>
+          <details><summary>Does a confirmed finding prove the app is exploitable?</summary><p>No. Confirmed means the artifact proves the configuration. It is not an exploitability verdict, and only confirmed findings affect the grade.</p></details>
+        </div>
+
+        <div class="article-cta">
+          <h2>Get the source and run the first scan.</h2>
+          <p>FlutterGuard is MIT licensed. The repository contains the Android app, the shared engine and the CLI; no account or hosted service is involved.</p>
+          <a class="button" href="https://github.com/anasfik/FlutterGuard" target="_blank" rel="noopener noreferrer">FlutterGuard on GitHub<span class="sr-only"> (opens in a new tab)</span></a>
+          <a class="quiet" href="https://github.com/anasfik/FlutterGuard/releases/latest" target="_blank" rel="noopener noreferrer">Android release<span class="sr-only"> (opens in a new tab)</span></a>
+          <a class="quiet" href="/flutter-apk-inspection/">Inspect an APK on Android</a>
+        </div>
+
+        <nav class="article-related" aria-label="Related guides">
+          <h2>Continue reading</h2>
+          <ul>
+            <li><a href="/flutter-security/">Flutter security: what a release APK exposes</a></li>
+            <li><a href="/flutter-apk-inspection/">Flutter APK inspection: reading a release on Android</a></li>
+            <li><a href="/proguard-flutter/">ProGuard for Flutter: what R8 and obfuscation hide</a></li>
+            <li><a href="/mobsf-alternative/">MobSF alternative for auditing Flutter APKs</a></li>
+            <li><a href="/flutter-security-checklist/">Flutter app security audit checklist</a></li>
+            <li><a href="/changelog/">Release notes</a></li>
+            <li><a href="/">FlutterGuard: what ships in your Flutter app</a></li>
+          </ul>
+        </nav>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer container"><p>FlutterGuard. Built by <a href="https://gwhyyy.com" target="_blank" rel="noopener noreferrer">Anas Fikhi<span class="sr-only"> (opens in a new tab)</span></a>.</p><nav class="footer-links" aria-label="Site"><a href="/about/">About</a><a href="/contact/">Contact</a><a href="/privacy/">Privacy</a><a href="/flutter-security-checklist/">Checklist</a><a href="/flutter-release-corpus/">Corpus</a><a href="/changelog/">Changelog</a><a href="https://github.com/anasfik/FlutterGuard/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT licence<span class="sr-only"> (opens in a new tab)</span></a></nav></footer>
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"f9110d5432f446d6833224ec262cdd83"}'></script>
+</body>
+</html>

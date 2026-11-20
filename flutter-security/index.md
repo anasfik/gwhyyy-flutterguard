@@ -64,9 +64,12 @@ It cannot observe runtime behaviour, intercept traffic, test authentication or c
 4. Verify high-impact items against your own backend or a test environment.
 5. Keep the report with the release version and certificate as a baseline.
 
+On a phone, FlutterGuard reads the package in place and keeps the report local. On a workstation, the source-built CLI runs the same engine and writes redacted JSON or SARIF, while MobSF, apktool, jadx and strings cover the same artifact with more setup. The tool matters less than reading the layers in the right order.
+
 ## Related
 
 - [Flutter APK inspection: reading a release on Android](https://flutterguard.dev/flutter-apk-inspection/)
 - [ProGuard for Flutter: what R8 and obfuscation hide](https://flutterguard.dev/proguard-flutter/)
 - [MobSF alternative for auditing Flutter APKs](https://flutterguard.dev/mobsf-alternative/)
+- [FlutterGuard CLI: scan Flutter APKs in CI](https://flutterguard.dev/cli/)
 - [FlutterGuard](https://flutterguard.dev/)

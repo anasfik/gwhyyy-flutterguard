@@ -3,14 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>FlutterGuard: Security audit any released Flutter app</title>
-  <meta name="description" content="Security audit any released Flutter app on Android: read libraries, endpoints and exposed strings, then save the evidence on your device. MIT.">
+  <title>FlutterGuard: Flutter APK inspection on Android and in CI</title>
+  <meta name="description" content="Inspect Flutter APKs on Android or with a local CLI. Review confirmed facts, check leads, compare releases and export JSON or SARIF. Free and open source.">
   <meta name="author" content="Anas Fikhi">
   <meta name="theme-color" content="#f3f5ef">
   <meta name="color-scheme" content="light">
   <meta name="robots" content="index, follow, max-image-preview:large">
   <link rel="canonical" href="https://flutterguard.dev/">
   <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM-readable summary">
+  <link rel="alternate" type="text/markdown" href="/index.md" title="This page as Markdown">
   <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
@@ -19,41 +20,35 @@
   <script src="/site.js" defer></script>
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="FlutterGuard">
-  <meta property="og:title" content="Security audit any released Flutter app.">
-  <meta property="og:description" content="Read libraries, endpoints and exposed strings on your Android device. Offline, no account.">
+  <meta property="og:title" content="See what ships in your Flutter app.">
+  <meta property="og:description" content="Local Flutter APK inspection. Android app, source-built CLI and shared engine. Facts kept apart from leads.">
   <meta property="og:url" content="https://flutterguard.dev/">
   <meta property="og:image" content="https://flutterguard.dev/og-image.png">
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="FlutterGuard app preview inside a phone frame beside the line: Security audit any released Flutter app.">
-  <meta property="og:video" content="https://flutterguard.dev/assets/app/demo.mp4">
-  <meta property="og:video:secure_url" content="https://flutterguard.dev/assets/app/demo.mp4">
-  <meta property="og:video:type" content="video/mp4">
-  <meta property="og:video:width" content="540">
-  <meta property="og:video:height" content="1200">
+  <meta property="og:image:alt" content="FlutterGuard: see what ships in your Flutter app. Android, CLI and shared engine.">
   <meta property="og:locale" content="en_US">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Security audit any released Flutter app.">
-  <meta name="twitter:description" content="On-device Flutter APK inspection for Android. No uploads, no account.">
+  <meta name="twitter:title" content="See what ships in your Flutter app.">
+  <meta name="twitter:description" content="Inspect Flutter APKs locally on Android or from your terminal. Free, MIT-licensed, and built around evidence.">
   <meta name="twitter:image" content="https://flutterguard.dev/og-image.png">
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"FlutterGuard","url":"https://flutterguard.dev/","description":"On-device Flutter APK inspection for Android. Reads libraries, endpoints and exposed strings; static findings are evidence, not proof.","applicationCategory":"SecurityApplication","operatingSystem":"Android 8.0+","image":"https://flutterguard.dev/og-image.png","screenshot":"https://flutterguard.dev/assets/app/demo-poster.webp","featureList":["Discover","Inspect","Report"],"downloadUrl":"https://github.com/anasfik/FlutterGuard/releases/latest","installUrl":"https://play.google.com/store/apps/details?id=com.flutterguard.app","license":"https://github.com/anasfik/FlutterGuard/blob/main/LICENSE","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"author":{"@type":"Person","name":"Anas Fikhi","alternateName":"GWHYYY","url":"https://gwhyyy.com"}}
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"FlutterGuard","url":"https://flutterguard.dev/","description":"Local static inspection of Flutter APKs through an Android app and a source-built JVM CLI, using a shared scan engine. Confirmed artifact facts are distinct from suspected leads.","applicationCategory":"SecurityApplication","operatingSystem":"Android 8.0+; source-built CLI requires JDK 17+","image":"https://flutterguard.dev/og-image.png","featureList":["Flutter APK inspection","Confirmed facts, suspected leads and inventory","Android release comparisons","JSON and SARIF CLI output","Shared pure-JVM scan engine"],"downloadUrl":"https://github.com/anasfik/FlutterGuard/releases/latest","installUrl":"https://play.google.com/store/apps/details?id=com.flutterguard.app","license":"https://github.com/anasfik/FlutterGuard/blob/main/LICENSE","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"author":{"@type":"Person","name":"Anas Fikhi","alternateName":"GWHYYY","url":"https://gwhyyy.com"}}
   </script>
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is FlutterGuard free?","acceptedAnswer":{"@type":"Answer","text":"Yes. It is open source under the MIT licence, with no account, no ads and no paid tier."}},{"@type":"Question","name":"Does it need an internet connection?","acceptedAnswer":{"@type":"Answer","text":"No. The app has no INTERNET permission, so scans run entirely on the device."}},{"@type":"Question","name":"Which apps can it check?","acceptedAnswer":{"@type":"Answer","text":"Flutter apps you own or are authorised to test, either installed on the device or supplied as a single APK."}},{"@type":"Question","name":"Does a finding prove the app is exploitable?","acceptedAnswer":{"@type":"Answer","text":"No. Findings are static evidence from the release, not a confirmed exploit."}},{"@type":"Question","name":"Where do updates come from?","acceptedAnswer":{"@type":"Answer","text":"Updates ship through Google Play, and APK releases are also published on GitHub."}}]}
+  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is FlutterGuard free?","acceptedAnswer":{"@type":"Answer","text":"Yes. The Android app, CLI and engine are open source under the MIT licence. There is no account or paid tier."}},{"@type":"Question","name":"Does my APK leave my machine?","acceptedAnswer":{"@type":"Answer","text":"Scans run locally. The Android app has no INTERNET permission, and the CLI does not upload APKs. Building the CLI can download dependencies. If you upload reports from CI, your CI provider stores those artifacts."}},{"@type":"Question","name":"Which files and apps can I inspect?","acceptedAnswer":{"@type":"Answer","text":"Inspect Flutter apps you own or are authorised to test. Android can read accessible installed apps or a single APK; the CLI accepts a single APK. Convert AABs to APKs first. Device restrictions can prevent installed-app access."}},{"@type":"Question","name":"Does a confirmed finding prove a vulnerability?","acceptedAnswer":{"@type":"Answer","text":"No. Confirmed means a fact observed in the packaged artifact, not a working exploit, valid credential or reachable service. Only confirmed findings affect the grade. A good grade does not certify security."}},{"@type":"Question","name":"Can I compare releases from the CLI?","acceptedAnswer":{"@type":"Answer","text":"Release comparison is available in the Android app for scans of the same app. The CLI currently scans and exports; it does not have a compare command."}},{"@type":"Question","name":"Does it recover Dart source code?","acceptedAnswer":{"@type":"Answer","text":"No. It reads packaged evidence, strings and recognised snapshot metadata. It does not reconstruct Dart source, trace runtime behaviour or prove whether a release is obfuscated."}},{"@type":"Question","name":"How do I get the latest version?","acceptedAnswer":{"@type":"Answer","text":"GitHub has the 0.4.0 Android APK. Public Google Play was last verified at 0.3.2 on 20 November 2026; check the store for its current version. Build the CLI and engine from source. Installation and signing caveats are above."}}]}
   </script>
 </head>
-<body>
+<body class="product-home">
   <a class="skip-link" href="#main-content">Skip to content</a>
   <header class="site-header">
     <div class="container header-inner">
       <a class="brand" href="/" aria-label="FlutterGuard"><img src="/assets/app/icon-512.png" width="36" height="36" alt=""><span>FlutterGuard</span></a>
       <nav class="site-nav" aria-label="Primary">
-        <a class="nav-section" href="#why">Why FlutterGuard</a>
+        <a class="nav-section" href="#get-started">Workflows</a>
         <a class="nav-section" href="#features">Features</a>
         <a class="nav-section" href="#guides">Guides</a>
-        <a class="nav-section" href="#faq">FAQ</a>
         <a class="nav-source" href="https://github.com/anasfik/FlutterGuard" target="_blank" rel="noopener noreferrer">GitHub <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg><span class="sr-only"> (opens in a new tab)</span></a>
       </nav>
     </div>
@@ -61,84 +56,116 @@
   <main id="main-content" tabindex="-1">
     <section class="hero container" aria-labelledby="title">
       <div class="hero-copy">
-        <h1 id="title">Security audit any released <span class="headline-last">Flutter app.</span></h1>
-        <p class="lead">See what ships inside the APK. Inspect libraries, endpoints and exposed strings, with the whole audit running on your phone.</p>
+        <p class="hero-eyebrow">Flutter release inspection</p>
+        <h1 id="title">See what ships in your Flutter app.</h1>
+        <p class="lead">Inspect Flutter APKs on Android or from your terminal. Review evidence, compare releases, and keep scans local.</p>
         <div class="hero-actions">
-          <a class="play-cta" href="https://play.google.com/store/apps/details?id=com.flutterguard.app" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.609 1.814 13.792 12 3.609 22.186A2.132 2.132 0 0 1 3 20.686V3.314c0-.583.232-1.112.609-1.5Zm11.244 9.125 2.692-2.692L5.443 1.319l9.41 9.62Zm0 2.122-9.41 9.62 12.102-6.928-2.692-2.692Zm1.061-1.06 2.979 2.979 1.223-.7c1.179-.675 1.179-1.884 0-2.559l-1.223-.7-2.979 2.979Z"/></svg><span>Get it on Google Play</span><span class="sr-only"> (opens in a new tab)</span></a>
+          <a class="button get-cta" href="#get-started">Get FlutterGuard <span aria-hidden="true">↓</span></a>
+          <a class="quiet" href="#cli">Use the CLI <span aria-hidden="true">↗</span></a>
         </div>
-        <p class="hero-footnote">An independent, open-source tool for Flutter inspection.</p>
       </div>
-      <div class="hero-visual" aria-label="FlutterGuard in use">
-        <div class="orbit-field" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div></div>
-        <span class="file-tag tag-a" aria-hidden="true">libapp.so</span><span class="file-tag tag-b" aria-hidden="true">AndroidManifest.xml</span><span class="file-tag tag-c" aria-hidden="true">flutter_assets/</span>
-        <div class="device-frame">
-          <video class="device-video" autoplay muted loop playsinline controls preload="metadata" poster="/assets/app/demo-poster.webp" width="540" height="1200" aria-label="FlutterGuard demo: scanning installed Flutter apps, reviewing findings and exploring dependencies"><source src="/assets/app/demo.mp4" type="video/mp4">Your browser cannot play this video. <a href="/assets/app/demo.mp4">Open the demo recording</a>.</video>
-          <p class="video-fallback">Preview unavailable. <a href="/assets/app/demo.mp4">Open the recording</a>.</p>
+      <figure class="artifact-map" aria-labelledby="artifact-caption">
+        <div class="artifact-file"><span>your-release.apk</span><span>Input</span></div>
+        <div class="apk-stack" aria-hidden="true">
+          <div class="layer layer-one">AndroidManifest.xml <span>Policy</span></div>
+          <div class="layer layer-two">flutter_assets/ <span>Assets</span></div>
+          <div class="layer layer-three">libapp.so <span>Dart evidence</span></div>
         </div>
-        <div class="visual-bottom"><span>RECORDED ON DEVICE</span><label class="motion-control"><input id="pause-motion" type="checkbox"><span>Pause motion</span></label></div>
-      </div>
+        <div class="engine-node">Shared scan engine</div>
+        <div class="artifact-outputs"><span>Android app</span><span>Terminal / CI</span></div>
+        <figcaption id="artifact-caption">One APK. The same analysis behind both workflows.</figcaption>
+      </figure>
     </section>
 
-    <section id="why" class="why-panel container" aria-labelledby="why-title">
-      <div class="layer-diagram" aria-hidden="true">
-        <div class="apk-stack"><div class="diagram-guide"></div><div class="layer layer-one">AndroidManifest.xml <span>POLICY</span></div><div class="layer layer-two">flutter_assets/ <span>ASSETS</span></div><div class="layer layer-three">libapp.so <span>COMPILED DART</span></div></div>
-        <p class="diagram-caption">ONE RELEASE. MULTIPLE LAYERS OF EVIDENCE.</p>
-      </div>
-      <div class="why-copy">
-        <div class="section-intro">Flutter-aware inspection</div>
-        <h2 id="why-title">Look beyond the manifest.</h2>
-        <p>A <svg class="flutter-mark" viewBox="0 0 24 24" aria-hidden="true"><path fill="#54C5F8" d="M14.314 0 2.3 12 6 15.7 21.684.013h-7.357zm.014 11.072-6.471 6.458 6.47 6.47H21.7l-6.46-6.468 6.46-6.46h-7.37z"/></svg>Flutter release carries clues in its compiled library and asset bundle, not just its permissions. FlutterGuard brings those layers into one readable audit, right on your device.</p>
-        <a class="text-link" href="https://github.com/anasfik/FlutterGuard#readme" target="_blank" rel="noopener noreferrer">Read how the analysis works <span aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a>
-      </div>
-    </section>
+    <aside class="product-facts container" aria-label="Product essentials"><span>Free · MIT licensed</span><span>Local, static analysis</span><span>Android app + source-built CLI</span><a href="/changelog/">What changed in 0.4.0 <span aria-hidden="true">↗</span></a></aside>
 
     <section id="features" class="capabilities container" aria-labelledby="features-title">
-      <div class="section-heading"><h2 id="features-title">The release has a lot to say.</h2><p>Follow the evidence across the package. Each finding keeps its context, so you can decide what deserves a closer look.</p></div>
+      <div id="why" class="section-heading"><h2 id="features-title">Look beyond the manifest.</h2><p>A Flutter release carries evidence in its compiled library and assets, too. Read those layers together before deciding what needs attention.</p></div>
       <ul class="capability-list">
-        <li><div class="capability-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5ZM3 12l9 5 9-5M3 16l9 5 9-5"/></svg><span>LIBRARIES</span></div><h3>Know the building blocks.</h3><p>Identify SDKs, dependencies and available version evidence inside the release.</p></li>
-        <li><div class="capability-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="19" r="2"/><path d="m6 8 5 9m7-9-5 9M7 6h10"/></svg><span>CONNECTIONS</span></div><h3>See where it points.</h3><p>Explore embedded endpoints, domains and references to AI providers.</p></li>
-        <li><div class="capability-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 4v3"/></svg><span>EXPOSED STRINGS</span></div><h3>Find what was left in.</h3><p>Review secret-pattern matches with values masked until you choose to reveal them.</p></li>
-        <li><div class="capability-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6l8-3Zm-4 9 3 3 5-6"/></svg><span>PACKAGE POLICY</span></div><h3>Inspect the guardrails.</h3><p>Read permissions, signing information and network-security configuration.</p></li>
-        <li><div class="capability-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4zM4 9h16m-12 4h8m-8 3h5"/></svg><span>APP STRUCTURE</span></div><h3>Trace the useful clues.</h3><p>Browse Flutter assets and candidate route strings without pretending they are a runtime map.</p></li>
-        <li><div class="capability-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h8l4 4v14H5V3h2Zm7 0v5h5M8 12h8m-8 4h6"/></svg><span>LOCAL REPORTS</span></div><h3>Keep the evidence.</h3><p>Revisit saved audits or explicitly export a report as JSON or Markdown.</p></li>
+        <li><span class="capability-mark">01 / Libraries</span><h3>Know the building blocks.</h3><p>Identify SDKs, dependencies, native libraries and available version evidence.</p></li>
+        <li><span class="capability-mark">02 / Connections</span><h3>See where it points.</h3><p>Explore embedded endpoints, domains and AI-provider references. A string does not prove a live connection.</p></li>
+        <li><span class="capability-mark">03 / Exposed strings</span><h3>Find what was left in.</h3><p>Review secret-pattern matches with values masked by default. Check a lead before treating it as a credential.</p></li>
+        <li><span class="capability-mark">04 / Package policy</span><h3>Inspect the guardrails.</h3><p>Read permissions, signing metadata and network policy. Signing metadata is not cryptographic verification.</p></li>
+        <li><span class="capability-mark">05 / Flutter evidence</span><h3>Read the packaged clues.</h3><p>Inspect assets, candidate routes and recognised Dart snapshot metadata, with unsupported details left unknown.</p></li>
+        <li><span class="capability-mark">06 / Reports</span><h3>Keep a useful record.</h3><p>Save Android audits and export JSON or Markdown. Use the CLI for redacted JSON and SARIF reports.</p></li>
       </ul>
     </section>
 
-    <section class="workflow container" aria-labelledby="workflow-title">
-      <div class="workflow-heading"><h2 id="workflow-title">From APK to a clearer picture.</h2><p>One flow. On your phone.<br>Nothing to upload.</p></div>
-      <ol class="workflow-list">
-        <li><span class="step-number" aria-hidden="true"></span><h3>Discover</h3><p>Choose an installed Flutter app or open a single APK.</p><span class="step-signal" aria-hidden="true"></span></li>
-        <li><span class="step-number" aria-hidden="true"></span><h3>Inspect</h3><p>Follow the findings back to the strings, files and policies that produced them.</p><span class="step-signal" aria-hidden="true"></span></li>
-        <li><span class="step-number" aria-hidden="true"></span><h3>Report</h3><p>Save the evidence on the phone and come back to it whenever you need it.</p><span class="step-signal" aria-hidden="true"></span></li>
-      </ol>
+    <section id="confidence" class="confidence-section container" aria-labelledby="confidence-title">
+      <div class="section-heading"><h2 id="confidence-title">Know what a finding proves.</h2><p>Version 0.4.0 separates observed facts from things worth investigating. Severity and confidence answer different questions.</p></div>
+      <dl class="confidence-list">
+        <div><dt>Confirmed artifact facts</dt><dd>Directly observed in the release. These establish what shipped, not whether it can be exploited.</dd></div>
+        <div><dt>Leads worth checking</dt><dd>Pattern matches and heuristics that need context. Unknown rules default to suspected, not confirmed.</dd></div>
+        <div><dt>Inventory</dt><dd>Useful package information to explore, without presenting every item as a security problem.</dd></div>
+      </dl>
+      <p class="confidence-note">Only confirmed findings affect the grade. An A is a summary of those checks, not a security certificate.</p>
+    </section>
+
+    <section id="get-started" class="workflows container" aria-labelledby="workflows-title">
+      <div class="section-heading"><h2 id="workflows-title">Choose where you inspect.</h2><p>Use your phone for a hands-on review, or bring the same scan engine into a local script or build pipeline.</p></div>
+      <div class="workflow-layout">
+        <article class="android-workflow" aria-labelledby="android-title">
+          <div class="android-copy"><p class="workflow-label">Ready to install</p><h3 id="android-title">On Android</h3><p>Pick an accessible installed app, open an APK, or share one to FlutterGuard. Review findings and revisit saved scans.</p>
+            <div class="install-actions"><a class="play-cta" href="https://play.google.com/store/apps/details?id=com.flutterguard.app" target="_blank" rel="noopener noreferrer">Google Play<span class="sr-only"> (opens in a new tab)</span></a><a class="quiet" href="https://github.com/anasfik/FlutterGuard/releases/latest" target="_blank" rel="noopener noreferrer">GitHub APK<span class="sr-only"> (opens in a new tab)</span></a></div>
+            <p class="install-note">Android 8.0+. GitHub has <strong>0.4.0</strong>. Public Play was last verified at <strong>0.3.2</strong> on 20 November 2026.</p>
+          </div>
+          <figure class="android-recording">
+            <div class="device-frame"><video class="device-video" autoplay muted loop playsinline controls preload="metadata" poster="/assets/app/demo-poster.webp" width="540" height="1200" aria-label="Earlier FlutterGuard Android walkthrough: picking an app, reviewing findings and exploring dependencies"><source src="/assets/app/demo.mp4" type="video/mp4">Your browser cannot play this video. <a href="/assets/app/demo.mp4">Open the demo recording</a>.</video><p class="video-fallback">Preview unavailable. <a href="/assets/app/demo.mp4">Open the recording</a>.</p></div>
+            <figcaption>Android walkthrough, recorded before 0.4.0.</figcaption>
+            <label class="motion-control"><input id="pause-motion" type="checkbox"><span>Pause motion</span></label>
+          </figure>
+        </article>
+        <article id="cli" class="cli-workflow" aria-labelledby="cli-title">
+          <p class="workflow-label">Build from source</p><h3 id="cli-title">In your terminal or CI</h3>
+          <p>Scan an APK without an Android device. Keep JSON for your tooling, or produce SARIF for a review workflow.</p>
+          <p class="command-label">After building the CLI · JDK 17+</p>
+          <pre tabindex="0"><code>flutterguard scan app.apk \
+  --json report.json \
+  --sarif report.sarif \
+  --fail-on confirmed</code></pre>
+          <p class="cli-detail">Exit <code>0</code>: scan completed. <code>1</code>: confirmed-finding gate hit. <code>2</code>: error. A gate hit means an artifact fact, not a confirmed exploit.</p>
+          <p class="cli-detail">Output files must be new, with an existing parent directory. Build and launcher instructions are in the guide.</p>
+          <a class="text-link" href="/cli/">Build and use the CLI <span aria-hidden="true">↗</span></a>
+          <p class="cli-detail">Scans stay local. Uploading reports as CI artifacts is a separate choice; check your provider’s access and retention settings.</p>
+        </article>
+      </div>
+      <details class="install-caveat"><summary>Moving between versions or install channels?</summary><p>Play and GitHub use different signing channels. GitHub releases before 0.3.4 used another key: updating those installs requires an uninstall, which deletes saved reports, history and settings. Export anything you need first; exports cannot restore that history. Check the <a href="/changelog/">install-channel notes</a> before switching.</p></details>
+      <aside id="engine" class="engine-note" aria-labelledby="engine-title"><div><h3 id="engine-title">One engine, reusable in your own tools.</h3><p>The Android app and CLI use the same pure-JVM <code>:engine</code> module. Build it from source to integrate scans into JVM tooling; it is not a separately published package.</p></div><a class="text-link" href="https://github.com/anasfik/FlutterGuard/tree/main/engine" target="_blank" rel="noopener noreferrer">Explore the engine source <span aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a></aside>
+    </section>
+
+    <section id="compare" class="comparison-section container" aria-labelledby="compare-title">
+      <div><p class="workflow-label">Android release comparison</p><h2 id="compare-title">Give the next release some context.</h2><p>Scan two versions of the same app and review what changed: permissions, endpoints, SDKs, native libraries, findings, signing and network policy.</p><p>When an older report cannot answer a comparison, it says unavailable rather than “no change.” Comparison currently lives in the Android app, not the CLI.</p><a class="text-link" href="https://github.com/anasfik/FlutterGuard#comparing-two-releases" target="_blank" rel="noopener noreferrer">Read the comparison details <span aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a></div>
+      <aside class="evidence-note"><h3>Evidence you can inspect.</h3><p>Read the method and public-release corpus, or use the synthetic benchmark fixture and harness to check known inputs.</p><p>These are bounded checks, not a global accuracy score. FlutterGuard does not run the inspected app or validate recovered credentials.</p><a class="text-link" href="https://github.com/anasfik/FlutterGuard/blob/main/docs/METHODOLOGY.md" target="_blank" rel="noopener noreferrer">Method and limitations <span aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a><a class="text-link" href="https://github.com/anasfik/FlutterGuard/tree/main/benchmarks" target="_blank" rel="noopener noreferrer">Benchmark source <span aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a></aside>
     </section>
 
     <section id="guides" class="guides container" aria-labelledby="guides-title">
-      <div class="section-heading"><h2 id="guides-title">Read before you inspect.</h2><p>Field notes on what a Flutter release exposes, how to read it, what obfuscation actually hides, and where desktop scanners stop.</p></div>
+      <div class="section-heading"><h2 id="guides-title">Read before you inspect.</h2><p>Practical field notes on released APKs, obfuscation and where static evidence stops. Start with the question you have.</p></div>
       <ul class="guide-list">
         <li><a href="/flutter-security/"><span class="guide-kicker">Guide</span><h3>Flutter app security</h3><p>What a release APK exposes, and the checks that catch the common mistakes.</p></a></li>
         <li><a href="/flutter-apk-inspection/"><span class="guide-kicker">How-to</span><h3>Inspect a Flutter APK</h3><p>Read the package on Android, from manifest to libapp.so, without a desktop.</p></a></li>
         <li><a href="/proguard-flutter/"><span class="guide-kicker">Explainer</span><h3>ProGuard for Flutter</h3><p>What R8 hides, what Dart obfuscation changes, and what stays readable in libapp.so.</p></a></li>
-        <li><a href="/mobsf-alternative/"><span class="guide-kicker">Comparison</span><h3>MobSF alternative for Flutter</h3><p>Where a desktop scanner ends and a Flutter release begins.</p></a></li>
+        <li><a href="/mobsf-alternative/"><span class="guide-kicker">Comparison</span><h3>FlutterGuard and MobSF</h3><p>Choose a Flutter-focused local review or a broader static and dynamic analysis setup.</p></a></li>
         <li><a href="/flutter-security-checklist/"><span class="guide-kicker">Checklist</span><h3>Security audit checklist</h3><p>The checks worth running on a release before handover, in order.</p></a></li>
         <li><a href="/flutter-release-corpus/"><span class="guide-kicker">Data</span><h3>What 26 releases expose</h3><p>Measured results from public Flutter APKs, with method and limits.</p></a></li>
       </ul>
     </section>
 
     <section id="faq" class="faq container" aria-labelledby="faq-title">
-      <div class="faq-heading"><h2 id="faq-title">A few things worth knowing.</h2><p>Free to inspect. Open to understand. Built to keep the analysis local.</p></div>
+      <div class="faq-heading"><h2 id="faq-title">A few things worth knowing.</h2><p>Clear boundaries make the report more useful. Here is what to expect before your first scan.</p></div>
       <div class="faq-list">
-        <details><summary>Is FlutterGuard free?</summary><p>Yes. It is open source under the MIT licence, with no account, no ads and no paid tier.</p></details>
-        <details><summary>Does it need an internet connection?</summary><p>No. The app has no INTERNET permission, so scans run entirely on the device.</p></details>
-        <details><summary>Which apps can it check?</summary><p>Flutter apps you own or are authorised to test, either installed on the device or supplied as a single APK.</p></details>
-        <details><summary>Does a finding prove the app is exploitable?</summary><p>No. Findings are static evidence from the release, not a confirmed exploit.</p></details>
-        <details><summary>Where do updates come from?</summary><p>Updates ship through Google Play, and APK releases are also published on GitHub.</p></details>
+        <details><summary>Is FlutterGuard free?</summary><p>Yes. The Android app, CLI and engine are open source under the MIT licence. There is no account or paid tier.</p></details>
+        <details><summary>Does my APK leave my machine?</summary><p>Scans run locally. The Android app has no INTERNET permission, and the CLI does not upload APKs. Building the CLI can download dependencies. If you upload reports from CI, your CI provider stores those artifacts.</p></details>
+        <details><summary>Which files and apps can I inspect?</summary><p>Inspect Flutter apps you own or are authorised to test. Android can read accessible installed apps or a single APK; the CLI accepts a single APK. Convert AABs to APKs first. Device restrictions can prevent installed-app access.</p></details>
+        <details><summary>Does a confirmed finding prove a vulnerability?</summary><p>No. Confirmed means a fact observed in the packaged artifact, not a working exploit, valid credential or reachable service. Only confirmed findings affect the grade. A good grade does not certify security.</p></details>
+        <details><summary>Can I compare releases from the CLI?</summary><p>Release comparison is available in the Android app for scans of the same app. The CLI currently scans and exports; it does not have a compare command.</p></details>
+        <details><summary>Does it recover Dart source code?</summary><p>No. It reads packaged evidence, strings and recognised snapshot metadata. It does not reconstruct Dart source, trace runtime behaviour or prove whether a release is obfuscated.</p></details>
+        <details><summary>How do I get the latest version?</summary><p>GitHub has the 0.4.0 Android APK. Public Google Play was last verified at 0.3.2 on 20 November 2026; check the store for its current version. Build the CLI and engine from source. Installation and signing caveats are above.</p></details>
       </div>
     </section>
 
     <section id="contact" class="contact-panel container" aria-labelledby="contact-title"><h2 id="contact-title">Good tools get better with feedback.</h2><div class="contact-copy"><p>A question, a suspicious finding, or an idea for the next release? Talk directly to the person building it.</p><ul class="contact-actions"><li><a href="mailto:work@gwhyyy.com">work@gwhyyy.com <span aria-hidden="true">↗</span></a></li><li><a href="https://github.com/anasfik/FlutterGuard/issues" target="_blank" rel="noopener noreferrer">Open a GitHub issue <span aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a></li></ul></div></section>
   </main>
-  <footer class="site-footer container"><p>FlutterGuard. Built by <a href="https://gwhyyy.com" target="_blank" rel="noopener noreferrer">Anas Fikhi<span class="sr-only"> (opens in a new tab)</span></a>.</p><nav class="footer-links" aria-label="Site"><a href="/about/">About</a><a href="/contact/">Contact</a><a href="/privacy/">Privacy</a><a href="/flutter-security-checklist/">Checklist</a><a href="/flutter-release-corpus/">Corpus</a><a href="/changelog/">Changelog</a><a href="https://github.com/anasfik/FlutterGuard/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT licence<span class="sr-only"> (opens in a new tab)</span></a></nav></footer>
+  <footer class="site-footer container"><p>FlutterGuard. Built by <a href="https://gwhyyy.com" target="_blank" rel="noopener noreferrer">Anas Fikhi<span class="sr-only"> (opens in a new tab)</span></a>.</p><nav class="footer-links" aria-label="Site"><a href="/cli/">CLI guide</a><a href="/about/">About</a><a href="/contact/">Contact</a><a href="/privacy/">Privacy</a><a href="/changelog/">Changelog</a><a href="https://github.com/anasfik/FlutterGuard/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT licence<span class="sr-only"> (opens in a new tab)</span></a></nav></footer>
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"f9110d5432f446d6833224ec262cdd83"}'></script>
 </body>
 </html>

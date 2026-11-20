@@ -1,11 +1,13 @@
 # FlutterGuard
 
-> Security audit any released Flutter app. FlutterGuard is an Android app that reads an installed Flutter app or a single APK on the device and reports libraries, endpoints and exposed strings. No INTERNET permission, no account, MIT licensed. Android 8.0 and newer.
+> See what ships in your Flutter app. FlutterGuard inspects Flutter Android APKs with an Android app or a source-built CLI that share one JVM detection engine. It reports manifest policy, compiled Dart strings, assets, dependencies, endpoints and signing evidence. No account, no upload, MIT licensed.
 
 - [Canonical site](https://flutterguard.dev/)
+- [CLI guide](https://flutterguard.dev/cli/)
 - [Google Play listing](https://play.google.com/store/apps/details?id=com.flutterguard.app)
-- [Download the latest APK](https://github.com/anasfik/FlutterGuard/releases/latest)
+- [Latest GitHub release](https://github.com/anasfik/FlutterGuard/releases/latest)
 - [Source (MIT)](https://github.com/anasfik/FlutterGuard)
+- [Engine source](https://github.com/anasfik/FlutterGuard/tree/main/engine)
 - [Privacy and data handling](https://flutterguard.dev/privacy/)
 - [About](https://flutterguard.dev/about/)
 - [Contact](https://flutterguard.dev/contact/)
@@ -13,22 +15,65 @@
 - [Issues](https://github.com/anasfik/FlutterGuard/issues)
 - Maintainer: Anas Fikhi, Flutter and Software Engineer
 
-## What it does
+## Android app
 
 - Discover: FlutterGuard lists the Flutter apps installed on this device, or you pick a single APK.
-- Inspect: Read the SDK versions, endpoints and exposed strings inside the release.
-- Report: Save the evidence on the phone and come back to it whenever you need it.
+- Inspect: Read SDK versions, endpoints and exposed strings inside the release.
+- Report: Save the evidence on the phone and return to it later.
+- The app declares no INTERNET permission. Android 8.0 and newer.
 
-## When to use FlutterGuard
+## Distribution and signing
 
-Use it when the artifact is already on an Android phone and the question is what that release exposes:
+- The verified GitHub release is 0.4.0 and contains the Android APK.
+- The last observed public Play version is 0.3.2. Beta 0.4.0 availability on Play is not verified; do not assume feature parity between channels.
+- Play and GitHub use separate signing channels. GitHub builds before 0.3.4 used an older key. Moving from one of those builds to 0.4.0 requires uninstalling the app, which deletes local reports, history and settings. Exporting a report does not restore that history.
 
-- Audit your own release APK before publishing, or an app you are authorised to test.
-- Read `libapp.so`, `flutter_assets` and the manifest without standing up a desktop toolchain.
-- Find endpoints, SDK markers and exposed strings in a Flutter app when a DEX-only scan looks clean.
-- Do a first offline pass before a deeper dynamic assessment, and keep the report as JSON or Markdown.
+## CLI and CI
 
-Do not use it for dynamic analysis, traffic interception, authentication testing, iOS apps or AAB files. Use MobSF for those, and see the comparison: https://flutterguard.dev/mobsf-alternative/
+No published CLI download, Maven package or JitPack artifact is established. Build the launcher from the repository:
+
+```sh
+git clone https://github.com/anasfik/FlutterGuard.git
+cd FlutterGuard
+./gradlew :cli:installDist
+cli/build/install/flutterguard/bin/flutterguard scan INPUT.apk --json OUTPUT.json --sarif OUTPUT.sarif --fail-on confirmed
+```
+
+- Requires JDK 17 or newer and the repository's existing Android SDK build setup. The launcher runs the engine on a plain JVM; the scanning machine needs no Android device.
+- Output parent directories must exist, and output files must not already exist. The CLI refuses to overwrite and stages new output before an atomic publish.
+- Exit 0 is success, 1 is the `--fail-on confirmed` gate, 2 is any argument, input, scan or output error.
+- `--json` writes redacted schema `flutterguard/report/2`; secret values are masked. `--sarif` writes SARIF 2.1.0 with APK locations and no source lines.
+- GitHub code-scanning ingestion is not verified. Local SARIF validation is not GitHub acceptance.
+- The CLI scans one APK. It does not assemble split APKs, decompile Dart, or compare releases. Comparisons exist only in the Android app, for compatible scans of the same package.
+- The scan is local. Building may fetch dependencies, and CI artifact uploads follow the workflow's policy.
+
+## Engine
+
+The shared engine is a repository module at https://github.com/anasfik/FlutterGuard/tree/main/engine. It is not a separately published SDK. The Android app and CLI both call it.
+
+## What it reads
+
+- Manifest and package data: package name, version, SDK levels, permissions, exported components, ABIs, backup and debug flags.
+- Release contents: bundled SDKs, hosts, endpoints, keys and configuration that shipped in the APK.
+- `libapp.so`: strings and symbols inside the AOT machine code.
+- Signing data: certificate identity and structural signature facts.
+- Route-like strings found in the binary.
+- Snapshot metadata describing how the Dart library was built. It is not decompilation and does not definitively prove obfuscation.
+
+## Confidence and grades
+
+Confirmed findings are artifact facts. Suspected matches are leads worth checking. Inventory is listed without a judgement. Only confirmed findings affect the grade. A-F are triage labels, not a security certificate; a confirmed finding does not prove exploitability, credential validity or endpoint reachability.
+
+## Shared limits
+
+- Static analysis is evidence, not proof. A finding is not a confirmed exploit.
+- No runtime hooking, traffic interception, authentication testing or live execution.
+- `libapp.so` is AOT machine code: strings and symbols, not decompiled Dart.
+- Routes are candidate strings, not a navigation graph.
+- AABs are not supported; convert with bundletool first.
+- Some ROMs block APK reads.
+- Scan only apps you own or are authorised to test.
+- Uninstalling the Android app deletes private reports and history.
 
 ## Guides
 
@@ -38,47 +83,32 @@ Do not use it for dynamic analysis, traffic interception, authentication testing
 - [MobSF alternative for auditing Flutter APKs](https://flutterguard.dev/mobsf-alternative/)
 - [Flutter app security audit checklist](https://flutterguard.dev/flutter-security-checklist/)
 - [What 26 released Flutter apps expose](https://flutterguard.dev/flutter-release-corpus/)
+- [FlutterGuard CLI: scan Flutter APKs in CI](https://flutterguard.dev/cli/)
 - [Changelog](https://flutterguard.dev/changelog/) and [Atom feed](https://flutterguard.dev/feed.xml)
 
-## Flutter-aware inspection
+## Site pages
 
-A Flutter release carries clues in its compiled library and asset bundle, not just its permissions. FlutterGuard reads these layers alongside SDK versions, embedded endpoints, exposed strings, AI providers, signing information and network policy.
-
-## What it reads
-
-- Manifest and package data: package name, version, SDK levels, permissions, exported components, ABIs, backup and debug flags.
-- Release contents: bundled SDKs, hosts, endpoints, keys and configuration that shipped in the APK.
-- libapp.so: strings and symbols inside the AOT machine code.
-- Signing data: certificate identity and structural signature facts.
-- Route-like strings found in the binary.
-
-## Grades
-
-A, C and F are triage labels on each check result. They tell you what to look at first. They are not a security certification.
-
-## Offline by design
-
-FlutterGuard requests no INTERNET permission. Scans run locally without uploads, and reports are kept in private app storage. A report can leave the device when you explicitly export it and choose a destination. No account, no root, no PC.
-
-## Limits
-
-- Static analysis is evidence, not proof. A finding is not a confirmed exploit.
-- No runtime hooking and no traffic interception.
-- libapp.so is AOT machine code: strings and symbols, not decompiled Dart.
-- Routes are candidate strings, not a navigation graph.
-- AABs are not supported; convert with bundletool first.
-- The signature check is structural.
-- Some ROMs block APK reads.
-- Scan only apps you own or are authorised to test.
-- Uninstalling the app deletes private reports and history.
+- Home: https://flutterguard.dev/
+- About: https://flutterguard.dev/about/
+- Contact: https://flutterguard.dev/contact/
+- Privacy and data handling: https://flutterguard.dev/privacy/
+- Changelog: https://flutterguard.dev/changelog/
+- CLI: https://flutterguard.dev/cli/
+- Flutter security: https://flutterguard.dev/flutter-security/
+- Flutter APK inspection: https://flutterguard.dev/flutter-apk-inspection/
+- ProGuard for Flutter: https://flutterguard.dev/proguard-flutter/
+- MobSF alternative: https://flutterguard.dev/mobsf-alternative/
+- Flutter security checklist: https://flutterguard.dev/flutter-security-checklist/
+- Flutter release corpus: https://flutterguard.dev/flutter-release-corpus/
 
 ## FAQ
 
 - Is FlutterGuard free? Yes, open source under the MIT licence, no account, no ads, no paid tier.
-- Does it need an internet connection? No, the app has no INTERNET permission and scans run on the device.
+- Does the Android app need an internet connection? No, it has no INTERNET permission and scans run on the device.
+- Does the CLI need an internet connection? The scan is local. Building may download Gradle dependencies, and a CI job may upload artifacts under its own policy.
 - Which apps can it check? Flutter apps you own or are authorised to test, installed or supplied as a single APK.
 - Does a finding prove the app is exploitable? No, findings are static evidence from the release.
-- Where do updates come from? Updates ship through Google Play, and APK releases are also published on GitHub.
+- Where do updates come from? Google Play and GitHub releases; the channels have different versions and signing keys.
 
 ## Licence
 

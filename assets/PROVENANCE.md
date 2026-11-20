@@ -1,7 +1,8 @@
 # Asset provenance
 
-Last updated: 2026-11-02. The app icon, canonical captures and recorded demo
-are genuine app assets. The direct redesign does not alter their pixels.
+Last updated: 2026-11-20. The app icon, canonical captures and recorded demo
+are genuine app assets. The recording predates 0.4.0 and is labelled that way
+on the homepage; it does not demonstrate the new confidence or comparison UI.
 
 ## Screenshots
 
@@ -34,11 +35,12 @@ is an 80.97-second, 1080x2400 HEVC recording, 108,560,057 bytes, with no audio.
 It shows FlutterGuard's inventory, findings, dependencies and scan queue.
 
 - `assets/app/demo.mp4`: H.264, yuv420p, 540x1200, 30 fps, 81 seconds,
-  4,778,363 bytes, no audio, faststart. SHA-256:
-  `0bf3982e152929d4fee7b0220376d0712802ce8fcd49291f3a12625797f866a0`.
-- Encoding: `ffmpeg -i latest.mp4 -vf scale=540:1200 -r 30 -an -c:v libx264 -crf 31 -preset medium -pix_fmt yuv420p -movflags +faststart demo.mp4`.
+  3,006,187 bytes, no audio, faststart. SHA-256:
+  `4ca753f5c19b6852d8a9f1e65c4b1d78954314b90a0a70273152ef87c374b4c6`.
+  This is the existing optimized delivery file, reused without modification
+  for the 0.4.0 site rework. The exact optimization command is not recorded.
 - `assets/app/demo-poster.webp`: Findings frame at 20 seconds, 360x800,
-  30,570 bytes. SHA-256:
+  30,270 bytes. SHA-256:
   `9b3c0542af6c41d53d900836cf56792d95b5606c816003a2016899b99790859e`.
 
 The video has native controls and an explicit recording link on playback
@@ -48,12 +50,13 @@ control pauses the video and decorative CSS animations.
 ## OG image
 
 `og-image.png` (1200x630, SHA-256
-`a0897a65822bf0ffd914e2cbed6fcf3a20b7faac12a9b1e0dffd94b49f28984a`) was
-rendered for the split showcase with headless Chromium from the real app
-poster, the self-hosted Manrope face and the page's own color tokens. It carries
-the current headline, "Security audit any released Flutter app." No stock
-or generated imagery. The source composition is a local scratch file, not a
-site dependency.
+`be6c43f39b817e88c190c0f552804c156fb82530f515af1116e35e056c9e69ab`) was
+rendered on 2026-11-20 with headless Chromium from the homepage's real brand
+icon, self-hosted Manrope face, color tokens and explanatory APK diagram.
+It carries the headline, "See what ships in your Flutter app." The diagram
+connects the shared engine to Android and terminal workflows; it is not a
+product screenshot or measured scan result. No stock or AI-generated imagery.
+The source composition is local scratch, not a site dependency.
 
 ## Official brand assets
 
@@ -68,13 +71,13 @@ re-typing.
 
 - The official badge and lockup remain unmodified reference assets but are
   not displayed in the direct redesign. GitHub is a plain navbar text link.
-- The sole hero install action links to the user-requested Google Play URL:
+- The Android workflow links to the Google Play URL:
   `https://play.google.com/store/apps/details?id=com.flutterguard.app`.
   It uses the inline Google Play glyph from the prior implementation, not a
-  modified official badge. The latest bounded default/US listing checks
-  returned 404; the link is future-ready, not proof of public availability.
+  modified official badge. The public US listing returned HTTP 200 on
+  2026-11-20 and showed 0.3.2. The GitHub release separately offers 0.4.0.
 - The Flutter mark is reused from the repository's `flutter.svg` glyph.
-  APK layers and orbit graphics are explanatory CSS diagrams, not invented
+  APK layers and workflow connections are explanatory CSS diagrams, not invented
   app screenshots or measured scan results. No endorsement is implied.
 
 ## Font

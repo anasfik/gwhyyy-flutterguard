@@ -26,7 +26,7 @@
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="FlutterGuard app preview inside a phone frame beside the line: Security audit any released Flutter app.">
+  <meta property="og:image:alt" content="FlutterGuard: see what ships in your Flutter app. Android, CLI and shared engine.">
   <meta property="og:locale" content="en_US">
   <meta property="article:published_time" content="2026-11-18">
   <meta property="article:modified_time" content="2026-11-18">
@@ -36,7 +36,7 @@
   <meta name="twitter:description" content="A working checklist for reviewing a shipped Flutter APK: policy, exposed data, dependencies, endpoints and signing.">
   <meta name="twitter:image" content="https://flutterguard.dev/og-image.png">
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"TechArticle","headline":"Flutter app security audit checklist","description":"A release checklist for Flutter apps on Android: artifact identity, manifest policy, exposed strings, dependencies, endpoints and signing.","url":"https://flutterguard.dev/flutter-security-checklist/","mainEntityOfPage":"https://flutterguard.dev/flutter-security-checklist/","datePublished":"2026-11-18","dateModified":"2026-11-18","inLanguage":"en","image":"https://flutterguard.dev/og-image.png","author":{"@type":"Person","name":"Anas Fikhi","url":"https://gwhyyy.com"},"publisher":{"@type":"Organization","name":"FlutterGuard","url":"https://flutterguard.dev/","logo":{"@type":"ImageObject","url":"https://flutterguard.dev/icon-512.png"}},"about":{"@type":"SoftwareApplication","name":"FlutterGuard","url":"https://flutterguard.dev/","applicationCategory":"SecurityApplication","operatingSystem":"Android 8.0+"}}
+  {"@context":"https://schema.org","@type":"TechArticle","headline":"Flutter app security audit checklist","description":"A release checklist for Flutter apps on Android: artifact identity, manifest policy, exposed strings, dependencies, endpoints and signing.","url":"https://flutterguard.dev/flutter-security-checklist/","mainEntityOfPage":"https://flutterguard.dev/flutter-security-checklist/","datePublished":"2026-11-18","dateModified":"2026-11-18","inLanguage":"en","image":"https://flutterguard.dev/og-image.png","author":{"@type":"Person","name":"Anas Fikhi","url":"https://gwhyyy.com"},"publisher":{"@type":"Organization","name":"FlutterGuard","url":"https://flutterguard.dev/","logo":{"@type":"ImageObject","url":"https://flutterguard.dev/icon-512.png"}},"about":{"@type":"SoftwareApplication","name":"FlutterGuard","url":"https://flutterguard.dev/","applicationCategory":"SecurityApplication","operatingSystem":"Android 8.0+; source-built CLI requires JDK 17+"}}
   </script>
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"FlutterGuard","item":"https://flutterguard.dev/"},{"@type":"ListItem","position":2,"name":"Flutter app security checklist","item":"https://flutterguard.dev/flutter-security-checklist/"}]}
@@ -130,16 +130,18 @@
         </ul>
 
         <h2>What the checklist cannot prove</h2>
-        <p>It cannot observe runtime behaviour, intercept traffic, test authentication or confirm exploitability. Server-side authorisation, rate limits and data exposure sit outside the APK. A report is strongest when every item names its source and says what would confirm it. The <a href="/flutter-security/">Flutter security guide</a> explains the reasoning behind each group; the <a href="/flutter-apk-inspection/">APK inspection how-to</a> covers the commands and a phone-first workflow.</p>
+        <p>It cannot observe runtime behaviour, intercept traffic, test authentication or confirm exploitability. Server-side authorisation, rate limits and data exposure sit outside the APK. A report is strongest when every item names its source and says what would confirm it. The <a href="/flutter-security/">Flutter security guide</a> explains the reasoning behind each group; the <a href="/flutter-apk-inspection/">APK inspection how-to</a> covers the phone workflow and the source-built CLI.</p>
 
-        <h2>Run it on the device</h2>
+        <h2>Run it on a device or from a terminal</h2>
         <p>FlutterGuard performs groups 1 to 6 on an Android phone, without a desktop and without executing the app. It groups findings by artifact, policy, data, dependencies, endpoints and signing, then saves the report as JSON or Markdown. The app has no INTERNET permission, so the evidence stays local.</p>
+        <p>The <a href="/cli/">source-built CLI</a> performs the same static checks from a terminal and writes redacted JSON or SARIF, so the same groups can run in CI. It takes one APK per invocation and has no comparison command; use the Android app for release-to-release comparisons of the same package.</p>
 
         <div class="article-cta">
           <h2>Take the checklist to the release.</h2>
-          <p>Install from Google Play, or use the APK from GitHub if you need a specific build. Both are the same MIT-licensed app.</p>
+          <p>Install from Google Play, or use the APK from GitHub if you need a specific build. The CLI is built from source with JDK 17 or newer.</p>
           <a class="button" href="https://play.google.com/store/apps/details?id=com.flutterguard.app" target="_blank" rel="noopener noreferrer">Get it on Google Play<span class="sr-only"> (opens in a new tab)</span></a>
           <a class="quiet" href="https://github.com/anasfik/FlutterGuard/releases/latest" target="_blank" rel="noopener noreferrer">Download the APK<span class="sr-only"> (opens in a new tab)</span></a>
+          <a class="quiet" href="/cli/">Build the CLI</a>
         </div>
 
         <nav class="article-related" aria-label="Related pages">
@@ -148,6 +150,7 @@
             <li><a href="/flutter-security/">Flutter security: what a release APK exposes</a></li>
             <li><a href="/flutter-apk-inspection/">Flutter APK inspection: reading a release on Android</a></li>
             <li><a href="/flutter-release-corpus/">What 26 released Flutter apps expose</a></li>
+            <li><a href="/cli/">FlutterGuard CLI: scan Flutter APKs in CI</a></li>
             <li><a href="/changelog/">FlutterGuard changelog</a></li>
           </ul>
         </nav>

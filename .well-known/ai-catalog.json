@@ -1,7 +1,7 @@
 {
   "name": "FlutterGuard",
   "url": "https://flutterguard.dev/",
-  "description": "Offline Android app that audits a released Flutter app or APK on the device: manifest policy, compiled Dart library, assets, dependencies, endpoints and signing. No INTERNET permission, no account, MIT licensed.",
+  "description": "Flutter APK inspection on Android and in CI: the app reads a release on the device, and a source-built CLI runs the same JVM engine to write redacted JSON and SARIF. No account, MIT licensed.",
   "contact": "work@gwhyyy.com",
   "license": "https://github.com/anasfik/FlutterGuard/blob/main/LICENSE",
   "application": {
@@ -12,6 +12,17 @@
       "apk": "https://github.com/anasfik/FlutterGuard/releases/latest"
     }
   },
+  "cli": {
+    "source": "https://github.com/anasfik/FlutterGuard/tree/main/cli",
+    "build": "./gradlew :cli:installDist",
+    "runtime": "JVM, JDK 17 or newer",
+    "distribution": "Source build only: no published CLI distribution or Maven/JitPack package is established.",
+    "outputs": ["Redacted JSON, schema flutterguard/report/2", "SARIF 2.1.0"]
+  },
+  "engine": {
+    "source": "https://github.com/anasfik/FlutterGuard/tree/main/engine",
+    "distribution": "Shared repository module, not a separately published SDK."
+  },
   "resources": {
     "llms": "https://flutterguard.dev/llms.txt",
     "llmsFull": "https://flutterguard.dev/llms-full.txt",
@@ -20,7 +31,7 @@
     "markdown": "Send Accept: text/markdown to any page URL for a Markdown rendering, or request its index.md twin."
   },
   "pages": [
-    {"url": "https://flutterguard.dev/", "title": "FlutterGuard: security audit any released Flutter app", "markdown": "https://flutterguard.dev/index.md"},
+    {"url": "https://flutterguard.dev/", "title": "FlutterGuard: Flutter APK inspection on Android and in CI", "markdown": "https://flutterguard.dev/index.md"},
     {"url": "https://flutterguard.dev/flutter-security/", "title": "Flutter security: what a release APK exposes", "markdown": "https://flutterguard.dev/flutter-security/index.md"},
     {"url": "https://flutterguard.dev/flutter-apk-inspection/", "title": "Flutter APK inspection: reading a release on Android", "markdown": "https://flutterguard.dev/flutter-apk-inspection/index.md"},
     {"url": "https://flutterguard.dev/proguard-flutter/", "title": "ProGuard for Flutter: what R8 and obfuscation hide", "markdown": "https://flutterguard.dev/proguard-flutter/index.md"},
@@ -30,7 +41,8 @@
     {"url": "https://flutterguard.dev/changelog/", "title": "FlutterGuard changelog", "markdown": "https://flutterguard.dev/changelog/index.md"},
     {"url": "https://flutterguard.dev/about/", "title": "About FlutterGuard", "markdown": "https://flutterguard.dev/about/index.md"},
     {"url": "https://flutterguard.dev/contact/", "title": "Contact FlutterGuard", "markdown": "https://flutterguard.dev/contact/index.md"},
-    {"url": "https://flutterguard.dev/privacy/", "title": "Privacy and data handling", "markdown": "https://flutterguard.dev/privacy/index.md"}
+    {"url": "https://flutterguard.dev/privacy/", "title": "Privacy and data handling", "markdown": "https://flutterguard.dev/privacy/index.md"},
+    {"url": "https://flutterguard.dev/cli/", "title": "FlutterGuard CLI: scan Flutter APKs in CI", "markdown": "https://flutterguard.dev/cli/index.md"}
   ],
   "agentSkill": {
     "name": "flutter-apk-security",

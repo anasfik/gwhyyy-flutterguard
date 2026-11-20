@@ -26,7 +26,7 @@
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="FlutterGuard app preview inside a phone frame beside the line: Security audit any released Flutter app.">
+  <meta property="og:image:alt" content="FlutterGuard: see what ships in your Flutter app. Android, CLI and shared engine.">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Privacy and data handling">
   <meta name="twitter:description" content="The app has no network permission. The website uses cookieless analytics.">
@@ -55,13 +55,16 @@
       <header class="article-hero container">
         <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">FlutterGuard</a><span aria-hidden="true">/</span><span aria-current="page">Privacy</span></nav>
         <h1>Privacy and data handling</h1>
-        <p class="article-lead">The app cannot send what it can read. The site collects no accounts and no cookies.</p>
+        <p class="article-lead">The Android app cannot send what it can read, and the CLI writes only where you point it. The site collects no accounts and no cookies.</p>
       </header>
 
       <div class="article-body container">
         <h2>The Android app</h2>
         <p>FlutterGuard declares no <code>INTERNET</code> permission. It cannot upload a report, contact a server or fetch a lookup. Everything it reads stays on the device, and saved reports live in the app's private storage, removed when the app is uninstalled. There is no account, no sign-in, no advertising SDK and no crash reporter.</p>
         <p>The app reads an APK you choose or an installed app you select. It does not run the app, record the screen or collect device identifiers. If a report contains a value that looks like a credential, it is masked in the interface by default and only revealed when you ask.</p>
+
+        <h2>The CLI</h2>
+        <p>The CLI runs locally and reads the APK you pass to it. It writes reports to the paths you choose and makes no network request during a scan. Building the project may download Gradle dependencies, and a CI workflow that runs the CLI may upload the JSON or SARIF artifacts it produces; that upload is the workflow's decision and is visible in its configuration. Detected secret values stay masked in the JSON report the CLI writes.</p>
 
         <h2>This website</h2>
         <p>The site is static. It sets no cookies, has no login and no contact form, and stores nothing about a visit on the server. Analytics are provided by Cloudflare Web Analytics, which reports aggregate page views and performance without cookies, without fingerprinting and without cross-site tracking. The beacon is served from Cloudflare and records the page path, referrer, country and basic device class in aggregate.</p>

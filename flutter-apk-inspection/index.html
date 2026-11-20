@@ -33,11 +33,11 @@
   <meta property="article:author" content="Anas Fikhi">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Flutter APK inspection: reading a release on Android">
-  <meta name="twitter:description" content="A phone-first workflow for reading a released Flutter package, plus the desktop commands when you need them.">
+  <meta name="twitter:description" content="A workflow for reading a released Flutter package on Android or from the source-built CLI, plus the desktop commands when you need them.">
   <meta name="twitter:image" content="https://flutterguard.dev/og-flutter-apk-inspection.png">
   <meta name="twitter:image:alt" content="How-to cover: inspecting a Flutter APK on Android, beside the FlutterGuard app.">
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"TechArticle","headline":"Flutter APK inspection: reading a release on Android","description":"Inspect a Flutter APK on Android without a desktop: read the manifest, libapp.so and flutter_assets in five passes, then triage findings without false alarms.","url":"https://flutterguard.dev/flutter-apk-inspection/","mainEntityOfPage":"https://flutterguard.dev/flutter-apk-inspection/","datePublished":"2026-11-02","dateModified":"2026-11-02","inLanguage":"en","image":"https://flutterguard.dev/og-flutter-apk-inspection.png","author":{"@type":"Person","name":"Anas Fikhi","url":"https://gwhyyy.com"},"publisher":{"@type":"Organization","name":"FlutterGuard","url":"https://flutterguard.dev/","logo":{"@type":"ImageObject","url":"https://flutterguard.dev/icon-512.png"}},"about":{"@type":"SoftwareApplication","name":"FlutterGuard","url":"https://flutterguard.dev/","applicationCategory":"SecurityApplication","operatingSystem":"Android 8.0+"}}
+  {"@context":"https://schema.org","@type":"TechArticle","headline":"Flutter APK inspection: reading a release on Android","description":"Inspect a Flutter APK on Android without a desktop: read the manifest, libapp.so and flutter_assets in five passes, then triage findings without false alarms.","url":"https://flutterguard.dev/flutter-apk-inspection/","mainEntityOfPage":"https://flutterguard.dev/flutter-apk-inspection/","datePublished":"2026-11-02","dateModified":"2026-11-02","inLanguage":"en","image":"https://flutterguard.dev/og-flutter-apk-inspection.png","author":{"@type":"Person","name":"Anas Fikhi","url":"https://gwhyyy.com"},"publisher":{"@type":"Organization","name":"FlutterGuard","url":"https://flutterguard.dev/","logo":{"@type":"ImageObject","url":"https://flutterguard.dev/icon-512.png"}},"about":{"@type":"SoftwareApplication","name":"FlutterGuard","url":"https://flutterguard.dev/","applicationCategory":"SecurityApplication","operatingSystem":"Android 8.0+; source-built CLI requires JDK 17+"}}
   </script>
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"FlutterGuard","item":"https://flutterguard.dev/"},{"@type":"ListItem","position":2,"name":"Flutter APK inspection","item":"https://flutterguard.dev/flutter-apk-inspection/"}]}
@@ -66,7 +66,7 @@
       <header class="article-hero container">
         <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">FlutterGuard</a><span aria-hidden="true">/</span><span aria-current="page">Flutter APK inspection</span></nav>
         <h1>Flutter APK inspection: reading a release on Android</h1>
-        <p class="article-lead">A Flutter package can be read on the phone that runs it. No root, no workstation, no upload. The useful checks fit in one careful pass over the manifest, the compiled library and the assets.</p>
+        <p class="article-lead">A Flutter package can be read on the phone that runs it, or from a source-built CLI in a terminal. No root, no upload. The useful checks fit in one careful pass over the manifest, the compiled library and the assets.</p>
         <p class="article-meta">By Anas Fikhi · <time datetime="2026-11-02">2 November 2026</time> · 7 minute read</p>
       </header>
 
@@ -75,7 +75,7 @@
 
         <h2>Before you start</h2>
         <p>Inspect only an app you own or have written permission to test. The techniques below are read-only, but authorisation is still the boundary between an audit and an intrusion. Keep findings local while you triage, and mask any value that looks like a credential.</p>
-        <p>You need the APK, an Android device or emulator, and a tool that can open a package. On the phone, <a href="/">FlutterGuard</a> does the reading in place. On a workstation, <code>apktool</code>, <code>jadx</code>, <code>unzip</code> and <code>strings</code> cover the same ground with more setup.</p>
+        <p>You need the APK, an Android device or emulator, and a tool that can open a package. On the phone, <a href="/">FlutterGuard</a> does the reading in place. On a workstation, the <a href="/cli/">source-built FlutterGuard CLI</a> runs the same engine, while <code>apktool</code>, <code>jadx</code>, <code>unzip</code> and <code>strings</code> cover the same ground with more setup.</p>
 
         <h2>Get the APK</h2>
         <p>There are three honest sources:</p>
@@ -91,7 +91,7 @@
         <p>Start with package identity, permissions and exported components. Then check intent filters, backup settings, debuggable flags, cleartext traffic and any network security configuration. These are policy decisions, so they are easier to judge than a random string.</p>
 
         <h3>2. Compiled Dart</h3>
-        <p><code>lib/&lt;abi&gt;/libapp.so</code> holds the AOT snapshot. It is machine code, not recoverable Dart source, but it keeps string literals and symbol metadata. Look for URLs, hostnames, header names, key-like values and <code>package:</code> references. Symbol readability also tells you whether the build used <code>--obfuscate</code>.</p>
+        <p><code>lib/&lt;abi&gt;/libapp.so</code> holds the AOT snapshot. It is machine code, not recoverable Dart source, but it keeps string literals and symbol metadata. Look for URLs, hostnames, header names, key-like values and <code>package:</code> references. Symbol readability is a heuristic about whether the build used <code>--obfuscate</code>; it is not a definitive verdict.</p>
 
         <h3>3. Assets</h3>
         <p><code>flutter_assets/</code> is a file tree. Read the asset manifest, fonts, JSON, images and <code>NOTICES.Z</code>. Bundled configuration is public configuration. If a file would be embarrassing in a zip, it should not be in the APK.</p>
@@ -113,8 +113,8 @@
         <p>The app has no INTERNET permission, so nothing leaves the device. That also means no cloud lookups, no reputation service and no automatic CVE matching. The report is evidence for your own review.</p>
 
         <h2>Doing it on a desktop</h2>
-        <p>When you need a workstation, these commands cover the first pass. Run them in a directory that contains only the APK you are authorised to inspect.</p>
-        <pre><code>unzip -l app-release.apk
+        <p>For a Flutter-aware pass, build the <a href="/cli/">FlutterGuard CLI from source</a> and scan the APK to redacted JSON or SARIF. When you want the individual commands, run them in a directory that contains only the APK you are authorised to inspect.</p>
+        <pre tabindex="0"><code>unzip -l app-release.apk
 
 apktool d app-release.apk -o decoded
 
@@ -155,7 +155,8 @@ strings lib/arm64-v8a/libapp.so \
             <li><a href="/flutter-security/">Flutter security: what a release APK exposes</a></li>
             <li><a href="/mobsf-alternative/">MobSF alternative for auditing Flutter APKs</a></li>
             <li><a href="/proguard-flutter/">ProGuard and R8 in Flutter: what they hide</a></li>
-            <li><a href="/">FlutterGuard: on-device Flutter APK inspection</a></li>
+            <li><a href="/cli/">FlutterGuard CLI: scan Flutter APKs in CI</a></li>
+            <li><a href="/">FlutterGuard: what ships in your Flutter app</a></li>
             <li><a href="/flutter-security-checklist/">Flutter release security audit checklist</a></li>
             <li><a href="/flutter-release-corpus/">What 26 public release APKs exposed</a></li>
             <li><a href="/changelog/">Release notes</a></li>

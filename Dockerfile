@@ -13,6 +13,7 @@ COPY changelog/ /usr/share/nginx/html/changelog/
 COPY about/ /usr/share/nginx/html/about/
 COPY contact/ /usr/share/nginx/html/contact/
 COPY privacy/ /usr/share/nginx/html/privacy/
+COPY cli/ /usr/share/nginx/html/cli/
 COPY assets/app/inventory.webp assets/app/icon-512.png assets/app/demo.mp4 assets/app/demo-poster.webp /usr/share/nginx/html/assets/app/
 COPY assets/brand/ /usr/share/nginx/html/assets/brand/
 COPY assets/fonts/manrope-latin.woff2 assets/fonts/OFL.txt /usr/share/nginx/html/assets/fonts/

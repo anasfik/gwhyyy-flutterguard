@@ -37,7 +37,7 @@
   <meta name="twitter:image" content="https://flutterguard.dev/og-flutter-security.png">
   <meta name="twitter:image:alt" content="Guide cover: Flutter security, what a release APK exposes, beside the FlutterGuard app.">
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"TechArticle","headline":"Flutter security: what a release APK exposes","description":"A practical checklist for auditing a released Flutter app on Android: manifest policy, endpoints, exposed strings, dependencies and signing.","url":"https://flutterguard.dev/flutter-security/","mainEntityOfPage":"https://flutterguard.dev/flutter-security/","datePublished":"2026-11-02","dateModified":"2026-11-02","inLanguage":"en","image":"https://flutterguard.dev/og-flutter-security.png","author":{"@type":"Person","name":"Anas Fikhi","url":"https://gwhyyy.com"},"publisher":{"@type":"Organization","name":"FlutterGuard","url":"https://flutterguard.dev/","logo":{"@type":"ImageObject","url":"https://flutterguard.dev/icon-512.png"}},"about":{"@type":"SoftwareApplication","name":"FlutterGuard","url":"https://flutterguard.dev/","applicationCategory":"SecurityApplication","operatingSystem":"Android 8.0+"}}
+  {"@context":"https://schema.org","@type":"TechArticle","headline":"Flutter security: what a release APK exposes","description":"A practical checklist for auditing a released Flutter app on Android: manifest policy, endpoints, exposed strings, dependencies and signing.","url":"https://flutterguard.dev/flutter-security/","mainEntityOfPage":"https://flutterguard.dev/flutter-security/","datePublished":"2026-11-02","dateModified":"2026-11-02","inLanguage":"en","image":"https://flutterguard.dev/og-flutter-security.png","author":{"@type":"Person","name":"Anas Fikhi","url":"https://gwhyyy.com"},"publisher":{"@type":"Organization","name":"FlutterGuard","url":"https://flutterguard.dev/","logo":{"@type":"ImageObject","url":"https://flutterguard.dev/icon-512.png"}},"about":{"@type":"SoftwareApplication","name":"FlutterGuard","url":"https://flutterguard.dev/","applicationCategory":"SecurityApplication","operatingSystem":"Android 8.0+; source-built CLI requires JDK 17+"}}
   </script>
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"FlutterGuard","item":"https://flutterguard.dev/"},{"@type":"ListItem","position":2,"name":"Flutter security","item":"https://flutterguard.dev/flutter-security/"}]}
@@ -140,7 +140,7 @@
           <li>Verify the high-impact items against your own backend or a test environment. Drop anything you cannot substantiate.</li>
           <li>Keep the report with the release version and certificate so the next audit has a baseline.</li>
         </ol>
-        <p>On a phone, <a href="/flutter-apk-inspection/">FlutterGuard reads the package in place</a> and keeps the report local. On a workstation, <a href="/mobsf-alternative/">MobSF</a>, <code>apktool</code>, <code>jadx</code> and <code>strings</code> cover the same artifact with more setup. The tool matters less than reading the layers in the right order.</p>
+        <p>On a phone, <a href="/flutter-apk-inspection/">FlutterGuard reads the package in place</a> and keeps the report local. On a workstation, the <a href="/cli/">source-built CLI</a> runs the same engine and writes redacted JSON or SARIF, while <a href="/mobsf-alternative/">MobSF</a>, <code>apktool</code>, <code>jadx</code> and <code>strings</code> cover the same artifact with more setup. The tool matters less than reading the layers in the right order.</p>
 
         <h2>Questions people ask</h2>
         <div class="faq-list">
@@ -156,6 +156,7 @@
           <p>FlutterGuard is an open-source Android app. It reads the manifest, compiled library and assets, then saves a local report. No account, no upload, no INTERNET permission.</p>
           <a class="button" href="https://play.google.com/store/apps/details?id=com.flutterguard.app" target="_blank" rel="noopener noreferrer">Get it on Google Play<span class="sr-only"> (opens in a new tab)</span></a>
           <a class="quiet" href="https://github.com/anasfik/FlutterGuard/releases/latest" target="_blank" rel="noopener noreferrer">Download the APK<span class="sr-only"> (opens in a new tab)</span></a>
+          <a class="quiet" href="/cli/">Build the CLI</a>
           <a class="quiet" href="https://github.com/anasfik/FlutterGuard" target="_blank" rel="noopener noreferrer">Source on GitHub<span class="sr-only"> (opens in a new tab)</span></a>
         </div>
 
@@ -165,7 +166,8 @@
             <li><a href="/flutter-apk-inspection/">Flutter APK inspection: reading a release on Android</a></li>
             <li><a href="/proguard-flutter/">ProGuard for Flutter: what R8 and obfuscation hide</a></li>
             <li><a href="/mobsf-alternative/">MobSF alternative for auditing Flutter APKs</a></li>
-            <li><a href="/">FlutterGuard: on-device Flutter APK inspection</a></li>
+            <li><a href="/cli/">FlutterGuard CLI: scan Flutter APKs in CI</a></li>
+            <li><a href="/">FlutterGuard: what ships in your Flutter app</a></li>
             <li><a href="/flutter-security-checklist/">Flutter release security audit checklist</a></li>
             <li><a href="/flutter-release-corpus/">What 26 public release APKs exposed</a></li>
             <li><a href="/changelog/">Release notes</a></li>

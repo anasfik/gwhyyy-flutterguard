@@ -29,15 +29,15 @@
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="FlutterGuard app preview inside a phone frame beside the line: Security audit any released Flutter app.">
   <meta property="og:locale" content="en_US">
-  <meta property="article:published_time" content="2026-11-18">
-  <meta property="article:modified_time" content="2026-11-18">
+  <meta property="article:published_time" content="2026-11-19">
+  <meta property="article:modified_time" content="2026-11-19">
   <meta property="article:author" content="Anas Fikhi">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="FlutterGuard changelog">
   <meta name="twitter:description" content="Dated release notes, including the build Google Play currently serves.">
   <meta name="twitter:image" content="https://flutterguard.dev/og-image.png">
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"TechArticle","headline":"FlutterGuard changelog","description":"Dated release notes for FlutterGuard: scanning changes, build and signing updates, and which version Google Play currently carries.","url":"https://flutterguard.dev/changelog/","mainEntityOfPage":"https://flutterguard.dev/changelog/","datePublished":"2026-11-18","dateModified":"2026-11-18","inLanguage":"en","image":"https://flutterguard.dev/og-image.png","author":{"@type":"Person","name":"Anas Fikhi","url":"https://gwhyyy.com"},"publisher":{"@type":"Organization","name":"FlutterGuard","url":"https://flutterguard.dev/","logo":{"@type":"ImageObject","url":"https://flutterguard.dev/icon-512.png"}},"about":{"@type":"SoftwareApplication","name":"FlutterGuard","url":"https://flutterguard.dev/","applicationCategory":"SecurityApplication","operatingSystem":"Android 8.0+"}}
+  {"@context":"https://schema.org","@type":"TechArticle","headline":"FlutterGuard changelog","description":"Dated release notes for FlutterGuard: scanning changes, build and signing updates, and which version Google Play currently carries.","url":"https://flutterguard.dev/changelog/","mainEntityOfPage":"https://flutterguard.dev/changelog/","datePublished":"2026-11-18","dateModified":"2026-11-19","inLanguage":"en","image":"https://flutterguard.dev/og-image.png","author":{"@type":"Person","name":"Anas Fikhi","url":"https://gwhyyy.com"},"publisher":{"@type":"Organization","name":"FlutterGuard","url":"https://flutterguard.dev/","logo":{"@type":"ImageObject","url":"https://flutterguard.dev/icon-512.png"}},"about":{"@type":"SoftwareApplication","name":"FlutterGuard","url":"https://flutterguard.dev/","applicationCategory":"SecurityApplication","operatingSystem":"Android 8.0+"}}
   </script>
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"FlutterGuard","item":"https://flutterguard.dev/"},{"@type":"ListItem","position":2,"name":"Changelog","item":"https://flutterguard.dev/changelog/"}]}
@@ -64,11 +64,21 @@
         <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">FlutterGuard</a><span aria-hidden="true">/</span><span aria-current="page">Changelog</span></nav>
         <h1>FlutterGuard changelog</h1>
         <p class="article-lead">Release notes in the order they shipped. The install section on the homepage states which build Google Play carries.</p>
-        <p class="article-meta">Updated <time datetime="2026-11-18">18 November 2026</time> · <a href="/feed.xml">Atom feed</a></p>
+        <p class="article-meta">Updated <time datetime="2026-11-19">19 November 2026</time> · <a href="/feed.xml">Atom feed</a></p>
       </header>
 
       <div class="article-body container">
-        <div class="article-note"><p><strong>Two install channels.</strong> Google Play carries 0.3.2. GitHub carries 0.3.4. The 0.3.4 build uses a new signing key, so a GitHub install over 0.3.3 requires an uninstall first. Play installs update normally.</p></div>
+        <div class="article-note"><p><strong>Two install channels.</strong> Google Play carries 0.3.2. GitHub carries 0.4.0, which adds confidence classes, release diffing and the CLI, and is not on Play yet. The 0.3.4 build changed the signing key, so a GitHub install over 0.3.3 requires an uninstall first. Play installs update normally.</p></div>
+
+        <h2 id="v0-4-0">0.4.0 — 19 November 2026</h2>
+        <p>The detection release. Findings are sorted by how much they actually prove, two releases can be compared, and the same engine runs outside Android.</p>
+        <ul>
+          <li>Confirmed artifact facts, leads worth checking and inventory are separated; the grade counts confirmed facts only.</li>
+          <li>Release-to-release comparison of permissions, endpoints, SDKs, native libraries, signing certificates, network policy and findings.</li>
+          <li>Dart snapshot metadata read from the compiled library when the format is recognised, and left unknown when it is not.</li>
+          <li>JVM CLI with JSON and SARIF output and a confirmed-only gate for CI.</li>
+          <li>388 unit tests across 53 suites; no INTERNET permission; versionCode 10.</li>
+        </ul>
 
         <h2 id="v0-3-4">0.3.4 — 2 November 2026</h2>
         <p>The brand pass. The app adopts the site's colour and type tokens, ruled rows and the current icon. Scanning behaviour is unchanged from 0.3.3.</p>

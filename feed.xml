@@ -5,11 +5,18 @@
   <link href="https://flutterguard.dev/feed.xml" rel="self" type="application/atom+xml"/>
   <link href="https://flutterguard.dev/changelog/" rel="alternate" type="text/html"/>
   <id>https://flutterguard.dev/changelog/</id>
-  <updated>2026-11-02T00:00:00Z</updated>
+  <updated>2026-11-19T00:00:00Z</updated>
   <author>
     <name>Anas Fikhi</name>
     <uri>https://gwhyyy.com</uri>
   </author>
+  <entry>
+    <title>0.4.0 — detection release</title>
+    <link href="https://flutterguard.dev/changelog/#v0-4-0" rel="alternate" type="text/html"/>
+    <id>https://flutterguard.dev/changelog/#v0-4-0</id>
+    <updated>2026-11-19T00:00:00Z</updated>
+    <summary>Findings split into confirmed artifact facts, leads and inventory; release-to-release diffing; Dart snapshot metadata; JVM CLI with SARIF. 388 tests, no INTERNET permission, versionCode 10.</summary>
+  </entry>
   <entry>
     <title>0.3.4 — brand pass</title>
     <link href="https://flutterguard.dev/changelog/#v0-3-4" rel="alternate" type="text/html"/>

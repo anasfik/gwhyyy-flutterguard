@@ -4,7 +4,17 @@ Canonical: https://flutterguard.dev/changelog/
 
 Release notes in the order they shipped. Atom feed: https://flutterguard.dev/feed.xml
 
-Two install channels: Google Play carries 0.3.2; GitHub carries 0.3.4. The 0.3.4 build uses a new signing key, so a GitHub install over 0.3.3 requires an uninstall first. Play installs update normally.
+Two install channels: Google Play carries 0.3.2; GitHub carries 0.4.0. The 0.4.0 release adds confidence classes, release diffing and the CLI, and it is not on Play yet. The 0.3.4 build changed the signing key, so a GitHub install over 0.3.3 requires an uninstall first. Play installs update normally.
+
+## 0.4.0 — 19 November 2026
+
+The detection release. Findings are now sorted by how much they actually prove, two releases can be compared, and the same engine runs outside Android.
+
+- Confirmed artifact facts, leads worth checking and plain inventory are separated; the grade counts confirmed facts only.
+- Release-to-release comparison of permissions, endpoints, SDKs, native libraries, signing certificates, network policy and findings.
+- Dart snapshot metadata (kind, build features, serialization hash) read from the compiled library when the format is recognised.
+- JVM CLI with JSON and SARIF output and a confirmed-only gate for CI.
+- 388 unit tests across 53 suites; no INTERNET permission; versionCode 10.
 
 ## 0.3.4 — 2 November 2026
 

@@ -4,7 +4,7 @@ Canonical: https://flutterguard.dev/changelog/
 
 Release notes in the order they shipped. Atom feed: https://flutterguard.dev/feed.xml
 
-Two install channels: Google Play carries 0.3.2; GitHub carries 0.4.0. The 0.4.0 release adds confidence classes, release diffing and the CLI, and it is not on Play yet. The 0.3.4 build changed the signing key, so a GitHub install over 0.3.3 requires an uninstall first. Play installs update normally.
+Two install channels: Google Play carries 0.3.2; GitHub carries 0.4.0. The 0.4.0 release adds confidence classes, release diffing and the CLI, and it is not verified on Play. The 0.3.4 build changed the signing key, so a GitHub install over 0.3.3 requires an uninstall first. Play installs update normally.
 
 ## 0.4.0 — 19 November 2026
 

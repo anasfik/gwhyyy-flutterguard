@@ -24,7 +24,7 @@ FlutterGuard is built and maintained by Anas Fikhi (https://gwhyyy.com). The sou
 
 ## Status
 
-Install from Google Play or GitHub releases, and check the version you get: the verified GitHub release is 0.4.0, while the last observed public Play version is 0.3.2. Beta 0.4.0 availability on Play is not verified. Play and GitHub use separate signing channels, and GitHub builds before 0.3.4 used an older key; moving from one of those builds to 0.4.0 requires uninstalling, which deletes local reports, history and settings. Exporting a report does not restore that history. The CLI is built from source with JDK 17 or newer: https://flutterguard.dev/cli/ The website is static, stores no accounts and uses cookieless analytics; see https://flutterguard.dev/privacy/
+Install from Google Play or GitHub releases, and check the version you get: the verified GitHub release is 0.4.0, while the last observed public Play version is 0.3.2. Beta 0.4.0 availability on Play is not verified. Play and GitHub use separate signing channels, and GitHub builds before 0.3.4 used an older key; moving from one of those builds to 0.4.0 requires uninstalling, which deletes local reports, history and settings. Exporting a report does not restore that history. The CLI is built from source with JDK 17 or newer: https://flutterguard.dev/cli/ The website is static, stores no accounts and uses aggregate analytics without session recording; see https://flutterguard.dev/privacy/
 
 ## Related
 

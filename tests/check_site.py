@@ -6,12 +6,13 @@ The flag is only for the plain Python preview; default checks shipped headers.
 Requires the already-installed Playwright and /usr/bin/chromium.
 """
 import json
+import os
 import re
 import struct
 import sys
 from pathlib import Path
 from time import monotonic
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 from xml.etree import ElementTree as ET
 
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError, sync_playwright
@@ -46,6 +47,20 @@ def wait_until(page, predicate, timeout=10):
     return False
 
 
+def check_code_blocks(page, path, check):
+    nav = page.locator('header a[href$="#get-started"]')
+    check(f"{path} navigation names App & CLI", nav.count() == 1 and nav.inner_text() == "App & CLI")
+    for i, block in enumerate(page.locator("pre").all()):
+        language = block.get_attribute("data-language")
+        check(f"{path} code block {i} is highlighted and labelled",
+              language in ("shell", "kotlin") and bool(block.get_attribute("data-title"))
+              and block.locator("code .syntax-token").count() > 0)
+        check(f"{path} code block {i} has the right presentation",
+              ("terminal" in (block.get_attribute("class") or "").split()) == (language == "shell")
+              and block.evaluate("e => getComputedStyle(e).backgroundColor")
+              == page.evaluate("() => getComputedStyle(document.querySelector('.skip-link')).backgroundColor"))
+
+
 def main(args):
     preview = "--allow-default-404" in args
     args = [a for a in args if a != "--allow-default-404"]
@@ -63,24 +78,34 @@ def main(args):
         print(f"{'PASS' if ok else 'FAIL'} {name}" + (f": {detail}" if detail else ""))
 
     with sync_playwright() as pw:
-        browser = pw.chromium.launch(executable_path="/usr/bin/chromium")
+        browser = pw.chromium.launch(executable_path=os.environ.get("CHROMIUM", "/usr/bin/chromium"))
         context = browser.new_context(viewport={"width": 1440, "height": 900})
+        context.add_init_script("""(() => {
+            window.mediaPlayAttempts = [];
+            const play = HTMLMediaElement.prototype.play;
+            HTMLMediaElement.prototype.play = function (...args) {
+                const r = this.getBoundingClientRect();
+                window.mediaPlayAttempts.push({top:r.top, bottom:r.bottom});
+                return play.apply(this, args);
+            };
+        })();""")
         page = context.new_page()
         errors, failed, foreign = [], [], []
         page.on("pageerror", lambda e: errors.append(str(e)))
         page.on("console", lambda m: errors.append(f"{m.text} @ {m.location['url']}") if m.type == "error" else None)
-        page.on("requestfailed", lambda r: failed.append(r.url))
-        allowed_origins = {urlparse(base).netloc, "static.cloudflareinsights.com", "cloudflareinsights.com"}
+        page.on("requestfailed", lambda r: failed.append(r.url) if not (r.url.endswith(".mp4") and (r.failure or "") == "net::ERR_ABORTED") else None)
+        allowed_origins = {urlparse(base).netloc, "static.cloudflareinsights.com", "cloudflareinsights.com", "us-assets.i.posthog.com", "us.i.posthog.com"}
         page.on("request", lambda r: foreign.append(r.url) if urlparse(r.url).netloc not in allowed_origins else None)
         response = page.goto(base, wait_until="load")
         page.evaluate("document.fonts.ready")
         check("homepage 200", response.status == 200)
+        check_code_blocks(page, "/", check)
         check("one accurate H1", page.locator("h1").all_text_contents() == ["See what ships in your Flutter app."])
         get_cta = page.locator('.hero a.get-cta[href="#get-started"]')
         check("hero offers Android and terminal entry paths",
               get_cta.count() == 1 and page.locator('.hero-actions a[href="#cli"]').count() == 1)
         check("Android has Play and current GitHub install paths",
-              page.locator(f'#get-started a.play-cta[href="{PLAY}"]').count() == 1
+              page.locator(f'#get-started a.store-badge[href="{PLAY}"]').count() == 1
               and page.locator(f'#get-started a[href="{SOURCE}/releases/latest"]').count() == 1)
         check("source-built CLI and engine have clear destinations",
               page.locator('#cli a[href="/cli/"]').count() >= 1
@@ -110,6 +135,30 @@ def main(args):
         video = page.locator("video")
         check("one genuine same-origin demo", video.count() == 1 and video.locator("source").count() == 1 and video.locator("source").get_attribute("src") == "/assets/app/demo.mp4")
         check("video has native controls, inline playback and a poster", all(video.get_attribute(a) is not None for a in ("controls", "muted", "playsinline", "loop")) and video.get_attribute("poster") == "/assets/app/demo-poster.webp")
+        check("demo defers playback until scrolled into view", video.get_attribute("autoplay") is None and video.evaluate("v=>v.paused"))
+        check("offscreen demo never attempts startup playback", page.evaluate("mediaPlayAttempts.length === 0"))
+        video.scroll_into_view_if_needed()
+        check("visible demo starts automatically", wait_until(page, "!document.querySelector('video').paused"))
+        page.evaluate("scrollTo(0,0)")
+        check("offscreen demo pauses", wait_until(page, "document.querySelector('video').paused"))
+        attempts = page.evaluate("mediaPlayAttempts.length")
+        page.locator("#pause-motion").evaluate("e => {e.checked=true;e.dispatchEvent(new Event('change'))}")
+        page.locator("#pause-motion").evaluate("e => {e.checked=false;e.dispatchEvent(new Event('change'))}")
+        check("unpausing offscreen does not attempt playback", page.evaluate("mediaPlayAttempts.length") == attempts)
+        # A partial intersection must not satisfy the 40% playback threshold.
+        page.evaluate("""() => {
+            const v=document.querySelector('video'), r=v.getBoundingClientRect();
+            scrollTo(0, scrollY+r.top-innerHeight+r.height*.2);
+        }""")
+        page.wait_for_function("() => Math.min(document.querySelector('video').getBoundingClientRect().bottom,innerHeight)-Math.max(document.querySelector('video').getBoundingClientRect().top,0) > 0")
+        check("20% visible demo stays paused", wait_until(page, "document.querySelector('video').paused"))
+        video.scroll_into_view_if_needed()
+        page.emulate_media(reduced_motion="reduce")
+        check("changing motion preference pauses a visible demo", wait_until(page, "document.querySelector('video').paused"))
+        page.evaluate("scrollTo(0,0)")
+        video.scroll_into_view_if_needed()
+        check("reentering view respects current reduced motion", wait_until(page, "document.querySelector('video').paused"))
+        page.emulate_media(reduced_motion="no-preference")
         page.evaluate("async () => {const v=document.querySelector('video'); v.muted=true; await v.play()}")
         first = video.evaluate("v=>v.currentTime")
         advances = wait_until(page, f"document.querySelector('video').currentTime > {first} + .7")
@@ -219,6 +268,7 @@ def main(args):
 
         for gpath, gtitle in GUIDES.items():
             gr = page.goto(base + gpath, wait_until="load")
+            check_code_blocks(page, gpath, check)
             page.evaluate("document.fonts.ready")
             check(f"guide {gpath} 200", gr.status == 200)
             check(f"guide {gpath} title", page.title() == gtitle and len(gtitle) <= 60)
@@ -239,7 +289,7 @@ def main(args):
             links = page.evaluate("() => [...document.querySelectorAll('main a[href]')].map(a=>a.getAttribute('href'))")
             check(f"guide {gpath} links into the cluster", all(p in links for p in GUIDES if p != gpath) and "/" in links)
             check(f"guide {gpath} external links are safely new-tab", page.evaluate("() => [...document.querySelectorAll('a[href^=\"https://\"]')].every(a=>a.target==='_blank' && a.relList.contains('noopener') && a.relList.contains('noreferrer'))"))
-            for width in (390, 1280):
+            for width in (320, 390, 768, 1280):
                 page.set_viewport_size({"width": width, "height": 900})
                 check(f"guide {gpath} no overflow {width}", page.evaluate("document.documentElement.scrollWidth <= innerWidth + 1"))
             page.set_viewport_size({"width": 1280, "height": 900})
@@ -266,6 +316,7 @@ def main(args):
 
         for ppath, ptitle in PAGES.items():
             pr = page.goto(base + ppath, wait_until="load")
+            check_code_blocks(page, ppath, check)
             page.evaluate("document.fonts.ready")
             check(f"page {ppath} 200", pr.status == 200)
             check(f"page {ppath} title", page.title() == ptitle and len(ptitle) <= 60)
@@ -281,6 +332,9 @@ def main(args):
             check(f"page {ppath} body is substantive", len(page.locator("main").inner_text()) > 500)
             check(f"page {ppath} links home", page.locator('main a[href="/"]').count() >= 1 or page.locator('header a[href="/"]').count() == 1)
             check(f"page {ppath} external links are safely new-tab", page.evaluate("() => [...document.querySelectorAll('a[href^=\"https://\"]')].every(a=>a.target==='_blank' && a.relList.contains('noopener') && a.relList.contains('noreferrer'))"))
+            for width in (320, 390, 768, 1280):
+                page.set_viewport_size({"width": width, "height": 900})
+                check(f"page {ppath} no overflow {width}", page.evaluate("document.documentElement.scrollWidth <= innerWidth + 1"))
             if ppath in ("/cli/", "/about/"):
                 check(f"{ppath} distinguishes artifact facts from leads",
                       "artifact fact" in page.locator("main").inner_text().lower())
@@ -315,6 +369,15 @@ def main(args):
 
         page.goto(base, wait_until="load")
 
+        # Exercise the native click listener without opening the external store.
+        play_link = page.locator(f'a[href="{PLAY}"]').first
+        play_link.evaluate("e => e.addEventListener('click', event => event.preventDefault(), {once:true})")
+        with page.expect_response(lambda r: urlparse(r.url).path == "/_c/play" and r.request.method == "POST") as click_response:
+            play_link.click()
+        check("real Play click sends the first-party counter",
+              click_response.value.status == 204 and
+              parse_qs(urlparse(click_response.value.url).query).get("p") == ["/"])
+
         for path in ("/demo", "/demo/", "/demo/index.html", "/missing-page-xyz"):
             r = page.request.get(base + path)
             check(f"removed/missing route {path}", r.status == 404 and (preview or "That page does not exist." in r.text()))
@@ -344,7 +407,7 @@ def main(args):
         check("no-JS content and both workflow paths", np.locator("h1").is_visible()
               and np.locator('.hero a[href="#get-started"]').count() == 1
               and np.locator('#cli a[href="/cli/"]').count() >= 1
-              and np.locator(".play-cta").is_visible() and np.locator("#faq summary").first.is_visible()
+              and np.locator(".store-badge").is_visible() and np.locator("#faq summary").first.is_visible()
               and np.locator("video").is_visible())
         nojs.close()
         broken = browser.new_context(viewport={"width": 390, "height": 844})

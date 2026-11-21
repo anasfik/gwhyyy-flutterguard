@@ -1,7 +1,7 @@
 # FlutterGuard product marketing context
 
-**Document version:** v1  
-**Last updated:** 2026-11-20  
+**Document version:** v2
+**Last updated:** 2026-11-21
 **Basis:** product source at `anasfik/FlutterGuard@1c28d0f`, public distribution checks, and the founder's request to cover Android, the shared engine, and CLI/CI.
 
 ## Product overview
@@ -47,7 +47,7 @@ GitHub's verified 0.4.0 release contains an Android APK. The last observed publi
 
 Play and GitHub have separate signing channels. GitHub builds before 0.3.4 use an older key; uninstalling to change keys deletes local reports, history and settings. Exporting a report is not a history restore.
 
-The app has no accounts or telemetry. This website uses the existing Cloudflare Web Analytics beacon, disclosed in `/privacy/`. Do not apply an app privacy promise to the website.
+The app has no accounts or telemetry. This website uses Cloudflare Web Analytics and PostHog, with session recording and autocapture disabled. PostHog receives page URLs, query parameters and referrers and uses a first-party cookie. A separate first-party Play-click counter records only event name, time and a bounded page category; other hosting and analytics services still process connection data. See `/privacy/`. Do not apply an app privacy promise to the website.
 
 ## Voice and customer language
 
@@ -74,4 +74,5 @@ No controlled marketing experiment has been recorded. Product and copy constrain
 
 ## Changelog
 
+- v2 (2026-11-21) — Updated website analytics and counter privacy facts; kept Android app privacy separate.
 - v1 (2026-11-20) — Initial source-backed positioning for Android, CLI/CI and the shared engine; recorded distribution, confidence and privacy limits.

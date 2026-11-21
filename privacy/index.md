@@ -2,7 +2,7 @@
 
 Canonical: https://flutterguard.dev/privacy/
 
-The Android app cannot send what it can read, and the CLI writes only where you point it. The site collects no accounts and no cookies.
+The Android app cannot send what it can read, and the CLI writes only where you point it. The site collects no accounts.
 
 ## The Android app
 
@@ -16,9 +16,11 @@ The CLI runs locally and reads the APK you pass to it. It writes reports to the 
 
 ## This website
 
-The site is static. It sets no cookies, has no login and no contact form, and stores nothing about a visit on the server. Analytics are provided by Cloudflare Web Analytics, which reports aggregate page views and performance without cookies, without fingerprinting and without cross-site tracking. The beacon records the page path, referrer, country and basic device class in aggregate.
+The site is static, with no login and no contact form. Cloudflare Web Analytics reports aggregate page views and performance without cookies, fingerprinting or cross-site tracking. PostHog uses a first-party cookie to count visits, page views and Google Play clicks. PostHog also receives the page URL, including query parameters, and referrer. Session recording and autocapture are disabled; this project does not use PostHog for advertising or cross-site tracking.
 
-Server logs at the host and at Cloudflare necessarily process IP addresses to deliver the page and defend against abuse. They are retained under those providers' policies, not copied into a separate analytics store by this project.
+A Google Play click also sends a first-party counter request. The container records only the time, event name and a known page category, with unknown paths grouped as “other”. This counter record excludes IP addresses, user agents, referrers, cookies and raw query values. It is separate from PostHog's click event.
+
+The hosting service, Cloudflare and PostHog process connection data, including IP addresses, under their respective policies. The limited counter format does not make those other services anonymous. Cloudflare's analytics beacon reports the page path, referrer, country and basic device class in aggregate.
 
 ## Email and GitHub
 

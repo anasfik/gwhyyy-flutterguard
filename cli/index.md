@@ -15,7 +15,8 @@ git clone https://github.com/anasfik/FlutterGuard.git
 cd FlutterGuard
 echo "sdk.dir=$ANDROID_HOME" > local.properties
 ./gradlew :cli:installDist
-cli/build/install/flutterguard/bin/flutterguard --help
+export PATH="$PWD/cli/build/install/flutterguard/bin:$PATH"
+flutterguard --help
 ```
 
 You need JDK 17 or newer, plus an Android SDK with a platform and build-tools installed and `ANDROID_HOME` pointing at it. The repository build also configures the Android app module, so without that SDK the build fails during configuration; the SDK setup is described in the project README. The launcher runs the engine, `org.json` and `kotlinx-coroutines-core` from the distribution; the scanning machine does not need the Android SDK.
@@ -34,7 +35,7 @@ Create the output directory and use fresh filenames:
 mkdir -p ci-out
 stamp="$(date -u +%Y%m%dT%H%M%SZ)"
 
-cli/build/install/flutterguard/bin/flutterguard scan app-release.apk \
+flutterguard scan app-release.apk \
   --json "ci-out/report-$stamp.json" \
   --sarif "ci-out/report-$stamp.sarif" \
   --fail-on confirmed

@@ -114,12 +114,13 @@
 
         <h2>Doing it on a desktop</h2>
         <p>For a Flutter-aware pass, build the <a href="/cli/">FlutterGuard CLI from source</a> and scan the APK to redacted JSON or SARIF. When you want the individual commands, run them in a directory that contains only the APK you are authorised to inspect.</p>
-        <pre class="code-panel terminal" data-language="shell" data-title="Terminal · Bash" tabindex="0"><code><span class="syntax-token command">unzip</span> <span class="syntax-token flag">-l</span> app-release.apk
+        <pre class="code-panel terminal" data-language="shell" data-title="Terminal · Bash" tabindex="0"><code><span class="prompt" aria-hidden="true">$ </span><span class="syntax-token command">unzip</span> <span class="syntax-token flag">-l</span> app-release.apk
 
 <span class="syntax-token command">apktool</span> d app-release.apk <span class="syntax-token flag">-o</span> decoded
 
 <span class="syntax-token command">strings</span> lib/arm64-v8a/libapp.so \
-  | <span class="syntax-token command">grep</span> <span class="syntax-token flag">-Ei</span> <span class="syntax-token string">'https?://|api[_-]?key|token|secret'</span> | <span class="syntax-token command">head</span> <span class="syntax-token flag">-50</span></code></pre>
+  | <span class="syntax-token command">grep</span> <span class="syntax-token flag">-Ei</span> <span class="syntax-token string">'https?://|api[_-]?key|token|secret'</span> | <span class="syntax-token command">head</span> <span class="syntax-token flag">-50</span>
+<span class="sample-result">sample result: &lt;your output here&gt;</span></code></pre>
         <p>The manifest is binary XML. <code>apktool</code>, <code>aapt2 dump</code> or <code>apkanalyzer</code> will decode it; plain <code>cat</code> will not. A <a href="/mobsf-alternative/">desktop scanner like MobSF</a> wraps these steps and adds scoring, but its generic rules produce false positives on Flutter apps because it cannot see Dart source. Use scores as a queue, not a conclusion.</p>
 
         <h2>Triage without false alarms</h2>

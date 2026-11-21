@@ -77,25 +77,29 @@
 
         <h2>Build it from source</h2>
         <p>There is no published CLI download and no Maven or JitPack dependency to add. Build the launcher from the repository at the tag or commit you intend to run:</p>
-        <pre class="code-panel terminal" data-language="shell" data-title="Terminal · Bash" tabindex="0"><code><span class="syntax-token command">git</span> clone https://github.com/anasfik/FlutterGuard.git
+        <pre class="code-panel terminal" data-language="shell" data-title="Terminal · Bash" tabindex="0"><code><span class="prompt" aria-hidden="true">$ </span><span class="syntax-token command">git</span> clone https://github.com/anasfik/FlutterGuard.git
 <span class="syntax-token command">cd</span> FlutterGuard
 <span class="syntax-token command">echo</span> <span class="syntax-token string">"sdk.dir=$ANDROID_HOME"</span> &gt; local.properties
 <span class="syntax-token command">./gradlew</span> :cli:installDist
-<span class="syntax-token command">cli/build/install/flutterguard/bin/flutterguard</span> <span class="syntax-token flag">--help</span></code></pre>
+<span class="syntax-token command">export</span> PATH=<span class="syntax-token string">"$PWD/cli/build/install/flutterguard/bin:$PATH"</span>
+<span class="syntax-token command">flutterguard</span> <span class="syntax-token flag">--help</span>
+<span class="sample-result">sample result: &lt;your output here&gt;</span></code></pre>
         <p>You need JDK 17 or newer, plus an Android SDK with a platform and build-tools installed and <code>ANDROID_HOME</code> pointing at it. The repository build also configures the Android app module, so without that SDK the build fails during configuration; the SDK setup is described in the project <a href="https://github.com/anasfik/FlutterGuard#built-for-developers" target="_blank" rel="noopener noreferrer">README<span class="sr-only"> (opens in a new tab)</span></a>. The resulting launcher runs the engine, <code>org.json</code> and <code>kotlinx-coroutines-core</code> from the distribution; the scanning machine does not need the Android SDK.</p>
         <p><code>--help</code> prints the usage line and exits 2. That is the argument-error convention, not a failed build.</p>
 
         <h2>Scan one APK</h2>
         <p>The contract is one input APK and explicit output paths:</p>
-        <pre class="code-panel terminal" data-language="shell" data-title="CLI usage · optional arguments in brackets" tabindex="0"><code><span class="syntax-token command">flutterguard</span> scan INPUT.apk <span class="syntax-token flag">--json</span> OUTPUT.json [<span class="syntax-token flag">--sarif</span> OUTPUT.sarif] [<span class="syntax-token flag">--fail-on</span> confirmed]</code></pre>
+        <pre class="code-panel terminal" data-language="shell" data-title="CLI usage · optional arguments in brackets" tabindex="0"><code><span class="prompt" aria-hidden="true">$ </span><span class="syntax-token command">flutterguard</span> scan INPUT.apk <span class="syntax-token flag">--json</span> OUTPUT.json [<span class="syntax-token flag">--sarif</span> OUTPUT.sarif] [<span class="syntax-token flag">--fail-on</span> confirmed]
+<span class="sample-result">sample result: &lt;your output here&gt;</span></code></pre>
         <p>A runnable example creates its output directory and uses fresh filenames. The parent directory must exist, and neither destination may already exist: the CLI refuses to overwrite a file and exits 2 instead.</p>
-        <pre class="code-panel terminal" data-language="shell" data-title="Terminal · Bash" tabindex="0"><code><span class="syntax-token command">mkdir</span> <span class="syntax-token flag">-p</span> ci-out
+        <pre class="code-panel terminal" data-language="shell" data-title="Terminal · Bash" tabindex="0"><code><span class="prompt" aria-hidden="true">$ </span><span class="syntax-token command">mkdir</span> <span class="syntax-token flag">-p</span> ci-out
 stamp=<span class="syntax-token string">"$(date -u +%Y%m%dT%H%M%SZ)"</span>
 
-<span class="syntax-token command">cli/build/install/flutterguard/bin/flutterguard</span> scan app-release.apk \
+<span class="syntax-token command">flutterguard</span> scan app-release.apk \
   <span class="syntax-token flag">--json</span> <span class="syntax-token string">"ci-out/report-$stamp.json"</span> \
   <span class="syntax-token flag">--sarif</span> <span class="syntax-token string">"ci-out/report-$stamp.sarif"</span> \
-  <span class="syntax-token flag">--fail-on</span> confirmed</code></pre>
+  <span class="syntax-token flag">--fail-on</span> confirmed
+<span class="sample-result">sample result: &lt;your output here&gt;</span></code></pre>
         <p>The timestamp keeps each run's names new. If you prefer fixed names, delete the previous files or write to a fresh directory first; the same paths cannot be reused in place. Output is staged as sibling temporary files, flushed, then published with atomic moves. A destination that appears during the scan is refused rather than replaced, and a failed publication rolls back what was already written.</p>
 
         <h2>What the reports contain</h2>

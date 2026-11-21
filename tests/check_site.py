@@ -59,6 +59,12 @@ def check_code_blocks(page, path, check):
               ("terminal" in (block.get_attribute("class") or "").split()) == (language == "shell")
               and block.evaluate("e => getComputedStyle(e).backgroundColor")
               == page.evaluate("() => getComputedStyle(document.querySelector('.skip-link')).backgroundColor"))
+        if language == "shell":
+            check(f"{path} code block {i} shows a prompt and a labelled sample result",
+                  block.locator("code .prompt").count() > 0
+                  and block.locator("code .sample-result").count() > 0)
+        check(f"{path} code block {i} uses the short command name",
+              "cli/build/install/flutterguard/bin/flutterguard" not in block.inner_text())
 
 
 def main(args):
@@ -348,8 +354,9 @@ def main(args):
                 cli_text = page.locator("main").inner_text()
                 check("CLI guide exposes the real source-build contract",
                       all(s in cli_text for s in ("JDK 17", "./gradlew :cli:installDist",
-                          "cli/build/install/flutterguard/bin/flutterguard", "--json", "--sarif", "--fail-on confirmed",
-                          "Android SDK", "ANDROID_HOME")))
+                          "flutterguard", "--json", "--sarif", "--fail-on confirmed",
+                          "Android SDK", "ANDROID_HOME"))
+                      and "cli/build/install/flutterguard/bin/flutterguard" not in cli_text)
                 check("CLI guide explains fresh outputs, gate semantics and limits",
                       all(s in cli_text for s in ("must not already exist", "parent",
                           "Scan completed; the gate was not requested",

@@ -105,9 +105,10 @@
 
         <h2>What Dart obfuscation does</h2>
         <p>Flutter's <code>--obfuscate</code> flag renames Dart symbols in the compiled application. Pair it with <code>--split-debug-info</code> so you keep the symbol file needed to read crash reports:</p>
-        <pre class="code-panel terminal" data-language="shell" data-title="Terminal · Bash" tabindex="0"><code><span class="syntax-token command">flutter</span> build apk <span class="syntax-token flag">--release</span> \
+        <pre class="code-panel terminal" data-language="shell" data-title="Terminal · Bash" tabindex="0"><code><span class="prompt" aria-hidden="true">$ </span><span class="syntax-token command">flutter</span> build apk <span class="syntax-token flag">--release</span> \
   <span class="syntax-token flag">--obfuscate</span> \
-  <span class="syntax-token flag">--split-debug-info</span>=build/symbols</code></pre>
+  <span class="syntax-token flag">--split-debug-info</span>=build/symbols
+<span class="sample-result">sample result: &lt;your output here&gt;</span></code></pre>
         <p>The Flutter documentation is direct about the limits: obfuscation makes symbols harder to read and is not a security measure. String literals are not encrypted. Asset names are not changed. URLs, header names and key-like values can still be recovered from <code>libapp.so</code> with <code>strings</code>.</p>
         <p>Obfuscation also raises the cost of your own debugging. Without the matching symbol file, a release stack trace is a list of short names. Keep the symbols with the release, not in the repository.</p>
 

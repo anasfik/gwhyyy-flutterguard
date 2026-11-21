@@ -36,7 +36,8 @@ No published CLI download, Maven package or JitPack artifact is established. Bui
 git clone https://github.com/anasfik/FlutterGuard.git
 cd FlutterGuard
 ./gradlew :cli:installDist
-cli/build/install/flutterguard/bin/flutterguard scan INPUT.apk --json OUTPUT.json --sarif OUTPUT.sarif --fail-on confirmed
+export PATH="$PWD/cli/build/install/flutterguard/bin:$PATH"
+flutterguard scan INPUT.apk --json OUTPUT.json --sarif OUTPUT.sarif --fail-on confirmed
 ```
 
 - Requires JDK 17 or newer and the repository's existing Android SDK build setup. The launcher runs the engine on a plain JVM; the scanning machine needs no Android device.

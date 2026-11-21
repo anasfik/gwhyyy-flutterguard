@@ -254,6 +254,8 @@ pre.code-panel .command{color:var(--accent)}
 pre.code-panel .flag{color:var(--code-flag)}
 pre.code-panel .string{color:var(--code-string)}
 pre.code-panel .keyword{color:var(--code-keyword)}
+pre.code-panel .prompt{color:var(--base);opacity:.6}
+pre.code-panel .sample-result{display:block;color:var(--base);opacity:.6;font-style:italic}
 pre.terminal::before{background:linear-gradient(90deg,#285f4240,transparent)}
 .article-body table{width:100%;border-collapse:collapse;margin-bottom:var(--s6);font-size:.875rem}
 @media (min-width:640px){.article-body td:first-child{white-space:nowrap}}

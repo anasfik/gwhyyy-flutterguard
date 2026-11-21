@@ -53,7 +53,8 @@ git clone https://github.com/anasfik/FlutterGuard.git
 cd FlutterGuard
 echo "sdk.dir=$ANDROID_HOME" > local.properties
 ./gradlew :cli:installDist
-cli/build/install/flutterguard/bin/flutterguard --help
+export PATH="$PWD/cli/build/install/flutterguard/bin:$PATH"
+flutterguard --help
 ```
 
 - JDK 17 or newer is required.

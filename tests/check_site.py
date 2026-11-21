@@ -120,9 +120,11 @@ def main(args):
               all(s in main_text for s in ("confirmed artifact facts", "leads worth checking", "inventory", "only confirmed")))
         check("comparison and source-build limits are visible",
               page.locator("#compare").count() == 1 and "same app" in main_text
-              and "build from source" in main_text and "0.4.0" in main_text)
+              and "build from source" in main_text and "changelog" in main_text)
         check("existing recording is dated, not passed off as new UI",
-              "recorded before 0.4.0" in main_text)
+              "recorded before the current build" in main_text)
+        check("public copy carries no hard-coded product version",
+              re.search(r"\b0\.\d+\.\d+\b", main_text) is None)
         check("explicit graphics pause control", page.locator('input#pause-motion[type="checkbox"]').count() == 1)
         check("email and issue recovery paths", page.locator('a[href="mailto:work@gwhyyy.com"]').count() >= 1 and page.locator(f'a[href="{SOURCE}/issues"]').count() >= 1)
         body = page.evaluate("() => {const b=document.body.cloneNode(true);b.querySelectorAll('script').forEach(e=>e.remove());return b.textContent.toLowerCase()}")

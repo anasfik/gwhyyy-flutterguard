@@ -1,6 +1,6 @@
 # Publish drafts
 
-Updated: 2026-11-20 for FlutterGuard 0.4.0. None of these drafts was posted in this
+Updated: 2026-11-20 for the current FlutterGuard build. None of these drafts was posted in this
 work. Publish only after approval and live website verification.
 
 ## Published
@@ -12,7 +12,7 @@ work. Publish only after approval and live website verification.
 
 Disclose authorship. Check current community rules. Do not ask for votes or
 describe a static match as a confirmed vulnerability. The existing recording
-predates 0.4.0.
+predates the current build.
 
 ## Hacker News
 
@@ -28,7 +28,7 @@ Body:
 I built FlutterGuard to inspect what ships inside a released Flutter APK:
 libraries, endpoints, readable strings, signing evidence and package policy.
 
-Version 0.4.0 adds a source-built CLI with JSON and optional SARIF output. The
+The current build adds a source-built CLI with JSON and optional SARIF output. The
 Android app and CLI share a pure-JVM engine. Reports separate confirmed artifact
 facts from leads and inventory; only confirmed facts affect the grade. The
 Android app can compare saved scans of the same app across releases.
@@ -49,7 +49,7 @@ format. There is no prebuilt CLI download or published engine package yet.
 Title:
 
 ```text
-FlutterGuard 0.4.0: inspect a release APK on Android or from the terminal
+FlutterGuard: inspect a release APK on Android or from the terminal
 ```
 
 Body:
@@ -61,7 +61,7 @@ APKs.
 The Android app now separates confirmed artifact facts, leads worth checking and
 inventory. It also compares saved scans of the same app across releases.
 
-For build workflows, 0.4.0 includes a source-built CLI using the same JVM engine.
+For build workflows, a source-built CLI uses the same JVM engine.
 It writes redacted JSON and optional SARIF. An optional --fail-on confirmed gate
 returns exit 1 after writing reports when a confirmed artifact fact is present.
 That gate is not a vulnerability verdict.
@@ -78,7 +78,7 @@ What would make the evidence easier to review before your next release?
 ## Short announcement
 
 ```text
-FlutterGuard 0.4.0 inspects Flutter APKs on Android or through a source-built CLI.
+FlutterGuard inspects Flutter APKs on Android or through a source-built CLI.
 The shared JVM engine produces artifact evidence; reports keep confirmed facts
 separate from leads and inventory.
 
@@ -101,4 +101,4 @@ Setup and limits: https://flutterguard.dev/
 7. Explain unsupported AAB/split assembly, runtime validation and CLI comparison.
 
 Use real output from a permitted fixture before adding a walkthrough or numbers.
-Do not reuse historical corpus counts as a measurement of 0.4.0 precision.
+Do not reuse historical corpus counts as a measurement of current precision.

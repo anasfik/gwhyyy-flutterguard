@@ -43,9 +43,9 @@ MobSF is a broader mobile analysis framework with static and dynamic workflows a
 
 ## Distribution and privacy
 
-GitHub's verified 0.4.0 release contains an Android APK. The last observed public Play version is 0.3.2; beta 0.4.0 availability is not verified. Never imply feature parity across these channels.
+GitHub releases contain an Android APK. Google Play is updated separately and its current version is not verified here. Never imply feature parity across these channels.
 
-Play and GitHub have separate signing channels. GitHub builds before 0.3.4 use an older key; uninstalling to change keys deletes local reports, history and settings. Exporting a report is not a history restore.
+Play and GitHub have separate signing channels. Some older GitHub builds use an older key; uninstalling to change keys deletes local reports, history and settings. Exporting a report is not a history restore.
 
 The app has no accounts or telemetry. This website uses Cloudflare Web Analytics and PostHog, with session recording and autocapture disabled. PostHog receives page URLs, query parameters and referrers and uses a first-party cookie. A separate first-party Play-click counter records only event name, time and a bounded page category; other hosting and analytics services still process connection data. See `/privacy/`. Do not apply an app privacy promise to the website.
 
@@ -59,7 +59,7 @@ Avoid “100% secure,” “confirmed vulnerability,” “decompiler,” “liv
 
 - Source documents the scanner, rule catalogue, redaction and limitations.
 - A public release corpus and synthetic benchmark recipe make methods inspectable. They do not establish global precision.
-- Existing Android recordings predate 0.4.0. Label them; do not present them as proof of the new comparison or confidence UI.
+- Existing Android recordings predate the current build. Label them; do not present them as proof of the current comparison or confidence UI.
 - SARIF output exists. Successful GitHub Actions execution and Security-tab ingestion are not verified.
 
 ## Goals and measurement

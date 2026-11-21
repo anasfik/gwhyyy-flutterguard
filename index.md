@@ -12,9 +12,9 @@ FlutterGuard inspects Flutter Android APKs. Use the Android app when the file is
 
 ## Distribution and versions
 
-The verified GitHub release is 0.4.0 and contains the Android APK. The last observed public Play version is 0.3.2; 0.4.0 beta availability on Play is not verified. Features can differ between the channels, so check the version you installed rather than assuming parity.
+GitHub releases contain the Android APK. Google Play is updated separately and its availability is not verified here. Features can differ between the channels, so check the version you installed rather than assuming parity.
 
-Play and GitHub use different signing channels. GitHub builds before 0.3.4 used an older signing key, so moving to 0.4.0 from one requires uninstalling the app. Uninstalling deletes local reports, history and settings, and exporting a report does not restore that history.
+Play and GitHub use different signing channels. Some older GitHub builds used an older signing key, so moving from one may require uninstalling the app. Uninstalling deletes local reports, history and settings, and exporting a report does not restore that history.
 
 ## What it reads
 

@@ -35,7 +35,7 @@ Privacy: https://flutterguard.dev/privacy/
 CLI setup: https://flutterguard.dev/cli/
 Icon: https://flutterguard.dev/icon-512.png
 Gallery: https://flutterguard.dev/og-image.png (replace with device screenshots before Product Hunt)
-Video: https://flutterguard.dev/assets/app/demo.mp4 (recorded before 0.4.0)
+Video: https://flutterguard.dev/assets/app/demo.mp4 (recorded before the current build)
 
 ## Awesome-list PRs (opened 2026-11-02; extended 2026-11-18)
 
@@ -108,8 +108,8 @@ in `launch-kit.md`; submission is a human login step.
 ## Rules for every listing
 
 - Link the site workflow chooser, the GitHub Android release and the CLI guide
-  according to the listing audience. Public Play was last observed at 0.3.2;
-  do not claim it distributes 0.4.0 until verified.
+  according to the listing audience. Google Play is updated separately;
+  do not claim feature parity until verified.
 - Keep the offline and no-INTERNET claims; they are verifiable from the manifest.
 - Do not claim detection rates, coverage counts or "the only" tool.
 - Do not ask for upvotes or cross-post the same text on the same day.

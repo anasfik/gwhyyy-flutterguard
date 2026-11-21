@@ -1,4 +1,4 @@
-# FlutterGuard 0.4.0 launch kit
+# FlutterGuard launch kit
 
 Updated: 2026-11-20. Prepared copy, not permission to publish.
 Product truth: `.agents/product-marketing.md`. Search evidence and delivery gaps:
@@ -40,15 +40,15 @@ The current GitHub release contains the Android APK.
 
 | Claim | Evidence and boundary |
 |---|---|
-| GitHub 0.4.0 | `https://github.com/anasfik/FlutterGuard/releases/tag/v0.4.0`; Android APK |
-| Public Play channel | Last observed 0.3.2 on 2026-11-20; do not announce 0.4.0 as public on Play |
+| GitHub releases | `https://github.com/anasfik/FlutterGuard/releases/latest`; Android APK |
+| Public Play channel | Updated separately; do not announce a version until verified on Play |
 | Local Android scanning | App manifest has no INTERNET permission |
 | CLI contract | Repository `docs/cli.md`; JDK 17+, build from source |
 | Detection method | Repository `docs/METHODOLOGY.md`, corpus and synthetic benchmark |
 | Release comparison | Android feature; there is no CLI compare command |
 
 The benchmark is a scoped synthetic regression check, not a global precision
-score. The existing Android recording predates 0.4.0; it is not visual proof of
+score. The existing Android recording predates the current build; it is not visual proof of
 the new confidence grouping or comparison UI.
 
 ## Channels and sequence
@@ -67,12 +67,12 @@ unless checked again.
 
 ## Announcement
 
-**Headline:** FlutterGuard 0.4.0 brings APK inspection to the terminal
+**Headline:** FlutterGuard brings APK inspection to the terminal
 
 > I built FlutterGuard to see what survives inside a released Flutter APK:
 > bundled libraries, endpoints, readable strings and package policy.
 >
-> Version 0.4.0 adds a source-built CLI with JSON and SARIF output. It uses the
+> The current build adds a source-built CLI with JSON and SARIF output. It uses the
 > same JVM scan engine as the Android app. Reports now separate confirmed
 > artifact facts from leads and inventory; only confirmed facts affect the grade.
 > The Android app also compares saved scans of the same app across releases.

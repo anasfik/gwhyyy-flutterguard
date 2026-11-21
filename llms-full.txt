@@ -35,9 +35,9 @@ Maintainer: Anas Fikhi, Flutter and Software Engineer.
 
 Channel status as last observed:
 
-- The verified GitHub release is 0.4.0 and contains the Android APK.
-- The last observed public Play version is 0.3.2. Beta 0.4.0 availability on Play is not verified. Do not assume feature parity between channels; check the installed version.
-- Play and GitHub use separate signing channels. GitHub builds before 0.3.4 used an older signing key. Moving from one of those builds to 0.4.0 requires uninstalling the app.
+- GitHub releases contain the Android APK and a source-built CLI.
+- Google Play is updated separately; its current version is not verified here. Do not assume feature parity between channels.
+- Play and GitHub use separate signing channels. Some older GitHub builds used an older key. Moving from one of those builds requires uninstalling the app, which deletes local reports, history and settings. Exporting a report does not restore that history.
 - Uninstalling deletes local reports, history and settings. Exporting a report is not a history restore.
 
 The CLI is not distributed as a binary. See the CLI section.

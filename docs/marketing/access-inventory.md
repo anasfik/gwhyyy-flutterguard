@@ -27,12 +27,12 @@ nothing measurable is not on the list.
    export the last 28 days of *Installs* and *Store listing visitors* as CSV and
    drop both into `docs/marketing/`.
 
-2. **Play Console release permission — ship 0.4.0 over 0.3.2.**
-   The hero button on the site installs **0.3.2 (updated 31 Oct)**; GitHub serves
-   **0.4.0**. Every Play install today gets a build without the CLI/JSON/SARIF
-   work the site describes. This is the largest single reach defect and only the
-   owner can clear it. Needs an upload key or Play App Signing access, plus a
-   completed release review.
+2. **Play Console release permission — bring the Play build up to date.**
+   The hero button on the site installs a build that lags the GitHub release, as
+   observed on the Play listing in November 2026. Play installs therefore miss
+   the CLI/JSON/SARIF work the site describes. This is the largest single reach
+   defect and only the owner can clear it. Needs an upload key or Play App
+   Signing access, plus a completed release review.
 
 3. **PostHog project read access** (personal API key, or a screenshot of the
    project home). Unlocks: whether the Play buttons are actually clicked, and
@@ -46,7 +46,7 @@ nothing measurable is not on the list.
 | GitLab account | free | F-Droid submission | Needed only when the app is F-Droid ready; prep is done |
 | Product Hunt maker profile | free | a launch moment | Plan exists, unposted; one-shot, so timing matters more than access |
 | Reddit account | free | r/FlutterDev draft | Owner previously skipped; 2 organic threads already rank and are the top external referrer |
-| Hacker News account | free | Show HN draft | Owner previously skipped; best fit is a 0.4.0 follow-up, not a relaunch |
+| Hacker News account | free | Show HN draft | Owner previously skipped; best fit is a current-build follow-up, not a relaunch |
 | dev.to profile fields | manual, 2 min | author bio and links beside both articles | Forem API cannot edit profile fields |
 | Cloudflare Web Analytics dashboard | already owned | referrers and top paths | No query tool in the MCP; needs a browser session or a Cloudflare GraphQL token |
 | Paid SEO data (DataForSEO, Ahrefs, SE Ranking) | paid | real volumes, rank tracking, AI-citation share | Not required: GSC already supplies real query data for pages that rank |
@@ -65,6 +65,6 @@ nothing measurable is not on the list.
 ## The short version
 
 Two items move the needle: **Play Console read** (so installs are measurable) and
-**Play 0.4.0 release** (so the site's promise matches what installs). Everything
+**Play release update** (so the site's promise matches what installs). Everything
 else is either already held, already shipped, or a channel the owner has
 deliberately skipped.

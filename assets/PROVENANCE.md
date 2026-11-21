@@ -1,7 +1,7 @@
 # Asset provenance
 
 Last updated: 2026-11-20. The app icon, canonical captures and recorded demo
-are genuine app assets. The recording predates 0.4.0 and is labelled that way
+are genuine app assets. The recording predates the current build and is labelled that way
 on the homepage; it does not demonstrate the new confidence or comparison UI.
 
 ## Screenshots
@@ -38,7 +38,7 @@ It shows FlutterGuard's inventory, findings, dependencies and scan queue.
   3,006,187 bytes, no audio, faststart. SHA-256:
   `4ca753f5c19b6852d8a9f1e65c4b1d78954314b90a0a70273152ef87c374b4c6`.
   This is the existing optimized delivery file, reused without modification
-  for the 0.4.0 site rework. The exact optimization command is not recorded.
+  for the current site rework. The exact optimization command is not recorded.
 - `assets/app/demo-poster.webp`: Findings frame at 20 seconds, 360x800,
   30,270 bytes. SHA-256:
   `9b3c0542af6c41d53d900836cf56792d95b5606c816003a2016899b99790859e`.
@@ -75,7 +75,7 @@ re-typing.
   `https://play.google.com/store/apps/details?id=com.flutterguard.app`.
   It uses the inline Google Play glyph from the prior implementation, not a
   modified official badge. The public US listing returned HTTP 200 on
-  2026-11-20 and showed 0.3.2. The GitHub release separately offers 0.4.0.
+  2026-11-20. GitHub releases are updated separately from the Play listing.
 - The Flutter mark is reused from the repository's `flutter.svg` glyph.
   APK layers and workflow connections are explanatory CSS diagrams, not invented
   app screenshots or measured scan results. No endorsement is implied.

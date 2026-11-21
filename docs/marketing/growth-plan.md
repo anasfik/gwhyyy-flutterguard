@@ -7,8 +7,8 @@ budget or a replacement for the separate long-form marketing strategy.
 
 | Surface | State |
 |---|---|
-| Product | Android app, source-built CLI and shared JVM engine, version 0.4.0 |
-| Distribution | GitHub 0.4.0 APK; public Play last observed at 0.3.2 |
+| Product | Android app, source-built CLI and shared JVM engine, the current build |
+| Distribution | GitHub Android APK; Google Play is updated separately |
 | Public content | 12 canonical pages after this rework, including the new `/cli/` guide |
 | Search | GSC page rows: 4 clicks / 180 impressions, 2026-10-21 through 2026-11-17 |
 | Search opportunity | `/proguard-flutter/`: 49 impressions, 0 clicks, average position 15.1 |

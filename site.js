@@ -16,7 +16,10 @@
   const showFallback = () => video.parentElement.classList.add('media-error');
   video.addEventListener('error', showFallback);
   video.querySelector('source')?.addEventListener('error', showFallback);
+  // A fast failure can land before this script runs; NETWORK_NO_SOURCE is the only
+  // state that means "every source already failed", so it cannot fire on a healthy load.
   if (video.error) showFallback();
+  if (video.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) showFallback();
   pause.addEventListener('change', applyPreference);
   reduce.addEventListener('change', applyPreference);
   applyPreference();

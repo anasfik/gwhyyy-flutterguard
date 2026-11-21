@@ -3,6 +3,13 @@
 Updated: 2026-11-20 for FlutterGuard 0.4.0. None of these drafts was posted in this
 work. Publish only after approval and live website verification.
 
+## Published
+
+- dev.to, 2026-11-21: "Reading a Flutter release APK from the terminal"
+  (id 5089969, https://dev.to/flutterguard/reading-a-flutter-release-apk-from-the-terminal-1li9).
+  Source: `docs/marketing/devto-terminal-apk-article.md`. Numbers are from LocalSend
+  1.18.2 arm64; no third-party hostnames or strings reproduced.
+
 Disclose authorship. Check current community rules. Do not ask for votes or
 describe a static match as a confirmed vulnerability. The existing recording
 predates 0.4.0.
